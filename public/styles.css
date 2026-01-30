@@ -83,6 +83,10 @@ body.map-page {
   box-shadow: 0 10px 40px var(--color-shadow);
 }
 
+.card-section {
+  padding: 24px;
+}
+
 .btn {
   background: linear-gradient(135deg, var(--color-primary) 0%, var(--color-primary-light) 100%);
   color: #fff;
