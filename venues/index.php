@@ -30,6 +30,9 @@ $fields = [
 $formValues = array_fill_keys($fields, '');
 $resetForm = false;
 $isFormOpen = false;
+$importPayload = '';
+$showImportModal = false;
+$action = '';
 
 function normalizeOptionalString(string $value): ?string
 {
@@ -60,93 +63,195 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $payload[$field] = trim((string) ($_POST[$field] ?? ''));
     }
 
-    if ($payload['name'] === '' || $payload['state'] === '') {
+    if ($action !== 'import' && ($payload['name'] === '' || $payload['state'] === '')) {
         $errors[] = 'Name and state are required.';
     }
 
-    if ($payload['type'] !== '' && !in_array($payload['type'], $venueTypes, true)) {
-        $errors[] = 'Invalid venue type selected.';
-    }
+    if ($action === 'import') {
+        if (($currentUser['role'] ?? '') !== 'admin') {
+            $errors[] = 'You are not authorized to import venues.';
+        }
 
-    if ($payload['country'] !== '' && !in_array($payload['country'], $countryOptions, true)) {
-        $errors[] = 'Invalid country selected.';
-    }
+        $importPayload = trim((string) ($_POST['import_json'] ?? ''));
+        if ($importPayload === '') {
+            $errors[] = 'Please paste JSON to import.';
+        }
 
-    $latitude = normalizeOptionalNumber($payload['latitude'], 'Latitude', $errors);
-    $longitude = normalizeOptionalNumber($payload['longitude'], 'Longitude', $errors);
-    $capacity = normalizeOptionalNumber($payload['capacity'], 'Capacity', $errors, true);
-
-    if (!$errors && in_array($action, ['create', 'update'], true)) {
-        try {
-            $pdo = getDatabaseConnection();
-
-            $data = [
-                ':name' => $payload['name'],
-                ':address' => normalizeOptionalString($payload['address']),
-                ':postal_code' => normalizeOptionalString($payload['postal_code']),
-                ':city' => normalizeOptionalString($payload['city']),
-                ':state' => $payload['state'],
-                ':country' => normalizeOptionalString($payload['country']),
-                ':latitude' => $latitude,
-                ':longitude' => $longitude,
-                ':type' => normalizeOptionalString($payload['type']),
-                ':contact_email' => normalizeOptionalString($payload['contact_email']),
-                ':contact_phone' => normalizeOptionalString($payload['contact_phone']),
-                ':contact_person' => normalizeOptionalString($payload['contact_person']),
-                ':capacity' => $capacity === null ? null : (int) $capacity,
-                ':website' => normalizeOptionalString($payload['website']),
-                ':notes' => normalizeOptionalString($payload['notes'])
-            ];
-
-            if ($action === 'create') {
-                $stmt = $pdo->prepare(
-                    'INSERT INTO venues
-                    (name, address, postal_code, city, state, country, latitude, longitude, type, contact_email, contact_phone, contact_person, capacity, website, notes)
-                    VALUES
-                    (:name, :address, :postal_code, :city, :state, :country, :latitude, :longitude, :type, :contact_email, :contact_phone, :contact_person, :capacity, :website, :notes)'
-                );
-                $stmt->execute($data);
-                logAction($currentUser['user_id'] ?? null, 'venue_created', sprintf('Created venue %s', $payload['name']));
-                $notice = 'Venue added successfully.';
-                $resetForm = true;
-            }
-
-            if ($action === 'update') {
-                $venueId = (int) ($_POST['venue_id'] ?? 0);
-                if ($venueId <= 0) {
-                    $errors[] = 'Select a venue to update.';
-                } else {
-                    $data[':id'] = $venueId;
+        if (!$errors) {
+            $decoded = json_decode($importPayload, true);
+            if (!is_array($decoded)) {
+                $errors[] = 'Invalid JSON payload.';
+            } else {
+                try {
+                    $pdo = getDatabaseConnection();
                     $stmt = $pdo->prepare(
-                        'UPDATE venues SET
-                        name = :name,
-                        address = :address,
-                        postal_code = :postal_code,
-                        city = :city,
-                        state = :state,
-                        country = :country,
-                        latitude = :latitude,
-                        longitude = :longitude,
-                        type = :type,
-                        contact_email = :contact_email,
-                        contact_phone = :contact_phone,
-                        contact_person = :contact_person,
-                        capacity = :capacity,
-                        website = :website,
-                        notes = :notes
-                        WHERE id = :id'
+                        'INSERT INTO venues
+                        (name, address, postal_code, city, state, country, latitude, longitude, type, contact_email, contact_phone, contact_person, capacity, website, notes)
+                        VALUES
+                        (:name, :address, :postal_code, :city, :state, :country, :latitude, :longitude, :type, :contact_email, :contact_phone, :contact_person, :capacity, :website, :notes)'
                     );
-                    $stmt->execute($data);
-                    logAction($currentUser['user_id'] ?? null, 'venue_updated', sprintf('Updated venue %d', $venueId));
-                    $notice = 'Venue updated successfully.';
-                    $editId = 0;
-                    $editVenue = null;
-                    $resetForm = true;
+
+                    $importedCount = 0;
+                    $rowErrors = [];
+
+                    foreach ($decoded as $index => $entry) {
+                        if (!is_array($entry)) {
+                            $rowErrors[] = sprintf('Row %d is not a valid object.', $index + 1);
+                            continue;
+                        }
+
+                        $name = trim((string) ($entry['name'] ?? ''));
+                        $state = trim((string) ($entry['state'] ?? ''));
+                        if ($name === '' || $state === '') {
+                            $rowErrors[] = sprintf('Row %d: name and state are required.', $index + 1);
+                            continue;
+                        }
+
+                        $country = trim((string) ($entry['country'] ?? ''));
+                        if ($country !== '' && !in_array($country, $countryOptions, true)) {
+                            $rowErrors[] = sprintf('Row %d: invalid country.', $index + 1);
+                            continue;
+                        }
+
+                        $rowLatitudeErrors = [];
+                        $rowLongitudeErrors = [];
+                        $latitude = normalizeOptionalNumber((string) ($entry['latitude'] ?? ''), 'Latitude', $rowLatitudeErrors);
+                        $longitude = normalizeOptionalNumber((string) ($entry['longitude'] ?? ''), 'Longitude', $rowLongitudeErrors);
+
+                        if ($rowLatitudeErrors || $rowLongitudeErrors) {
+                            $rowErrors[] = sprintf('Row %d: invalid coordinates.', $index + 1);
+                            continue;
+                        }
+
+                        $address = normalizeOptionalString((string) ($entry['street'] ?? $entry['address'] ?? ''));
+                        $postalCode = normalizeOptionalString((string) ($entry['postalCode'] ?? $entry['postal_code'] ?? ''));
+                        $city = normalizeOptionalString((string) ($entry['city'] ?? ''));
+                        $website = normalizeOptionalString((string) ($entry['url'] ?? $entry['website'] ?? ''));
+
+                        $stmt->execute([
+                            ':name' => $name,
+                            ':address' => $address,
+                            ':postal_code' => $postalCode,
+                            ':city' => $city,
+                            ':state' => $state,
+                            ':country' => normalizeOptionalString($country),
+                            ':latitude' => $latitude,
+                            ':longitude' => $longitude,
+                            ':type' => normalizeOptionalString((string) ($entry['type'] ?? '')),
+                            ':contact_email' => normalizeOptionalString((string) ($entry['contact_email'] ?? $entry['contactEmail'] ?? '')),
+                            ':contact_phone' => normalizeOptionalString((string) ($entry['contact_phone'] ?? $entry['contactPhone'] ?? '')),
+                            ':contact_person' => normalizeOptionalString((string) ($entry['contact_person'] ?? $entry['contactPerson'] ?? '')),
+                            ':capacity' => isset($entry['capacity']) && $entry['capacity'] !== '' ? (int) $entry['capacity'] : null,
+                            ':website' => $website,
+                            ':notes' => normalizeOptionalString((string) ($entry['notes'] ?? ''))
+                        ]);
+
+                        $importedCount++;
+                    }
+
+                    if ($rowErrors) {
+                        $errors = array_merge($errors, $rowErrors);
+                    }
+
+                    if ($importedCount > 0) {
+                        logAction($currentUser['user_id'] ?? null, 'venue_imported', sprintf('Imported %d venues', $importedCount));
+                        $notice = sprintf('Imported %d venues successfully.', $importedCount);
+                        $importPayload = '';
+                        $resetForm = true;
+                    }
+                } catch (Throwable $error) {
+                    $errors[] = 'Failed to import venues.';
+                    logAction($currentUser['user_id'] ?? null, 'venue_import_error', $error->getMessage());
                 }
             }
-        } catch (Throwable $error) {
-            $errors[] = 'Failed to save venue.';
-            logAction($currentUser['user_id'] ?? null, 'venue_save_error', $error->getMessage());
+        }
+
+        $showImportModal = true;
+    } else {
+        if ($payload['type'] !== '' && !in_array($payload['type'], $venueTypes, true)) {
+            $errors[] = 'Invalid venue type selected.';
+        }
+
+        if ($payload['country'] !== '' && !in_array($payload['country'], $countryOptions, true)) {
+            $errors[] = 'Invalid country selected.';
+        }
+
+        $latitude = normalizeOptionalNumber($payload['latitude'], 'Latitude', $errors);
+        $longitude = normalizeOptionalNumber($payload['longitude'], 'Longitude', $errors);
+        $capacity = normalizeOptionalNumber($payload['capacity'], 'Capacity', $errors, true);
+
+        if (!$errors && in_array($action, ['create', 'update'], true)) {
+            try {
+                $pdo = getDatabaseConnection();
+
+                $data = [
+                    ':name' => $payload['name'],
+                    ':address' => normalizeOptionalString($payload['address']),
+                    ':postal_code' => normalizeOptionalString($payload['postal_code']),
+                    ':city' => normalizeOptionalString($payload['city']),
+                    ':state' => $payload['state'],
+                    ':country' => normalizeOptionalString($payload['country']),
+                    ':latitude' => $latitude,
+                    ':longitude' => $longitude,
+                    ':type' => normalizeOptionalString($payload['type']),
+                    ':contact_email' => normalizeOptionalString($payload['contact_email']),
+                    ':contact_phone' => normalizeOptionalString($payload['contact_phone']),
+                    ':contact_person' => normalizeOptionalString($payload['contact_person']),
+                    ':capacity' => $capacity === null ? null : (int) $capacity,
+                    ':website' => normalizeOptionalString($payload['website']),
+                    ':notes' => normalizeOptionalString($payload['notes'])
+                ];
+
+                if ($action === 'create') {
+                    $stmt = $pdo->prepare(
+                        'INSERT INTO venues
+                        (name, address, postal_code, city, state, country, latitude, longitude, type, contact_email, contact_phone, contact_person, capacity, website, notes)
+                        VALUES
+                        (:name, :address, :postal_code, :city, :state, :country, :latitude, :longitude, :type, :contact_email, :contact_phone, :contact_person, :capacity, :website, :notes)'
+                    );
+                    $stmt->execute($data);
+                    logAction($currentUser['user_id'] ?? null, 'venue_created', sprintf('Created venue %s', $payload['name']));
+                    $notice = 'Venue added successfully.';
+                    $resetForm = true;
+                }
+
+                if ($action === 'update') {
+                    $venueId = (int) ($_POST['venue_id'] ?? 0);
+                    if ($venueId <= 0) {
+                        $errors[] = 'Select a venue to update.';
+                    } else {
+                        $data[':id'] = $venueId;
+                        $stmt = $pdo->prepare(
+                            'UPDATE venues SET
+                            name = :name,
+                            address = :address,
+                            postal_code = :postal_code,
+                            city = :city,
+                            state = :state,
+                            country = :country,
+                            latitude = :latitude,
+                            longitude = :longitude,
+                            type = :type,
+                            contact_email = :contact_email,
+                            contact_phone = :contact_phone,
+                            contact_person = :contact_person,
+                            capacity = :capacity,
+                            website = :website,
+                            notes = :notes
+                            WHERE id = :id'
+                        );
+                        $stmt->execute($data);
+                        logAction($currentUser['user_id'] ?? null, 'venue_updated', sprintf('Updated venue %d', $venueId));
+                        $notice = 'Venue updated successfully.';
+                        $editId = 0;
+                        $editVenue = null;
+                        $resetForm = true;
+                    }
+                }
+            } catch (Throwable $error) {
+                $errors[] = 'Failed to save venue.';
+                logAction($currentUser['user_id'] ?? null, 'venue_save_error', $error->getMessage());
+            }
         }
     }
 
@@ -174,8 +279,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    foreach ($fields as $field) {
-        $formValues[$field] = $payload[$field] ?? $formValues[$field];
+    if ($action !== 'import') {
+        foreach ($fields as $field) {
+            $formValues[$field] = $payload[$field] ?? $formValues[$field];
+        }
     }
 }
 
@@ -206,7 +313,7 @@ if ($editVenue) {
     }
 }
 
-$isFormOpen = $editVenue || (bool) $errors || (bool) $notice;
+$isFormOpen = $editVenue || $action === 'import' || (bool) $errors || (bool) $notice;
 
 try {
     $pdo = getDatabaseConnection();
@@ -291,6 +398,30 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
       color: #fff;
     }
 
+    .accordion-header-right {
+      display: inline-flex;
+      align-items: center;
+      gap: 10px;
+    }
+
+    .accordion-icon-button {
+      width: 32px;
+      height: 32px;
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+      border: 1px solid rgba(255, 255, 255, 0.4);
+      background: rgba(255, 255, 255, 0.1);
+      padding: 4px;
+      cursor: pointer;
+    }
+
+    .accordion-icon-button img {
+      width: 20px;
+      height: 20px;
+    }
+
     .accordion-toggle {
       font-size: 18px;
       line-height: 1;
@@ -299,6 +430,53 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
     .accordion-content {
       margin-top: 16px;
       display: none;
+    }
+
+    .modal-backdrop {
+      position: fixed;
+      inset: 0;
+      background: rgba(0, 0, 0, 0.45);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+      padding: 24px;
+    }
+
+    .modal-backdrop.open {
+      display: flex;
+    }
+
+    .modal-card {
+      background: var(--color-card);
+      border-radius: 12px;
+      padding: 24px;
+      max-width: 640px;
+      width: 100%;
+      box-shadow: 0 12px 40px var(--color-shadow);
+    }
+
+    .modal-card h3 {
+      margin-bottom: 12px;
+      color: var(--color-primary-dark);
+    }
+
+    .modal-card textarea {
+      min-height: 220px;
+      width: 100%;
+    }
+
+    .modal-actions {
+      display: flex;
+      justify-content: flex-end;
+      gap: 12px;
+      margin-top: 16px;
+    }
+
+    .modal-close {
+      background: transparent;
+      border: 1px solid var(--color-border);
+      color: var(--color-text);
     }
 
     .accordion-content.open {
@@ -358,10 +536,33 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
           <div class="error"><?php echo htmlspecialchars($error); ?></div>
         <?php endforeach; ?>
 
+        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+          <div class="modal-backdrop" data-import-modal>
+            <div class="modal-card">
+              <h3>Import Venues (JSON)</h3>
+              <form method="POST" action="">
+                <input type="hidden" name="action" value="import">
+                <textarea class="input" name="import_json" placeholder="Paste JSON here"><?php echo htmlspecialchars($importPayload); ?></textarea>
+                <div class="modal-actions">
+                  <button type="button" class="btn modal-close" data-import-close>Close</button>
+                  <button type="submit" class="btn">Import</button>
+                </div>
+              </form>
+            </div>
+          </div>
+        <?php endif; ?>
+
         <div class="card card-section">
           <button type="button" class="accordion-header" data-accordion-toggle>
             <span><?php echo $editVenue ? 'Edit Venue' : 'Add Venue'; ?></span>
-            <span class="accordion-toggle"><?php echo $isFormOpen ? '−' : '+'; ?></span>
+            <span class="accordion-header-right">
+              <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+                <span class="accordion-icon-button" data-import-toggle aria-label="Import venues" title="Import venues">
+                  <img src="<?php echo BASE_PATH; ?>/public/assets/icon-import.svg" alt="Import venues">
+                </span>
+              <?php endif; ?>
+              <span class="accordion-toggle"><?php echo $isFormOpen ? '−' : '+'; ?></span>
+            </span>
           </button>
           <div class="accordion-content <?php echo $isFormOpen ? 'open' : ''; ?>" data-accordion-content>
             <form method="POST" action="" class="venue-form">
@@ -540,17 +741,45 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
     (function () {
       const toggleButton = document.querySelector('[data-accordion-toggle]');
       const content = document.querySelector('[data-accordion-content]');
-      if (!toggleButton || !content) {
-        return;
+      const importToggle = document.querySelector('[data-import-toggle]');
+      const importModal = document.querySelector('[data-import-modal]');
+      const importClose = document.querySelector('[data-import-close]');
+
+      if (toggleButton && content) {
+        toggleButton.addEventListener('click', () => {
+          const isOpen = content.classList.toggle('open');
+          const indicator = toggleButton.querySelector('.accordion-toggle');
+          if (indicator) {
+            indicator.textContent = isOpen ? '−' : '+';
+          }
+        });
       }
 
-      toggleButton.addEventListener('click', () => {
-        const isOpen = content.classList.toggle('open');
-        const indicator = toggleButton.querySelector('.accordion-toggle');
-        if (indicator) {
-          indicator.textContent = isOpen ? '−' : '+';
-        }
-      });
+      if (importToggle && importModal) {
+        importToggle.addEventListener('click', (event) => {
+          event.stopPropagation();
+          importModal.classList.add('open');
+        });
+      }
+
+      if (importClose && importModal) {
+        importClose.addEventListener('click', (event) => {
+          event.stopPropagation();
+          importModal.classList.remove('open');
+        });
+      }
+
+      if (importModal) {
+        importModal.addEventListener('click', (event) => {
+          if (event.target === importModal) {
+            importModal.classList.remove('open');
+          }
+        });
+      }
+
+      if (importModal && <?php echo $showImportModal ? 'true' : 'false'; ?>) {
+        importModal.classList.add('open');
+      }
     })();
   </script>
 </body>
