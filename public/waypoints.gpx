@@ -1,0 +1,1468 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<gpx>
+  <wpt lat="47.806887" lon="13.058917">
+    <name>Rockhouse Salzburg</name>
+    <type>venue</type>
+    <url>https://rockhouse.at/</url>
+  </wpt>
+  <wpt lat="48.024445" lon="8.227052">
+    <name>Zum Wilden Michel</name>
+    <type>venue</type>
+    <url>https://zumwildenmichel.de/</url>
+  </wpt>
+  <wpt lat="48.066459" lon="7.884109">
+    <name>roccafé</name>
+    <type>venue</type>
+    <url>https://roccafe.de/</url>
+  </wpt>
+  <wpt lat="48.161156" lon="11.588915">
+    <name>Heppel &amp; Ettlich</name>
+    <type>venue</type>
+    <url>https://heppel-ettlich.de/</url>
+  </wpt>
+  <wpt lat="47.435597" lon="9.393642">
+    <name>für Freiraum Rümpeltum</name>
+    <type>venue</type>
+    <url>https://rumpeltum.ch/</url>
+  </wpt>
+  <wpt lat="47.34506" lon="8.535814">
+    <name>GZ Wollishofen - Zürcher Gemeinschaftszentren</name>
+    <type>venue</type>
+    <url>https://gz-zh.ch/gz-wollishofen</url>
+  </wpt>
+  <wpt lat="48.001098" lon="7.837753">
+    <name>K.I.S.S. - Kultur im Stühlinger Souterrain e.V.</name>
+    <type>venue</type>
+    <url>https://kiss-freiburg.jimdo.com/</url>
+  </wpt>
+  <wpt lat="47.077533" lon="15.417533">
+    <name>Explosiv</name>
+    <type>venue</type>
+    <url>https://explosiv.at/</url>
+  </wpt>
+  <wpt lat="48.765192" lon="9.168401">
+    <name>Café Galao</name>
+    <type>venue</type>
+    <url>https://galao-stuttgart.de/</url>
+  </wpt>
+  <wpt lat="47.200654" lon="7.528289">
+    <name>Kulturfabrik Kofmehl</name>
+    <type>venue</type>
+    <url>https://kofmehl.net/</url>
+  </wpt>
+  <wpt lat="46.750642" lon="7.633756">
+    <name>Alternatives Kulturzentrum Thun</name>
+    <type>venue</type>
+    <url>https://akut-thun.ch/</url>
+  </wpt>
+  <wpt lat="47.561421" lon="9.106698">
+    <name>Offene Tagesschule Weinfelden</name>
+    <type>venue</type>
+    <url>https://offenetagesschuleweinfelden.ch/</url>
+  </wpt>
+  <wpt lat="51.49637" lon="7.011793">
+    <name>Zeche Carl</name>
+    <type>venue</type>
+    <url>https://zechecarl.de/</url>
+  </wpt>
+  <wpt lat="47.547247" lon="9.682043">
+    <name>Zeughaus Lindau e. V.</name>
+    <type>venue</type>
+    <url>https://zeughaus-lindau.de/</url>
+  </wpt>
+  <wpt lat="47.499764" lon="8.726602">
+    <name>Casinotheater Winterthur</name>
+    <type>venue</type>
+    <url>https://casinotheater.ch/</url>
+  </wpt>
+  <wpt lat="51.472721" lon="6.846553">
+    <name>Druckluft</name>
+    <type>venue</type>
+    <url>https://drucklufthaus.de/</url>
+  </wpt>
+  <wpt lat="48.771163" lon="9.160873">
+    <name>Rosenau - Lokalität &amp; Bühne</name>
+    <type>venue</type>
+    <url>https://rosenau-stuttgart.de/</url>
+  </wpt>
+  <wpt lat="48.39782" lon="9.989704">
+    <name>Kelly&apos;s Irish Pub &amp; Restaurant Ulm</name>
+    <type>venue</type>
+    <url>https://kellys-ulm.de/</url>
+  </wpt>
+  <wpt lat="51.097122" lon="13.656415">
+    <name>Barnyard Club</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="49.454378" lon="11.077237">
+    <name>Bardentreffen Nürnberg</name>
+    <type>venue</type>
+    <url>https://nuernberg.de/internet/nuernbergkultur</url>
+  </wpt>
+  <wpt lat="47.577413" lon="7.586777">
+    <name>Gannet</name>
+    <type>venue</type>
+    <url>https://gannet.lv/</url>
+  </wpt>
+  <wpt lat="47.477511" lon="9.495361">
+    <name>Café Bar Treppenhaus</name>
+    <type>venue</type>
+    <url>https://treppenhaus.ch/</url>
+  </wpt>
+  <wpt lat="49.234635" lon="6.988681">
+    <name>Tante Guerilla</name>
+    <type>venue</type>
+    <url>https://bars-clothing.com/</url>
+  </wpt>
+  <wpt lat="49.173212" lon="12.852171">
+    <name>Bahnhof Kötzting</name>
+    <type>venue</type>
+    <url>https://ollizilk.de/</url>
+  </wpt>
+  <wpt lat="48.574853" lon="7.812777">
+    <name>Das Kulturhaus.</name>
+    <type>venue</type>
+    <url>https://kultur.kehl.de/</url>
+  </wpt>
+  <wpt lat="47.133393" lon="7.248333">
+    <name>Bar Eldorado</name>
+    <type>venue</type>
+    <url>https://eldoradobielbienne.ch/</url>
+  </wpt>
+  <wpt lat="47.660483" lon="9.172925">
+    <name>Backstage Musikcafe</name>
+    <type>venue</type>
+    <url>https://backstage-musikcafe.de/</url>
+  </wpt>
+  <wpt lat="48.410032" lon="9.994809">
+    <name>Cat</name>
+    <type>venue</type>
+    <url>https://cat-ulm.de/</url>
+  </wpt>
+  <wpt lat="49.794211" lon="9.894172">
+    <name>Z87</name>
+    <type>venue</type>
+    <url>https://z87.de/</url>
+  </wpt>
+  <wpt lat="47.394525" lon="8.527506">
+    <name>Sofaopenairkino Wipkingen</name>
+    <type>venue</type>
+    <url>https://sofaopenairkino.ch/</url>
+  </wpt>
+  <wpt lat="46.948926" lon="7.45939">
+    <name>Mahogany Hall</name>
+    <type>venue</type>
+    <url>https://mahogany.ch/</url>
+  </wpt>
+  <wpt lat="53.06163" lon="8.777634">
+    <name>Die Zentrale Bremen</name>
+    <type>venue</type>
+    <url>https://zentrale-bremen.de/</url>
+  </wpt>
+  <wpt lat="53.561588" lon="9.954096">
+    <name>Brückenstern</name>
+    <type>venue</type>
+    <url>https://brueckenstern.de/</url>
+  </wpt>
+  <wpt lat="47.485426" lon="7.735898">
+    <name>Hilmig</name>
+    <type>venue</type>
+    <url>https://hilmig.ch/</url>
+  </wpt>
+  <wpt lat="53.585648" lon="10.045919">
+    <name>Zinnschmelze</name>
+    <type>venue</type>
+    <url>https://zinnschmelze.de/</url>
+  </wpt>
+  <wpt lat="49.468294" lon="11.007391">
+    <name>Kofferfabrik</name>
+    <type>venue</type>
+    <url>https://kofferfabrik.cc/</url>
+  </wpt>
+  <wpt lat="52.839469" lon="9.306034">
+    <name>Kneipe Westen</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="49.430161" lon="11.094118">
+    <name>Z-Bau - House of Contemporary Culture</name>
+    <type>venue</type>
+    <url>https://z-bau.com/</url>
+  </wpt>
+  <wpt lat="47.558687" lon="7.585517">
+    <name>Offene Bühne Basel</name>
+    <type>venue</type>
+    <url>https://offene-bühne.ch/</url>
+  </wpt>
+  <wpt lat="51.089886" lon="13.694247">
+    <name>Atelier ÆØS</name>
+    <type>venue</type>
+    <url>https://atelier-aeos.com/</url>
+  </wpt>
+  <wpt lat="49.001654" lon="8.407551">
+    <name>Kohi cultural area e.V.</name>
+    <type>venue</type>
+    <url>https://kohi.de/</url>
+  </wpt>
+  <wpt lat="46.958753" lon="7.446416">
+    <name>Café Kairo</name>
+    <type>venue</type>
+    <url>https://cafe-kairo.ch/</url>
+  </wpt>
+  <wpt lat="48.833327" lon="9.319552">
+    <name>Kulturhaus Schwanen</name>
+    <type>venue</type>
+    <url>https://kulturhaus-schwanen.de/</url>
+  </wpt>
+  <wpt lat="47.478209" lon="8.308682">
+    <name>Royal Baden</name>
+    <type>venue</type>
+    <url>https://royalbaden.ch/</url>
+  </wpt>
+  <wpt lat="48.389296" lon="10.88797">
+    <name>Ballonfabrik</name>
+    <type>venue</type>
+    <url>https://ballonfabrik.org/</url>
+  </wpt>
+  <wpt lat="48.056232" lon="8.456547">
+    <name>Folk-Club Villingen e. V.</name>
+    <type>venue</type>
+    <url>https://folk-club.de/</url>
+  </wpt>
+  <wpt lat="51.375128" lon="12.411123">
+    <name>Die Villa Leipzig</name>
+    <type>venue</type>
+    <url>https://die-villa-leipzig.de/</url>
+  </wpt>
+  <wpt lat="47.461275" lon="9.032665">
+    <name>Gare de Lion</name>
+    <type>venue</type>
+    <url>https://garedelion.ch/</url>
+  </wpt>
+  <wpt lat="48.772892" lon="9.17238">
+    <name>Biddy Earlys Irish Pub</name>
+    <type>venue</type>
+    <url>https://biddyearlys.com/</url>
+  </wpt>
+  <wpt lat="47.948248" lon="8.498799">
+    <name>Kuba - Kulturbahnhof Donaueschingen</name>
+    <type>venue</type>
+    <url>https://kuba-ds.de/</url>
+  </wpt>
+  <wpt lat="47.62305845920189" lon="8.216211000009714">
+    <name>Herr Lehmann</name>
+    <type>venue</type>
+    <url>https://herrlehmannwt.de/</url>
+  </wpt>
+  <wpt lat="46.850595" lon="9.534897">
+    <name>KulturPunkt</name>
+    <type>venue</type>
+    <url>https://kulturpunktgr.ch/</url>
+  </wpt>
+  <wpt lat="48.74509" lon="9.32017">
+    <name>4Peh</name>
+    <type>venue</type>
+    <url>https://www.4peh.de/</url>
+  </wpt>
+  <wpt lat="50.95496" lon="6.94">
+    <name>Odonien</name>
+    <type>venue</type>
+    <url>https://odonien.de/</url>
+  </wpt>
+  <wpt lat="50.2611875" lon="10.965678">
+    <name>Toxic Toast Shop</name>
+    <type>venue</type>
+    <url>https://www.toxic-toast-shop.de/</url>
+  </wpt>
+  <wpt lat="49.440713" lon="7.76608">
+    <name>Salon Schmitts</name>
+    <type>venue</type>
+    <url>http://www.salon-schmitts.de/</url>
+  </wpt>
+  <wpt lat="48.894259" lon="9.184955">
+    <name>The Clansman</name>
+    <type>venue</type>
+    <url>https://the-clansman.eu/</url>
+  </wpt>
+  <wpt lat="46.861574" lon="7.180103">
+    <name>Bad Bonn</name>
+    <type>venue</type>
+    <url>https://club.badbonn.ch/info</url>
+  </wpt>
+  <wpt lat="47.048903983094014" lon="8.306499740647526">
+    <name>Raviolibar</name>
+    <type>venue</type>
+    <url>https://raviolibar.ch/</url>
+  </wpt>
+  <wpt lat="49.233165" lon="6.999234">
+    <name>Terminus</name>
+    <type>venue</type>
+    <url>https://www.facebook.com/terminus.brasserie</url>
+  </wpt>
+  <wpt lat="49.10561" lon="8.0342">
+    <name>Scuzzlebutt</name>
+    <type>venue</type>
+    <url>https://www.instagram.com/scuzzlebuttev</url>
+  </wpt>
+  <wpt lat="46.43271" lon="7.85638">
+    <name>Fafleralp Sessions</name>
+    <type>venue</type>
+    <url>https://www.fafleralp-sessions.ch/</url>
+  </wpt>
+  <wpt lat="46.79343" lon="9.82087">
+    <name>Songbird Festival</name>
+    <type>venue</type>
+    <url>https://www.songbirdfestival.ch</url>
+  </wpt>
+  <wpt lat="47.38735" lon="7.89325">
+    <name>Jorcana Festival</name>
+    <type>venue</type>
+    <url>https://www.jorcanafest.ch</url>
+  </wpt>
+  <wpt lat="46.77937" lon="9.54499">
+    <name>Fids</name>
+    <type>venue</type>
+    <url>https://fids-openair.ch</url>
+  </wpt>
+  <wpt lat="47.37319" lon="8.04105">
+    <name>Böröm</name>
+    <type>venue</type>
+    <url>https://boeroem.ch/</url>
+  </wpt>
+  <wpt lat="49.15697" lon="7.03053">
+    <name>Côté Canal</name>
+    <type>venue</type>
+    <url>https://www.cotecanal.fr/de/evenements</url>
+  </wpt>
+  <wpt lat="49.23113" lon="7.00188">
+    <name>Studio 30</name>
+    <type>venue</type>
+    <url>https://www.studio-30.de</url>
+  </wpt>
+  <wpt lat="51.11446" lon="12.41468">
+    <name>AdriAkustik</name>
+    <type>venue</type>
+    <url>https://www.adriakustik.de/</url>
+  </wpt>
+  <wpt lat="49.23436" lon="6.97962">
+    <name>Nauwieser Fest</name>
+    <type>venue</type>
+    <url>https://naufest.de/</url>
+  </wpt>
+  <wpt lat="49.2342173" lon="7.0006138">
+    <name>Mundart Festival</name>
+    <type>venue</type>
+    <url>https://www.mundartlieder.de/</url>
+  </wpt>
+  <wpt lat="49.4378287" lon="6.8500219">
+    <name>Insel Sommer-Traum</name>
+    <type>venue</type>
+    <url>https://www.muehlenverein-schmelz.de/insel-sommertraum/</url>
+  </wpt>
+  <wpt lat="48.72393" lon="9.10199">
+    <name>Umsonst &amp; draussen Stuttgart</name>
+    <type>venue</type>
+    <url>https://www.ud-stuttgart.de/</url>
+  </wpt>
+  <wpt lat="48.776739" lon="9.182978">
+    <name>Goldmarks</name>
+    <type>venue</type>
+    <url>https://www.goldmarks.de/</url>
+  </wpt>
+  <wpt lat="48.775313" lon="9.154273">
+    <name>Jugendhaus West</name>
+    <type>venue</type>
+    <url>https://jugendhaus-west.de/</url>
+  </wpt>
+  <wpt lat="53.22081" lon="9.07744">
+    <name>Rock den Lukas</name>
+    <type>venue</type>
+    <url>https://www.rockdenlukas.de/</url>
+  </wpt>
+  <wpt lat="48.78125499681264" lon="9.207679176705915">
+    <name>Schlampazius</name>
+    <type>venue</type>
+    <url>https://www.schlampazius.de/</url>
+  </wpt>
+  <wpt lat="47.995235" lon="7.844589">
+    <name>Summer Stage Theater Freiburg</name>
+    <type>venue</type>
+    <url>https://theater.freiburg.de/de_DE/kontakt#vermietung-summerstage</url>
+  </wpt>
+  <wpt lat="53.33455" lon="10.52458">
+    <name>Echem rockt</name>
+    <type>venue</type>
+    <url>https://www.echemrockt.de/</url>
+  </wpt>
+  <wpt lat="47.724815" lon="10.315017">
+    <name>Piepmatz</name>
+    <type>venue</type>
+    <url>https://piepmatz.community/events/</url>
+  </wpt>
+  <wpt lat="51.42747" lon="6.88233">
+    <name>Venue</name>
+    <type>venue</type>
+    <url>https://www.regler-produktion.de/</url>
+  </wpt>
+  <wpt lat="52.3798" lon="9.7614">
+    <name>Fährmannsfest</name>
+    <type>venue</type>
+    <url>https://linktr.ee/faehrmannsfest</url>
+  </wpt>
+  <wpt lat="48.05971" lon="8.45981">
+    <name>Innenhof Festival</name>
+    <type>venue</type>
+    <url>https://www.innenhof-festival.de/</url>
+  </wpt>
+  <wpt lat="48.770133" lon="9.161194">
+    <name>Kulturzentrum Merlin</name>
+    <type>venue</type>
+    <url>https://merlinstuttgart.de/</url>
+  </wpt>
+  <wpt lat="47.6185" lon="7.6573">
+    <name>Hillchill</name>
+    <type>venue</type>
+    <url>https://www.hillchill.ch</url>
+  </wpt>
+  <wpt lat="51.33329" lon="6.56197">
+    <name>Folklorefest</name>
+    <type>venue</type>
+    <url>https://www.folklorefest.de/bewerbung</url>
+  </wpt>
+  <wpt lat="50.92774202697221" lon="6.939881517200322">
+    <name>Blue Shell</name>
+    <type>venue</type>
+    <url>https://www.blue-shell.de/</url>
+  </wpt>
+  <wpt lat="50.937625126446726" lon="6.933039337335416">
+    <name>Hinterhofsalon</name>
+    <type>venue</type>
+    <url>https://www.hinterhofsalon.de/</url>
+  </wpt>
+  <wpt lat="50.7517" lon="11.3623">
+    <name>Rudolstadt Festival</name>
+    <type>venue</type>
+    <url>https://www.rudolstadt-festival.de/footer/aktiv/bewerbung-kuenstler-strassenmusiker.html</url>
+  </wpt>
+  <wpt lat="48.234630864223234" lon="8.062654990302127">
+    <name>Maienwonnen</name>
+    <type>venue</type>
+    <url>https://maienwonnen.de/</url>
+  </wpt>
+  <wpt lat="48.469027" lon="7.943777">
+    <name>Spitalkeller</name>
+    <type>venue</type>
+    <url>https://361grad.wixsite.com/</url>
+  </wpt>
+  <wpt lat="47.99459" lon="7.85206">
+    <name>Freiburg stimmt ein</name>
+    <type>venue</type>
+    <url>https://www.freiburgstimmtein.de/kuenstler/</url>
+  </wpt>
+  <wpt lat="51.159" lon="14.112">
+    <name>Louisenfest</name>
+    <type>venue</type>
+    <url>https://www.louisenfest.de/</url>
+  </wpt>
+  <wpt lat="50.979433" lon="14.1084">
+    <name>Burg Hohnstein</name>
+    <type>venue</type>
+    <url>https://burg-hohnstein.de/veranstaltungen/</url>
+  </wpt>
+  <wpt lat="51.34597" lon="12.41934">
+    <name>Bülow Strassenmusik Festival</name>
+    <type>venue</type>
+    <url>https://www.instagram.com/buelowstrassenmusikfestival/</url>
+  </wpt>
+  <wpt lat="48.903" lon="9.22495">
+    <name>Internationales Strassenmusik Festival</name>
+    <type>venue</type>
+    <url>https://strassenmusikfestival.de/</url>
+  </wpt>
+  <wpt lat="47.4653" lon="8.1656">
+    <name>Troubadix</name>
+    <type>venue</type>
+    <url>https://troubadix.org/</url>
+  </wpt>
+  <wpt lat="47.91476418702936" lon="10.513328806390076">
+    <name>The Rotten Cat</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="49.444148487774335" lon="11.105038588580257">
+    <name>Luise</name>
+    <type>venue</type>
+    <url>https://luise-nbg.de/</url>
+  </wpt>
+  <wpt lat="49.442019620537266" lon="11.094692888750885">
+    <name>Cafe Frau Elster</name>
+    <type>venue</type>
+    <url>https://linktr.ee/cafefrauelster</url>
+  </wpt>
+  <wpt lat="49.471391478040964" lon="10.985823270224175">
+    <name>Kunstkeller o27</name>
+    <type>venue</type>
+    <url>https://www.kunstkeller-o27.de/</url>
+  </wpt>
+  <wpt lat="49.45686173226499" lon="11.07610652349462">
+    <name>Kaiserburg</name>
+    <type>venue</type>
+    <url>https://www.kaiserburg.net/live-im-keller</url>
+  </wpt>
+  <wpt lat="47.06706" lon="15.44469">
+    <name>Kunstklub Kräftner</name>
+    <type>venue</type>
+    <url>https://www.aporon21.org/kunst-klub-kraeftner/</url>
+  </wpt>
+  <wpt lat="49.448667839765946" lon="11.082152319623383">
+    <name>Zentralcafe</name>
+    <type>venue</type>
+    <url>https://www.zentralcafe.com/</url>
+  </wpt>
+  <wpt lat="49.145964" lon="9.225887">
+    <name>Kulturkeller</name>
+    <type>venue</type>
+    <url>https://www.kulturkeller.de</url>
+  </wpt>
+  <wpt lat="47.65275327051524" lon="9.166392142110217">
+    <name>Apollo</name>
+    <type>venue</type>
+    <url>https://apollokreuzlingen.ch/</url>
+  </wpt>
+  <wpt lat="48.11824320551473" lon="11.574684927880257">
+    <name>Gans Woanders</name>
+    <type>venue</type>
+    <url>https://www.ganswoanders.de/kulturprogramm/infos-fuer-kuenstler-innen-artists/</url>
+  </wpt>
+  <wpt lat="48.717614993700195" lon="9.229827110675359">
+    <name>Trafik Cafe Kemnat</name>
+    <type>venue</type>
+    <url>https://www.trafikcafekemnat.de/kultur</url>
+  </wpt>
+  <wpt lat="48.369399202403" lon="10.899889639049036">
+    <name>Kulturhaus Kresslesmühle</name>
+    <type>venue</type>
+    <url>https://openstage-augsburg.de/die-open-stage-augsburg/</url>
+  </wpt>
+  <wpt lat="47.380336" lon="8.526153">
+    <name>Toro Bar</name>
+    <type>venue</type>
+    <url>https://www.torobar.com/</url>
+  </wpt>
+  <wpt lat="49.2756" lon="10.72374">
+    <name>Weisses Ross Immeldorf</name>
+    <type>venue</type>
+    <url>https://immel-dorf.de/</url>
+  </wpt>
+  <wpt lat="49.65685" lon="11.03152">
+    <name>Kulturscheune Baiersdorf</name>
+    <type>venue</type>
+    <url>https://kusch-baiersdorf.de/</url>
+  </wpt>
+  <wpt lat="52.2721" lon="8.0487">
+    <name>Venner Folk Frühling</name>
+    <type>venue</type>
+    <url>https://folkfruehling.de/</url>
+  </wpt>
+  <wpt lat="50.082394" lon="8.673125">
+    <name>FAB Frankfurt Art Bar</name>
+    <type>venue</type>
+    <url>https://frankfurtartbar.de/#Live-Music</url>
+  </wpt>
+  <wpt lat="54.475184" lon="9.047681">
+    <name>Speicher Husum</name>
+    <type>venue</type>
+    <url>www.offenebuehne.speicher-husum.de</url>
+  </wpt>
+  <wpt lat="49.00586071114465" lon="8.429310603625543">
+    <name>Alte Hackerei</name>
+    <type>venue</type>
+    <url>http://www.altehackerei.de/</url>
+  </wpt>
+  <wpt lat="48.391675" lon="9.985595">
+    <name>Roxy Ulm</name>
+    <type>venue</type>
+    <url>https://www.roxy.ulm.de/programm/reihen.php</url>
+  </wpt>
+  <wpt lat="48.1307231839951" lon="11.572543805036993">
+    <name>Poetenstammtisch München</name>
+    <type>venue</type>
+    <url>https://poetenstammtisch.wordpress.com/</url>
+  </wpt>
+  <wpt lat="50.00401109960246" lon="8.272126405760467">
+    <name>M8</name>
+    <type>venue</type>
+    <url>https://www.m8-mainz.de/</url>
+  </wpt>
+  <wpt lat="51.978334" lon="9.545027">
+    <name>KulturMühle Buchhagen</name>
+    <type>venue</type>
+    <url>https://www.buchhagen.org/</url>
+  </wpt>
+  <wpt lat="51.4335" lon="14.2501">
+    <name>Hoyschrecke Liederfest</name>
+    <type>venue</type>
+    <url>https://www.hoyschrecke.de/</url>
+  </wpt>
+  <wpt lat="50.43201" lon="10.77738">
+    <name>Paradiesvogelfest</name>
+    <type>venue</type>
+    <url>https://paradiesvogelfest.de/</url>
+  </wpt>
+  <wpt lat="47.344802" lon="8.535945">
+    <name>Openair Wollishofen</name>
+    <type>venue</type>
+    <url>https://www.openair-wollishofen.ch/</url>
+  </wpt>
+  <wpt lat="47.050896" lon="8.299904">
+    <name>KOMMOD — Le Restaurant</name>
+    <type>venue</type>
+    <url>https://kommod-luzern.ch/</url>
+  </wpt>
+  <wpt lat="47.474377" lon="8.305772">
+    <name>Kulturcafé</name>
+    <type>venue</type>
+    <url>https://kulturcafé.ch/</url>
+  </wpt>
+  <wpt lat="50.981674" lon="11.03519">
+    <name>Museumskeller</name>
+    <type>venue</type>
+    <url>https://hsd-erfurt.de/</url>
+  </wpt>
+  <wpt lat="47.736568" lon="8.971064">
+    <name>Das Wunderfitz</name>
+    <type>venue</type>
+    <url>https://daswunderfitz.de/</url>
+  </wpt>
+  <wpt lat="51.743558591372015" lon="7.181971750882373">
+    <name>White Night Haltern</name>
+    <type>venue</type>
+    <url>https://white-night-haltern.de/</url>
+  </wpt>
+  <wpt lat="49.456065" lon="11.030986">
+    <name>Heizhaus</name>
+    <type>venue</type>
+    <url>https://heizhaus.org/</url>
+  </wpt>
+  <wpt lat="48.876516" lon="9.395614">
+    <name>Bio-Bäckerei Weber</name>
+    <type>venue</type>
+    <url>https://biobaeckerweber.de/</url>
+  </wpt>
+  <wpt lat="48.745106" lon="9.320068">
+    <name>Vier Peh</name>
+    <type>venue</type>
+    <url>https://4peh.de/</url>
+  </wpt>
+  <wpt lat="47.695557" lon="8.641346">
+    <name>Güterhof</name>
+    <type>venue</type>
+    <url>https://gueterhof.ch/de</url>
+  </wpt>
+  <wpt lat="54.324472" lon="10.138175">
+    <name>The pump e.V.</name>
+    <type>venue</type>
+    <url>https://diepumpe.de/</url>
+  </wpt>
+  <wpt lat="47.410997" lon="9.738466">
+    <name>Kulturverein TiK</name>
+    <type>venue</type>
+    <url>https://tik-dornbirn.at/</url>
+  </wpt>
+  <wpt lat="52.626109" lon="10.084136">
+    <name>Kunst + Bühne</name>
+    <type>venue</type>
+    <url>https://kunstundbuehne.de/</url>
+  </wpt>
+  <wpt lat="49.004568" lon="8.431664">
+    <name>Kulturzentrum Tollhaus</name>
+    <type>venue</type>
+    <url>https://www.tollhaus.de/</url>
+  </wpt>
+  <wpt lat="54.093622" lon="12.117338">
+    <name>Kneipe Dieter</name>
+    <type>venue</type>
+    <url>https://mauclub.de/dieter</url>
+  </wpt>
+  <wpt lat="47.659958" lon="9.171488">
+    <name>K 9 e.V. Kommunales Kunst- und Kulturzentrum</name>
+    <type>venue</type>
+    <url>https://k9-kulturzentrum.de/</url>
+  </wpt>
+  <wpt lat="47.431289" lon="7.936381">
+    <name>Ochsen Oltingen</name>
+    <type>venue</type>
+    <url>https://ochsenoltingen.ch/</url>
+  </wpt>
+  <wpt lat="47.695348" lon="8.632052">
+    <name>Haberhaus</name>
+    <type>venue</type>
+    <url>https://www.haberhaus.ch/</url>
+  </wpt>
+  <wpt lat="52.549082" lon="13.4044">
+    <name>Haus der Sinne</name>
+    <type>venue</type>
+    <url>https://hausdersinne-berlin.de/</url>
+  </wpt>
+  <wpt lat="47.497451" lon="9.692921">
+    <name>Kammgarn Kulturwerkstatt</name>
+    <type>venue</type>
+    <url>https://kammgarn.at/</url>
+  </wpt>
+  <wpt lat="47.255418" lon="8.85781">
+    <name>Verein Sternenkeller</name>
+    <type>venue</type>
+    <url>https://sternenkeller.ch/</url>
+  </wpt>
+  <wpt lat="47.548054" lon="9.302646">
+    <name>Kulturforum Amriswil</name>
+    <type>venue</type>
+    <url>https://kulturforum-amriswil.ch/</url>
+  </wpt>
+  <wpt lat="50.086724" lon="8.241442">
+    <name>Kulturpalast Wiesbaden</name>
+    <type>venue</type>
+    <url>https://kulturpalast-wiesbaden.de/</url>
+  </wpt>
+  <wpt lat="47.669492" lon="9.055566">
+    <name>Schloss Salenstein</name>
+    <type>venue</type>
+    <url>https://www.schloss-salenstein.ch</url>
+  </wpt>
+  <wpt lat="54.478049" lon="9.050618">
+    <name>Kulturkeller</name>
+    <type>venue</type>
+    <url>https://kulturkeller-husum.de/</url>
+  </wpt>
+  <wpt lat="51.290184" lon="13.533441">
+    <name>Kulturschloss Großenhain</name>
+    <type>venue</type>
+    <url>https://kulturzentrum-grossenhain.de/</url>
+  </wpt>
+  <wpt lat="46.923517" lon="7.414584">
+    <name>Das Scherzhaus Bistro</name>
+    <type>venue</type>
+    <url>https://das-scherzhaus.ch/bistro</url>
+  </wpt>
+  <wpt lat="48.626754" lon="9.331139">
+    <name>Kuckucksei, kulturell-politischer Club e.V.</name>
+    <type>venue</type>
+    <url>https://kuckucksei.club/</url>
+  </wpt>
+  <wpt lat="46.952978" lon="7.440266">
+    <name>Tojo Theater</name>
+    <type>venue</type>
+    <url>https://tojo.ch/</url>
+  </wpt>
+  <wpt lat="52.500344" lon="13.422231">
+    <name>SO36</name>
+    <type>venue</type>
+    <url>https://so36.com/</url>
+  </wpt>
+  <wpt lat="47.430398" lon="9.392502">
+    <name>Theater 111</name>
+    <type>venue</type>
+    <url>https://theater111.ch/</url>
+  </wpt>
+  <wpt lat="51.53466356357133" lon="9.937883727573027">
+    <name>APEX</name>
+    <type>venue</type>
+    <url>https://apex-goettingen.de/</url>
+  </wpt>
+  <wpt lat="51.051981" lon="13.744938">
+    <name>Bärenzwinger</name>
+    <type>venue</type>
+    <url>https://baerenzwinger.de/</url>
+  </wpt>
+  <wpt lat="50.974302" lon="11.031366">
+    <name>Haus Dacheröden</name>
+    <type>venue</type>
+    <url>https://www.herbstlese.de/</url>
+  </wpt>
+  <wpt lat="48.774871" lon="9.16319">
+    <name>Frauenkulturzentrum Sarah</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="46.975374" lon="7.740909">
+    <name>Brauschüür</name>
+    <type>venue</type>
+    <url>https://brauschüür.ch/</url>
+  </wpt>
+  <wpt lat="46.935826" lon="7.433393">
+    <name>Ändstation Bar</name>
+    <type>venue</type>
+    <url>https://aendstationbar.ch/</url>
+  </wpt>
+  <wpt lat="47.870512" lon="9.805826">
+    <name>Gasthof zum Bräuhaus</name>
+    <type>venue</type>
+    <url>https://bräuhaus-rossberg.de/</url>
+  </wpt>
+  <wpt lat="53.549437" lon="10.00677">
+    <name>Markthalle Hamburg</name>
+    <type>venue</type>
+    <url>https://markthalle-hamburg.de/</url>
+  </wpt>
+  <wpt lat="48.495477" lon="9.206448">
+    <name>Franz.K</name>
+    <type>venue</type>
+    <url>https://franzk.net/</url>
+  </wpt>
+  <wpt lat="49.942951" lon="11.587743">
+    <name>DAS ZENTRUM • Internationales Jugendkulturzentrum Bayreuth</name>
+    <type>venue</type>
+    <url>https://das-zentrum.de/</url>
+  </wpt>
+  <wpt lat="49.539354" lon="7.402837">
+    <name>Kinett Kusel</name>
+    <type>venue</type>
+    <url>https://kinett-kusel.de/</url>
+  </wpt>
+  <wpt lat="49.406953" lon="8.678934">
+    <name>Kulturfenster-Verein z. Förder. v. Jugendarb., Bildung u. Kultur</name>
+    <type>venue</type>
+    <url>https://kulturfenster.de/</url>
+  </wpt>
+  <wpt lat="47.548054" lon="9.302646">
+    <name>Bistro Cartonage</name>
+    <type>venue</type>
+    <url>https://bistro-cartonage.ch/</url>
+  </wpt>
+  <wpt lat="49.551418" lon="8.668182">
+    <name>Café Central Weinheim</name>
+    <type>venue</type>
+    <url>https://cafecentral.de/</url>
+  </wpt>
+  <wpt lat="51.990745" lon="7.6992">
+    <name>Romantik Hotel Hof zur Linde</name>
+    <type>venue</type>
+    <url>https://hof-zur-linde.de/</url>
+  </wpt>
+  <wpt lat="53.476423" lon="10.084325">
+    <name>Wohnprojekt Stadt Land Fluss e.V.</name>
+    <type>venue</type>
+    <url>https://wohnprojekt-slf.de/</url>
+  </wpt>
+  <wpt lat="52.486737" lon="13.4809093">
+    <name>Kulturhaus Insel Berlin</name>
+    <type>venue</type>
+    <url>https://www.inselberlin.de/</url>
+  </wpt>
+  <wpt lat="51.065334" lon="13.675013">
+    <name>Beatpol</name>
+    <type>venue</type>
+    <url>https://beatpol.de/</url>
+  </wpt>
+  <wpt lat="51.942842" lon="9.798015">
+    <name>St.-Georgs-Kirche</name>
+    <type>venue</type>
+    <url>https://st-georg-delligsen.de/aktuell/nachrichten</url>
+  </wpt>
+  <wpt lat="47.694523" lon="8.636365">
+    <name>Kultur im Kammgarn</name>
+    <type>venue</type>
+    <url>https://kammgarn.ch/</url>
+  </wpt>
+  <wpt lat="53.247379" lon="10.413737">
+    <name>Jekyll &amp; Hyde</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="50.344587" lon="7.549794">
+    <name>Café Hahn</name>
+    <type>venue</type>
+    <url>https://cafehahn.de/</url>
+  </wpt>
+  <wpt lat="50.971719" lon="10.324887">
+    <name>Hotel Glockenhof</name>
+    <type>venue</type>
+    <url>https://glockenhof.de/</url>
+  </wpt>
+  <wpt lat="48.499532" lon="9.06395">
+    <name>Biergarten Sudhaus</name>
+    <type>venue</type>
+    <url>https://sudhaus-tuebingen.de/gastronomie.html</url>
+  </wpt>
+  <wpt lat="48.145062" lon="11.522008">
+    <name>Backstage Kulturzentrum</name>
+    <type>venue</type>
+    <url>https://backstage.info/</url>
+  </wpt>
+  <wpt lat="48.76513" lon="9.169285">
+    <name>Dreigroschentheater</name>
+    <type>venue</type>
+    <url>https://dreigroschentheater.de/</url>
+  </wpt>
+  <wpt lat="46.757337" lon="7.618736">
+    <name>OHA Thun Expo Genossenschaft</name>
+    <type>venue</type>
+    <url>https://thun-expo.ch/</url>
+  </wpt>
+  <wpt lat="52.496894" lon="13.451449">
+    <name>Festsaal Kreuzberg</name>
+    <type>venue</type>
+    <url>https://festsaal-kreuzberg.de/</url>
+  </wpt>
+  <wpt lat="47.56893" lon="7.601712">
+    <name>Heimat</name>
+    <type>venue</type>
+    <url>https://heimatclub.ch/</url>
+  </wpt>
+  <wpt lat="46.588196" lon="7.645632">
+    <name>Hotel-Restaurant Landhaus Adler</name>
+    <type>venue</type>
+    <url>https://landhaus-adler.ch/web</url>
+  </wpt>
+  <wpt lat="47.085903" lon="7.527743">
+    <name>Mühle Fraubrunnen Hans Messer + Co. AG</name>
+    <type>venue</type>
+    <url>https://muehle-fraubrunnen.ch/</url>
+  </wpt>
+  <wpt lat="49.870758" lon="8.657378">
+    <name>Theater in Pädagog</name>
+    <type>venue</type>
+    <url>https://paedagogtheater.de/</url>
+  </wpt>
+  <wpt lat="51.326788" lon="9.503854">
+    <name>Kulturzentrum Schlachthof</name>
+    <type>venue</type>
+    <url>https://www.schlachthof-kassel.de/musik</url>
+  </wpt>
+  <wpt lat="52.375915" lon="9.710773">
+    <name>Kulturzentrum Faust</name>
+    <type>venue</type>
+    <url>https://www.kulturzentrum-faust.de/</url>
+  </wpt>
+  <wpt lat="52.49091" lon="13.447532">
+    <name>Galerie Kungerkiez</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="47.720812" lon="12.876687">
+    <name>Magazin 3</name>
+    <type>venue</type>
+    <url>https://magazin-3.de/</url>
+  </wpt>
+  <wpt lat="53.923565554525716" lon="10.525258870523274">
+    <name>Reinsbek Sounds</name>
+    <type>venue</type>
+    <url>https://reinsbek-sounds.de/</url>
+  </wpt>
+  <wpt lat="47.479535" lon="8.207463">
+    <name>Dampfschiff Bar</name>
+    <type>venue</type>
+    <url>https://dampfschiffbar.ch/</url>
+  </wpt>
+  <wpt lat="51.561004" lon="13.00388">
+    <name>Kulturhaus Torgau - Culture e. V.</name>
+    <type>venue</type>
+    <url>https://kulturhaus-torgau.de/</url>
+  </wpt>
+  <wpt lat="52.098436" lon="9.355671">
+    <name>Sumpfblume culture and communication center e.V.</name>
+    <type>venue</type>
+    <url>https://sumpfblume.de/</url>
+  </wpt>
+  <wpt lat="47.697377" lon="8.635241">
+    <name>klub 8</name>
+    <type>venue</type>
+    <url>https://klub8.ch/</url>
+  </wpt>
+  <wpt lat="47.048183" lon="8.301973">
+    <name>Factory - Heilsarmee Luzern</name>
+    <type>venue</type>
+    <url>https://factory.heilsarmee.ch/</url>
+  </wpt>
+  <wpt lat="49.978965" lon="9.143402">
+    <name>Gaststätte Hannebambel</name>
+    <type>venue</type>
+    <url>https://hannebambel.de/</url>
+  </wpt>
+  <wpt lat="50.131605" lon="8.626259">
+    <name>Brotfabrik</name>
+    <type>venue</type>
+    <url>https://www.brotfabrik.de/</url>
+  </wpt>
+  <wpt lat="50.805758" lon="7.587849">
+    <name>Elmores</name>
+    <type>venue</type>
+    <url>https://www.elmores.de/</url>
+  </wpt>
+  <wpt lat="52.369333" lon="9.712125">
+    <name>TAK - Die Kabarett Bühne</name>
+    <type>venue</type>
+    <url>https://tak-hannover.de/</url>
+  </wpt>
+  <wpt lat="54.294997" lon="10.189024">
+    <name>Kulturstation Toweddern</name>
+    <type>venue</type>
+    <url>https://kulturstation-toweddern.de/</url>
+  </wpt>
+  <wpt lat="48.389291" lon="9.973185">
+    <name>Römerfässle</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="48.384036" lon="10.007529">
+    <name>Florian Zimmer Theater</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="47.211333" lon="7.787673">
+    <name>Kreuzhof Bar</name>
+    <type>venue</type>
+    <url>https://kreuzhofbar.ch/</url>
+  </wpt>
+  <wpt lat="52.486789" lon="13.480937">
+    <name>Kulturhaus Insel Berlin</name>
+    <type>venue</type>
+    <url>https://inselberlin.de/</url>
+  </wpt>
+  <wpt lat="47.678891" lon="9.163093">
+    <name>Kulturladen Konstanz e.V.</name>
+    <type>venue</type>
+    <url>https://kulturladen.de/</url>
+  </wpt>
+  <wpt lat="46.93553" lon="7.504306">
+    <name>Bärtschihus</name>
+    <type>venue</type>
+    <url>https://baertschihus.ch/</url>
+  </wpt>
+  <wpt lat="47.049418" lon="8.302481">
+    <name>Raedwulf Pub</name>
+    <type>venue</type>
+    <url>https://raedwulf.ch/</url>
+  </wpt>
+  <wpt lat="51.065029" lon="13.758198">
+    <name>HumorZone</name>
+    <type>venue</type>
+    <url>https://humorzone.de/</url>
+  </wpt>
+  <wpt lat="53.62026216746836" lon="10.688872520773625">
+    <name>Folkclub Mölln</name>
+    <type>venue</type>
+    <url>https://folkclubmoelln.de</url>
+  </wpt>
+  <wpt lat="47.556676" lon="8.897628">
+    <name>Bistro Zur Alten Kaplanei</name>
+    <type>venue</type>
+    <url>https://kaplanei.ch/</url>
+  </wpt>
+  <wpt lat="47.698224" lon="8.636262">
+    <name>Fasskultur</name>
+    <type>venue</type>
+    <url>https://fassgenossenschaft.ch</url>
+  </wpt>
+  <wpt lat="47.498455" lon="8.729198">
+    <name>Albani Winterthur</name>
+    <type>venue</type>
+    <url>https://albani.ch/</url>
+  </wpt>
+  <wpt lat="48.673307" lon="10.145568">
+    <name>Naturtheater Heidenheim</name>
+    <type>venue</type>
+    <url>https://naturtheater.de/</url>
+  </wpt>
+  <wpt lat="47.350434" lon="8.712097">
+    <name>Zeughausareal</name>
+    <type>venue</type>
+    <url>https://zeughaus-areal.ch/</url>
+  </wpt>
+  <wpt lat="47.360922" lon="7.912584">
+    <name>Schwager Theater</name>
+    <type>venue</type>
+    <url>https://schwager.ch/</url>
+  </wpt>
+  <wpt lat="49.426574" lon="11.071029">
+    <name>Hirsch</name>
+    <type>venue</type>
+    <url>https://der-hirsch.de/</url>
+  </wpt>
+  <wpt lat="47.418407" lon="8.274556">
+    <name>Bijou</name>
+    <type>venue</type>
+    <url>https://bijou-bremgarten.ch/</url>
+  </wpt>
+  <wpt lat="47.548054" lon="9.302646">
+    <name>Kulturforum Amriswil</name>
+    <type>venue</type>
+    <url>https://kulturforum-amriswil.ch/</url>
+  </wpt>
+  <wpt lat="54.3971297" lon="9.9678493">
+    <name>KuBiZ - Kultur- und Bildungszentrum Gettorf</name>
+    <type>venue</type>
+    <url>https://www.gettorf.de/kultur-bildung/kultur-und-bildungszentrum/</url>
+  </wpt>
+  <wpt lat="51.066261" lon="13.751632">
+    <name>Scheune</name>
+    <type>venue</type>
+    <url>http://scheune.org/</url>
+  </wpt>
+  <wpt lat="48.83079678857941" lon="9.175474956900446">
+    <name>Zehntscheuer Stuttgart Zuffenhausen</name>
+    <type>venue</type>
+    <url>https://stuttgart.de/service/buergerhaeuser/zehntscheuer-zuffenhausen.php</url>
+  </wpt>
+  <wpt lat="52.13765" lon="11.645996">
+    <name>Festung Mark - Eventlocation</name>
+    <type>venue</type>
+    <url>https://festungmark.com/</url>
+  </wpt>
+  <wpt lat="50.587443" lon="8.681702">
+    <name>Jugend- und Kulturzentrum Jokus</name>
+    <type>venue</type>
+    <url>https://jokus-giessen.de/</url>
+  </wpt>
+  <wpt lat="51.557664" lon="13.016452">
+    <name>𝗕𝗿𝘂𝗲𝗰𝗸𝗲𝗻𝗸𝗼𝗽𝗳 𝗧𝗼𝗿𝗴𝗮𝘂</name>
+    <type>venue</type>
+    <url>https://www.facebook.com/brueckenkopf.torgau/</url>
+  </wpt>
+  <wpt lat="47.699785" lon="8.626539">
+    <name>Schweizer Küche | Events | Restaurant Zum Alten Schützenhaus</name>
+    <type>venue</type>
+    <url>https://schuetzenhaus.ch/</url>
+  </wpt>
+  <wpt lat="48.800205" lon="9.218491">
+    <name>clubCANN</name>
+    <type>venue</type>
+    <url>https://clubcann.de/</url>
+  </wpt>
+  <wpt lat="47.551985" lon="7.590649">
+    <name>Atlantis Basel</name>
+    <type>venue</type>
+    <url>https://atlantis-basel.ch/</url>
+  </wpt>
+  <wpt lat="47.226804" lon="8.816544">
+    <name>Hotel &amp; Restaurant JAKOB</name>
+    <type>venue</type>
+    <url>https://jakob-rapperswil.ch/</url>
+  </wpt>
+  <wpt lat="47.495009" lon="8.717705">
+    <name>Labuesch Bar</name>
+    <type>venue</type>
+    <url>https://bar.labuesch.ch/</url>
+  </wpt>
+  <wpt lat="47.479326" lon="9.491839">
+    <name>Museum im Kornhaus</name>
+    <type>venue</type>
+    <url>https://museum-rorschach.ch/</url>
+  </wpt>
+  <wpt lat="51.736154" lon="9.794546">
+    <name>Kunsttöpferei, Galerie &amp; Café Klett</name>
+    <type>venue</type>
+    <url>https://kunsttoepferei.de/</url>
+  </wpt>
+  <wpt lat="47.560556" lon="8.057422">
+    <name>Rehmann-Museum</name>
+    <type>venue</type>
+    <url>https://rehmann-museum.ch/</url>
+  </wpt>
+  <wpt lat="48.133524" lon="11.573971">
+    <name>Bürgerhaus Glockenbachwerkstatt</name>
+    <type>venue</type>
+    <url>https://glockenbachwerkstatt.de/</url>
+  </wpt>
+  <wpt lat="47.550468" lon="9.31101">
+    <name>Kunstgiesserei Hutter GmbH</name>
+    <type>venue</type>
+    <url>https://kunstgiesserei-hutter.ch/</url>
+  </wpt>
+  <wpt lat="49.888763" lon="10.886879">
+    <name>Galerie am Stephansberg</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="50.010647" lon="9.325057">
+    <name>Spessarttor</name>
+    <type>venue</type>
+    <url>https://spessarttor.com/</url>
+  </wpt>
+  <wpt lat="47.738012" lon="8.970219">
+    <name>PUB | THE IRISH EXIT</name>
+    <type>venue</type>
+    <url>https://the-irish-exit.de/</url>
+  </wpt>
+  <wpt lat="52.278402" lon="10.52038">
+    <name>Das KULT Kleinkunst, Unterhaltung, Literatur, Theater und mehr</name>
+    <type>venue</type>
+    <url>https://daskult-theater.de/</url>
+  </wpt>
+  <wpt lat="47.556492" lon="8.89714">
+    <name>La Terrasse</name>
+    <type>venue</type>
+    <url>https://stift-hoefli.ch/restaurant-la-terrasse</url>
+  </wpt>
+  <wpt lat="47.181433318066624" lon="8.48418639721582">
+    <name>Galvanik</name>
+    <type>venue</type>
+    <url>https://galvanik-zug.ch/</url>
+  </wpt>
+  <wpt lat="48.762756" lon="9.271327">
+    <name>Kinder- und Jugendhaus Obertürkheim &quot;villa jo&quot;</name>
+    <type>venue</type>
+    <url>https://villajo.de/</url>
+  </wpt>
+  <wpt lat="46.95944" lon="7.451906">
+    <name>La cappella</name>
+    <type>venue</type>
+    <url>https://la-cappella.ch/</url>
+  </wpt>
+  <wpt lat="49.008175" lon="8.399292">
+    <name>Badische Landesbibliothek</name>
+    <type>venue</type>
+    <url>https://www.blb-karlsruhe.de/</url>
+  </wpt>
+  <wpt lat="48.791165" lon="8.780488">
+    <name>Theaterschachtel Neuhausen</name>
+    <type>venue</type>
+    <url>https://theaterschachtel.de/</url>
+  </wpt>
+  <wpt lat="47.564422" lon="9.381628">
+    <name>Kornhaus Romanshorn</name>
+    <type>venue</type>
+    <url>https://kornhaus-romanshorn.ch/</url>
+  </wpt>
+  <wpt lat="46.688985" lon="7.864534">
+    <name>Tivoli Café Bar</name>
+    <type>venue</type>
+    <url>https://tivoli-cafe-bar.ch/</url>
+  </wpt>
+  <wpt lat="52.296453" lon="10.40733">
+    <name>Gedankenfabrik Bortfeld e.V.</name>
+    <type>venue</type>
+    <url>https://gedankenfabrik-bortfeld.de/</url>
+  </wpt>
+  <wpt lat="46.746122" lon="7.637309">
+    <name>Schloss Schadau</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="47.5638" lon="7.591238">
+    <name>Parterre One</name>
+    <type>venue</type>
+    <url>https://parterre-one.ch/</url>
+  </wpt>
+  <wpt lat="46.948444" lon="7.454269">
+    <name>Kunst- und Kulturhaus VISAVIS</name>
+    <type>venue</type>
+    <url>https://kultur-visavis.ch/</url>
+  </wpt>
+  <wpt lat="53.078633" lon="11.862133">
+    <name>Kulturkombinat e.V.</name>
+    <type>venue</type>
+    <url>https://kulturkombinat-perleberg.org/</url>
+  </wpt>
+  <wpt lat="48.895596" lon="8.72183">
+    <name>Gasometer Pforzheim</name>
+    <type>venue</type>
+    <url>https://www.gasometer-pforzheim.de/de/home</url>
+  </wpt>
+  <wpt lat="50.962906" lon="13.944178">
+    <name>Cabaret Pirna Q24 e.V.</name>
+    <type>venue</type>
+    <url>https://q24pirna.de/</url>
+  </wpt>
+  <wpt lat="52.393601354229894" lon="13.209206486208368">
+    <name>Marktplatz Waldschänke</name>
+    <type>venue</type>
+    <url>https://www.marktplatz-waldschaenke.de/</url>
+  </wpt>
+  <wpt lat="51.669698" lon="6.969232">
+    <name>Cornelia Funke treehouse</name>
+    <type>venue</type>
+    <url>https://cornelia-funke-baumhaus.de/</url>
+  </wpt>
+  <wpt lat="49.49072" lon="11.47315">
+    <name>Gluecksmuehle</name>
+    <type>venue</type>
+    <url>https://gluecksmuehle.com/</url>
+  </wpt>
+  <wpt lat="49.448586" lon="11.081749">
+    <name>Soft Spot</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="52.487729" lon="13.386987">
+    <name>Arcanoa</name>
+    <type>venue</type>
+    <url>https://arcanoa.de/</url>
+  </wpt>
+  <wpt lat="47.560948" lon="8.059074">
+    <name>kultSCHÜÜR Laufenburg</name>
+    <type>venue</type>
+    <url>https://kultschüür.ch/</url>
+  </wpt>
+  <wpt lat="49.998838" lon="8.263916">
+    <name>Unterhaus – Mainzer Forum-Theater</name>
+    <type>venue</type>
+    <url>https://unterhaus-mainz.de/</url>
+  </wpt>
+  <wpt lat="47.04132" lon="8.306849">
+    <name>Neubad</name>
+    <type>venue</type>
+    <url>https://neubad.org/</url>
+  </wpt>
+  <wpt lat="52.557873" lon="13.385359">
+    <name>Kamine &amp; Wein</name>
+    <type>venue</type>
+    <url>https://kamineundwein.de/</url>
+  </wpt>
+  <wpt lat="47.417023" lon="8.047741">
+    <name>Restaurant Traube</name>
+    <type>venue</type>
+    <url>https://restaurant-traube.ch/</url>
+  </wpt>
+  <wpt lat="48.517499" lon="9.042231">
+    <name>Studierendengemeinschaft Sachsenhaus</name>
+    <type>venue</type>
+    <url>https://sachsenhaus.org/</url>
+  </wpt>
+  <wpt lat="49.798749" lon="9.959046">
+    <name>L Club</name>
+    <type>venue</type>
+    <url>https://club-l.de/</url>
+  </wpt>
+  <wpt lat="51.338044" lon="12.376772">
+    <name>Kupfersaal</name>
+    <type>venue</type>
+    <url>https://kupfersaal.de/</url>
+  </wpt>
+  <wpt lat="47.390837" lon="8.047284">
+    <name>Sein Café &amp; Mehr</name>
+    <type>venue</type>
+    <url>https://seinaarau.ch/</url>
+  </wpt>
+  <wpt lat="52.268074" lon="8.058455">
+    <name>Kleine Freiheit</name>
+    <type>venue</type>
+    <url>https://kleinefreiheit.info/</url>
+  </wpt>
+  <wpt lat="47.499363" lon="8.727091">
+    <name>Kellertheater Winterthur</name>
+    <type>venue</type>
+    <url>https://keller.theater/</url>
+  </wpt>
+  <wpt lat="50.737641" lon="7.098698">
+    <name>Kulturwohnzimmer - RheinBühne</name>
+    <type>venue</type>
+    <url>https://rheinbuehne.de/</url>
+  </wpt>
+  <wpt lat="48.648829" lon="9.45355">
+    <name>Club Bastion e.V.</name>
+    <type>venue</type>
+    <url>https://club-bastion.de/</url>
+  </wpt>
+  <wpt lat="51.337567" lon="12.379358">
+    <name>Moritzbastei</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="50.113988" lon="8.687573">
+    <name>Nachtleben</name>
+    <type>venue</type>
+    <url>https://batschkapp.net/nachtleben</url>
+  </wpt>
+  <wpt lat="50.132945" lon="8.920484">
+    <name>Hanau A Go-Go</name>
+    <type>venue</type>
+    <url>https://www.hanauagogo.de/</url>
+  </wpt>
+  <wpt lat="47.419204" lon="8.505374">
+    <name>Hotel Kronenhof</name>
+    <type>venue</type>
+    <url>https://hotel-kronenhof.ch/</url>
+  </wpt>
+  <wpt lat="47.552972" lon="7.591772">
+    <name>L&apos;Atelier</name>
+    <type>venue</type>
+    <url>https://latelierbasel.ch/</url>
+  </wpt>
+  <wpt lat="51.13994" lon="13.801201">
+    <name>Dixiebahnhof</name>
+    <type>venue</type>
+    <url>https://www.dixiebahnhof.de</url>
+  </wpt>
+  <wpt lat="47.738901" lon="8.957261">
+    <name>Tanke Haus am See</name>
+    <type>venue</type>
+    <url>https://tanke-hausamsee.de/</url>
+  </wpt>
+  <wpt lat="53.234463" lon="10.572993">
+    <name>ONE WORLD Ostheide e.V. Kulturzentrum</name>
+    <type>venue</type>
+    <url>https://1w-lg.net/</url>
+  </wpt>
+  <wpt lat="47.445212" lon="8.137348">
+    <name>Kueferei</name>
+    <type>venue</type>
+    <url>https://kulturkueferei.ch/</url>
+  </wpt>
+  <wpt lat="47.080684" lon="7.294438">
+    <name>Culture Factory (Kufa Lyss)</name>
+    <type>venue</type>
+    <url>https://kufa.ch/</url>
+  </wpt>
+  <wpt lat="47.544324" lon="9.300104">
+    <name>Pentorama Amriswil</name>
+    <type>venue</type>
+    <url>https://pentorama.ch/</url>
+  </wpt>
+  <wpt lat="47.365076" lon="8.78845">
+    <name>NOVA.Theater</name>
+    <type>venue</type>
+    <url>https://nova.theater/</url>
+  </wpt>
+  <wpt lat="48.520715" lon="9.051042">
+    <name>Club Voltaire e.V.</name>
+    <type>venue</type>
+    <url>https://club-voltaire.com/</url>
+  </wpt>
+  <wpt lat="51.539352" lon="9.933171">
+    <name>EXIL live. music. club.</name>
+    <type>venue</type>
+    <url>https://exil-web.de/</url>
+  </wpt>
+  <wpt lat="46.757716" lon="7.630346">
+    <name>Theater Alte Oele</name>
+    <type>venue</type>
+    <url>https://alteoele.ch/</url>
+  </wpt>
+  <wpt lat="47.153317" lon="8.323912">
+    <name>Gemeindeverwaltung Ballwil</name>
+    <type>venue</type>
+    <url>https://ballwil.ch/</url>
+  </wpt>
+  <wpt lat="48.126082" lon="11.598363">
+    <name>Theater Drehleier &amp; Theatergaststatte &quot;scenery&quot;</name>
+    <type>venue</type>
+    <url>https://theater-drehleier.de/</url>
+  </wpt>
+  <wpt lat="50.810459" lon="8.774866">
+    <name>KFZ Marburg e.V.</name>
+    <type>venue</type>
+    <url>https://kfz-marburg.de/</url>
+  </wpt>
+  <wpt lat="51.229384" lon="6.774298">
+    <name>Ratinger Hof</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="54.774505" lon="9.440731">
+    <name>Kulturwerkstatt Kühlhaus</name>
+    <type>venue</type>
+    <url>https://kuehlhaus.net/</url>
+  </wpt>
+  <wpt lat="50.679312" lon="7.135134">
+    <name>Katharinenhof</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="47.422987" lon="9.737059">
+    <name>Spielboden</name>
+    <type>venue</type>
+    <url>http://www.spielboden.at/</url>
+  </wpt>
+  <wpt lat="48.95317" lon="10.603786">
+    <name>Eiscafé Raffaello</name>
+    <type>venue</type>
+  </wpt>
+  <wpt lat="49.758495" lon="6.644367">
+    <name>Youth Center Mergener Hof e.V.</name>
+    <type>venue</type>
+    <url>https://mjctrier.de/</url>
+  </wpt>
+  <wpt lat="51.519024" lon="7.282115">
+    <name>Bochumer Kulturrat e.V.</name>
+    <type>venue</type>
+    <url>https://bochumerkulturrat.de/</url>
+  </wpt>
+</gpx>

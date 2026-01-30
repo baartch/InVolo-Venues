@@ -1,0 +1,12 @@
+{
+  "name": "venue-crawler-frontend",
+  "version": "1.0.0",
+  "description": "Frontend for venue crawler map",
+  "scripts": {
+    "build": "tsc",
+    "watch": "tsc --watch"
+  },
+  "devDependencies": {
+    "typescript": "^5.3.3"
+  }
+}
