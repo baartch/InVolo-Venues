@@ -188,6 +188,10 @@ Add a cron job to remove old logs and sessions (older than 180 days):
 30 2 * * * /usr/bin/php /path/to/venues/scripts/cleanup.php 180
 ```
 
+### Theme
+
+The UI uses a central theme file. Update `public/themes/forest.css` to adjust the forest palette.
+
 ### File Structure
 
 ```
