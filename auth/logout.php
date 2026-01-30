@@ -1,13 +1,17 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../config/database.php';
 
-// Destroy session and redirect to login
-$_SESSION = [];
-if (ini_get('session.use_cookies')) {
-    $params = session_get_cookie_params();
-    setcookie(session_name(), '', time() - 42000, $params['path'], $params['domain'], $params['secure'], $params['httponly']);
+$token = $_COOKIE[SESSION_NAME] ?? '';
+$session = $token !== '' ? fetchSessionUser($token) : null;
+$userId = $session ? (int) $session['user_id'] : null;
+
+if ($token !== '') {
+    deleteSession($token);
 }
-session_destroy();
+
+clearSessionCookie();
+logAction($userId, 'logout', 'User logged out');
 
 header('Location: ' . BASE_PATH . '/auth/login.php');
 exit;

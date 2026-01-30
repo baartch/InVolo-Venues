@@ -1,7 +1,7 @@
 {
-  "name": "venue-crawler-frontend",
+  "name": "venues-database",
   "version": "1.0.0",
-  "description": "Frontend for venue crawler map",
+  "description": "Database for venues",
   "scripts": {
     "build": "tsc",
     "watch": "tsc --watch"

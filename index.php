@@ -1,4 +1,8 @@
-<?php require_once __DIR__ . '/auth/auth_check.php'; ?>
+<?php
+require_once __DIR__ . '/auth/auth_check.php';
+require_once __DIR__ . '/config/database.php';
+logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
+?>
 <!DOCTYPE html>
 <html lang="en">
 <head>

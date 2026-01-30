@@ -1,4 +1,4 @@
-# 🎵 Venue Crawler
+# 🎵 Venue Database
 
 A secure web application for booking agents to manage and visualize venue locations on an interactive map.
 
@@ -12,7 +12,7 @@ A secure web application for booking agents to manage and visualize venue locati
 
 # 2. Configure credentials
 nano config/config.php
-# Change LOGIN_USERNAME and LOGIN_PASSWORD
+# Configure the database connection
 
 # 3. Start server
 php -S localhost:8000
@@ -20,11 +20,12 @@ php -S localhost:8000
 
 Open: **http://localhost:8000/auth/login.php**
 
-**Default Login:**
-- Username: `admin`
-- Password: `venues2026`
+Set up user accounts in the `users` table (with `password_hash` values). Ensure at least one admin user exists.
 
-⚠️ **Change these immediately in `config/config.php`!**
+Example (generate password hash in PHP):
+```php
+<?php echo password_hash('your-password', PASSWORD_DEFAULT); ?>
+```
 
 ## ✨ Features
 
@@ -50,26 +51,31 @@ Open: **http://localhost:8000/auth/login.php**
 | `Escape` | Close search results |
 
 ### 🔒 Security
-- PHP session-based authentication
-- Protected GPX data files
+- Database-backed authentication
+- Sessions stored in MariaDB
 - Automatic logout after 1 hour
 - Secure session cookies (HttpOnly, SameSite)
+- Logs recorded in the `logs` table
 
 ## 📋 Requirements
 
 - **PHP** 7.4 or higher
 - **Web Server**: Apache or Nginx (Apache recommended)
 - **Node.js & npm** (for development only)
+- **MariaDB/MySQL**
 
 ## 🔧 Configuration
 
-### Change Password
+### Database Connection
 
 Edit `config/config.php`:
 
 ```php
-define('LOGIN_USERNAME', 'your_username');
-define('LOGIN_PASSWORD', 'your_secure_password');
+define('DB_HOST', 'localhost');
+define('DB_PORT', 3306);
+define('DB_NAME', 'involo_venues');
+define('DB_USER', 'dbuservenues');
+define('DB_PASSWORD', 'your_secure_password');
 ```
 
 ### Session Timeout
@@ -137,9 +143,9 @@ location ~ \.php$ {
 ## 🆘 Troubleshooting
 
 ### Can't Login?
-1. Check credentials in `config/config.php`
+1. Verify the user exists in the `users` table
 2. Clear browser cookies
-3. Check PHP session permissions
+3. Check database connectivity
 
 ### .htaccess Errors?
 If you see "not allowed here" errors:
@@ -150,10 +156,10 @@ If you see "not allowed here" errors:
 1. Clear browser cache (Ctrl+F5)
 2. Check browser zoom is at 100%
 
-### GPX File Not Loading?
+### Venues Not Loading?
 1. Verify you're logged in
 2. Check browser console for errors
-3. Ensure `public/waypoints.gpx` exists
+3. Ensure the `venues` table has latitude/longitude data
 
 ### Redirects Not Working?
 If redirects go to wrong URLs (e.g., `/auth/login.php` instead of `/venues/auth/login.php`):
@@ -183,40 +189,31 @@ frontend/
 │   ├── logout.php         # Logout handler
 │   └── auth_check.php     # Session validator
 ├── api/                   # API endpoints
-│   └── get_waypoints.php  # Protected GPX endpoint
+│   └── get_waypoints.php  # Protected venues endpoint
 ├── config/                # Configuration (protected)
-│   └── config.php         # Credentials & settings
+│   ├── config.php         # Credentials & settings
+│   └── database.php       # Database helpers
 ├── public/                # Public assets
 │   ├── map.ts             # TypeScript source
-│   ├── map.js             # Compiled JavaScript
-│   └── waypoints.gpx      # Venue data
+│   └── map.js             # Compiled JavaScript
 └── docs/                  # Documentation (archived)
 ```
 
 ## 📊 Adding Venues
 
-Venues are stored in `public/waypoints.gpx` (GPX format):
-
-```xml
-<wpt lat="52.520008" lon="13.404954">
-  <name>Venue Name</name>
-  <url>https://venue-website.com</url>
-</wpt>
-```
-
-After updating, reload the map to see changes.
+Venues are stored in the `venues` table in MariaDB. Ensure each venue has `latitude` and `longitude` values.
 
 ## 🔐 Security Checklist
 
 Before going live:
 
-- [ ] Changed default username/password in `config/config.php`
+- [ ] Created admin user in the `users` table
 - [ ] Set `config/config.php` to chmod 600
 - [ ] Enabled HTTPS with SSL certificate
-- [ ] Verified `.htaccess` protects GPX and config files
+- [ ] Verified `.htaccess` protects config files
 - [ ] Tested login/logout functionality
 - [ ] Verified session timeout works
-- [ ] Checked that direct access to `/public/waypoints.gpx` returns 403
+- [ ] Verified logs are written to the `logs` table
 - [ ] Checked that direct access to `/config/config.php` returns 403
 
 ## 📱 Browser Support
