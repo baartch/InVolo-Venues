@@ -25,7 +25,7 @@ CREATE TABLE `venues` (
   `postal_code` varchar(20) DEFAULT NULL,
   `city` varchar(100) DEFAULT NULL,
   `state` varchar(100) NOT NULL,
-  `country` varchar(100) DEFAULT NULL,
+  `country` enum('DE','CH','AT','IT','FR') DEFAULT NULL,
   `latitude` decimal(9,6) DEFAULT NULL,
   `longitude` decimal(9,6) DEFAULT NULL,
   `type` enum('Kulturlokal','Kneipe','Festival','Shop','Café','Bar','Restaurant') DEFAULT NULL,

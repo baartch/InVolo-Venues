@@ -7,6 +7,7 @@ $notice = '';
 $editVenue = null;
 $editId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
 $venueTypes = ['Kulturlokal', 'Kneipe', 'Festival', 'Shop', 'Café', 'Bar', 'Restaurant'];
+$countryOptions = ['DE', 'CH', 'AT', 'IT', 'FR'];
 
 $fields = [
     'name',
@@ -27,6 +28,8 @@ $fields = [
 ];
 
 $formValues = array_fill_keys($fields, '');
+$resetForm = false;
+$isFormOpen = false;
 
 function normalizeOptionalString(string $value): ?string
 {
@@ -65,6 +68,10 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $errors[] = 'Invalid venue type selected.';
     }
 
+    if ($payload['country'] !== '' && !in_array($payload['country'], $countryOptions, true)) {
+        $errors[] = 'Invalid country selected.';
+    }
+
     $latitude = normalizeOptionalNumber($payload['latitude'], 'Latitude', $errors);
     $longitude = normalizeOptionalNumber($payload['longitude'], 'Longitude', $errors);
     $capacity = normalizeOptionalNumber($payload['capacity'], 'Capacity', $errors, true);
@@ -101,7 +108,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 $stmt->execute($data);
                 logAction($currentUser['user_id'] ?? null, 'venue_created', sprintf('Created venue %s', $payload['name']));
                 $notice = 'Venue added successfully.';
-                $formValues = array_fill_keys($fields, '');
+                $resetForm = true;
             }
 
             if ($action === 'update') {
@@ -134,6 +141,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $notice = 'Venue updated successfully.';
                     $editId = 0;
                     $editVenue = null;
+                    $resetForm = true;
                 }
             }
         } catch (Throwable $error) {
@@ -171,7 +179,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 
+if ($resetForm && !$errors) {
+    $formValues = array_fill_keys($fields, '');
+}
+
 if ($editId > 0 && $editVenue === null) {
+
     try {
         $pdo = getDatabaseConnection();
         $stmt = $pdo->prepare('SELECT * FROM venues WHERE id = :id');
@@ -192,6 +205,8 @@ if ($editVenue) {
         $formValues[$field] = (string) ($editVenue[$field] ?? '');
     }
 }
+
+$isFormOpen = $editVenue || (bool) $errors || (bool) $notice;
 
 try {
     $pdo = getDatabaseConnection();
@@ -257,6 +272,39 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
       resize: vertical;
     }
 
+    .accordion-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+      width: 100%;
+      background: none;
+      border: none;
+      font-size: 18px;
+      font-weight: 600;
+      color: #fff;
+      padding: 0;
+      cursor: pointer;
+    }
+
+    .accordion-header span {
+      color: #fff;
+    }
+
+    .accordion-toggle {
+      font-size: 18px;
+      line-height: 1;
+    }
+
+    .accordion-content {
+      margin-top: 16px;
+      display: none;
+    }
+
+    .accordion-content.open {
+      display: block;
+    }
+
     .form-footer {
       display: flex;
       flex-wrap: wrap;
@@ -281,6 +329,15 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
     .table a {
       color: var(--color-primary-dark);
     }
+
+    .row-meta {
+      margin-top: 6px;
+      font-size: 0.6em;
+      color: var(--color-muted);
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
   </style>
 </head>
 <body class="map-page">
@@ -302,8 +359,12 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
         <?php endforeach; ?>
 
         <div class="card card-section">
-          <h2><?php echo $editVenue ? 'Edit Venue' : 'Add Venue'; ?></h2>
-          <form method="POST" action="" class="venue-form">
+          <button type="button" class="accordion-header" data-accordion-toggle>
+            <span><?php echo $editVenue ? 'Edit Venue' : 'Add Venue'; ?></span>
+            <span class="accordion-toggle"><?php echo $isFormOpen ? '−' : '+'; ?></span>
+          </button>
+          <div class="accordion-content <?php echo $isFormOpen ? 'open' : ''; ?>" data-accordion-content>
+            <form method="POST" action="" class="venue-form">
             <input type="hidden" name="action" value="<?php echo $editVenue ? 'update' : 'create'; ?>">
             <?php if ($editVenue): ?>
               <input type="hidden" name="venue_id" value="<?php echo (int) $editVenue['id']; ?>">
@@ -339,7 +400,14 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
               </div>
               <div class="form-group">
                 <label for="country">Country</label>
-                <input type="text" id="country" name="country" class="input" value="<?php echo htmlspecialchars($formValues['country']); ?>">
+                <select id="country" name="country" class="input">
+                  <option value="">Select country</option>
+                  <?php foreach ($countryOptions as $country): ?>
+                    <option value="<?php echo htmlspecialchars($country); ?>" <?php echo $formValues['country'] === $country ? 'selected' : ''; ?>>
+                      <?php echo htmlspecialchars($country); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
               </div>
               <div class="form-group">
                 <label for="address">Address</label>
@@ -386,6 +454,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
               <?php endif; ?>
             </div>
           </form>
+          </div>
         </div>
 
         <div class="card card-section" style="margin-top: 24px;">
@@ -396,12 +465,8 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                 <tr>
                   <th>Name</th>
                   <th>Address</th>
-                  <th>Postal Code</th>
-                  <th>City</th>
                   <th>State</th>
                   <th>Country</th>
-                  <th>Latitude</th>
-                  <th>Longitude</th>
                   <th>Type</th>
                   <th>Contact Email</th>
                   <th>Contact Phone</th>
@@ -409,8 +474,6 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                   <th>Capacity</th>
                   <th>Website</th>
                   <th>Notes</th>
-                  <th>Created</th>
-                  <th>Updated</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -418,13 +481,20 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                 <?php foreach ($venues as $venue): ?>
                   <tr>
                     <td><?php echo htmlspecialchars($venue['name']); ?></td>
-                    <td><?php echo htmlspecialchars($venue['address'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['postal_code'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['city'] ?? ''); ?></td>
+                    <td>
+                      <?php
+                        $addressParts = array_filter([
+                            $venue['address'] ?? '',
+                            implode(' ', array_filter([
+                                $venue['postal_code'] ?? '',
+                                $venue['city'] ?? ''
+                            ]))
+                        ]);
+                        echo nl2br(htmlspecialchars(implode("\n", $addressParts)));
+                      ?>
+                    </td>
                     <td><?php echo htmlspecialchars($venue['state'] ?? ''); ?></td>
                     <td><?php echo htmlspecialchars($venue['country'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['latitude'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['longitude'] ?? ''); ?></td>
                     <td><?php echo htmlspecialchars($venue['type'] ?? ''); ?></td>
                     <td><?php echo htmlspecialchars($venue['contact_email'] ?? ''); ?></td>
                     <td><?php echo htmlspecialchars($venue['contact_phone'] ?? ''); ?></td>
@@ -438,8 +508,6 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                       <?php endif; ?>
                     </td>
                     <td class="table-notes"><?php echo htmlspecialchars($venue['notes'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></td>
                     <td class="table-actions">
                       <form method="GET" action="" class="table-actions">
                         <input type="hidden" name="edit" value="<?php echo (int) $venue['id']; ?>">
@@ -454,6 +522,10 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                           <img src="<?php echo BASE_PATH; ?>/public/assets/icon-basket.svg" alt="Delete">
                         </button>
                       </form>
+                      <div class="row-meta">
+                        <span>Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
+                        <span>Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
+                      </div>
                     </td>
                   </tr>
                 <?php endforeach; ?>
@@ -464,5 +536,22 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
       </div>
     </main>
   </div>
+  <script>
+    (function () {
+      const toggleButton = document.querySelector('[data-accordion-toggle]');
+      const content = document.querySelector('[data-accordion-content]');
+      if (!toggleButton || !content) {
+        return;
+      }
+
+      toggleButton.addEventListener('click', () => {
+        const isOpen = content.classList.toggle('open');
+        const indicator = toggleButton.querySelector('.accordion-toggle');
+        if (indicator) {
+          indicator.textContent = isOpen ? '−' : '+';
+        }
+      });
+    })();
+  </script>
 </body>
 </html>
