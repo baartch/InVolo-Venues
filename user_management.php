@@ -277,6 +277,9 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
         <a href="index.php" class="sidebar-link" aria-label="Map">
           <img src="public/assets/icon-map.svg" alt="Map">
         </a>
+        <a href="venues.php" class="sidebar-link" aria-label="Venues">
+          <img src="public/assets/icon-venues.svg" alt="Venues">
+        </a>
         <a href="user_management.php" class="sidebar-link active" aria-label="User management">
           <img src="public/assets/icon-user.svg" alt="User management">
         </a>

@@ -1,7 +1,8 @@
 <?php
 require_once __DIR__ . '/auth/auth_check.php';
 require_once __DIR__ . '/config/database.php';
-logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
+
+logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue management');
 ?>
 <!DOCTYPE html>
 <html lang="en">
@@ -9,32 +10,44 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <base href="<?php echo BASE_PATH; ?>/">
-  <title>Venue Database - Map</title>
-  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
-    integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
-    crossorigin="" />
+  <title>Venue Database - Venues</title>
   <link rel="stylesheet" href="public/styles.css">
-  <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
-    integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
-    crossorigin=""></script>
-
   <style>
     html,
     body {
       height: 100%;
       margin: 0;
     }
+
+    .content-wrapper {
+      padding: 32px;
+    }
+
+    .page-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      margin-bottom: 24px;
+    }
+
+    .page-header h1 {
+      font-size: 24px;
+      color: var(--color-primary-dark);
+    }
+
+    .placeholder-card {
+      padding: 24px;
+    }
   </style>
 </head>
-
 <body class="map-page">
   <div class="app-layout">
     <aside class="sidebar">
       <nav class="sidebar-nav">
-        <a href="index.php" class="sidebar-link active" aria-label="Map">
+        <a href="index.php" class="sidebar-link" aria-label="Map">
           <img src="public/assets/icon-map.svg" alt="Map">
         </a>
-        <a href="venues.php" class="sidebar-link" aria-label="Venues">
+        <a href="venues.php" class="sidebar-link active" aria-label="Venues">
           <img src="public/assets/icon-venues.svg" alt="Venues">
         </a>
         <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
@@ -50,18 +63,15 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
     </aside>
 
     <main class="main-content">
-      <div id="search-container">
-        <div style="position: relative;">
-          <input type="text" id="waypoint-search" placeholder="Search for venues...">
-          <span class="keyboard-hint">Ctrl+K</span>
+      <div class="content-wrapper">
+        <div class="page-header">
+          <h1>Venue Management</h1>
         </div>
-        <div id="search-results"></div>
+        <div class="card placeholder-card">
+          <p>Venue management tools will appear here.</p>
+        </div>
       </div>
-      <div id="mapid"></div>
     </main>
   </div>
-
-  <script type="module" src="public/map.js" defer></script>
 </body>
-
 </html>
