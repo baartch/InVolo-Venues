@@ -11,7 +11,6 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 EXCLUDES=(
   ".git/"
   ".gitignore"
-  "scripts/"
   "node_modules/"
   #"config/config.php"
   "bun.lock"

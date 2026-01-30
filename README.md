@@ -179,6 +179,15 @@ npm run build
 npm run watch
 ```
 
+### Maintenance
+
+Add a cron job to remove old logs and sessions (older than 180 days):
+
+```bash
+# Run nightly at 2:30 (keep 180 days)
+30 2 * * * /usr/bin/php /path/to/venues/scripts/cleanup.php 180
+```
+
 ### File Structure
 
 ```
