@@ -12,7 +12,8 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 ## Key Paths
 ```
 ├── index.php                 # Map view (auth required)
-├── user_management.php       # Admin-only user management
+├── admin/user_management.php # Admin-only user management
+├── venues/                   # Venue management views
 ├── api/get_waypoints.php     # GPX output from DB venues
 ├── auth/                     # Login/logout + auth_check
 ├── config/                   # DB config + helpers
@@ -32,7 +33,7 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 Uses tables: `venues`, `users`, `sessions`, `logs`, `settings` (see `DB.md`).
 
 ## Notes
-- Sidebar icons: map, user management (admin), logout.
+- Sidebar icons: map, venues, user management (admin), logout.
 - User management: create/delete users, role changes, password reset.
 - Logs written via `logAction()` in `config/database.php`.
 

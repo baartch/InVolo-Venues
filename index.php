@@ -13,7 +13,7 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
     integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
     crossorigin="" />
-  <link rel="stylesheet" href="public/styles.css">
+  <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/public/styles.css">
   <script src="https://unpkg.com/leaflet@1.7.1/dist/leaflet.js"
     integrity="sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA=="
     crossorigin=""></script>
@@ -29,25 +29,7 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
 
 <body class="map-page">
   <div class="app-layout">
-    <aside class="sidebar">
-      <nav class="sidebar-nav">
-        <a href="index.php" class="sidebar-link active" aria-label="Map">
-          <img src="public/assets/icon-map.svg" alt="Map">
-        </a>
-        <a href="venues.php" class="sidebar-link" aria-label="Venues">
-          <img src="public/assets/icon-venues.svg" alt="Venues">
-        </a>
-        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
-          <a href="user_management.php" class="sidebar-link" aria-label="User management">
-            <img src="public/assets/icon-user.svg" alt="User management">
-          </a>
-        <?php endif; ?>
-      </nav>
-      <div class="sidebar-spacer"></div>
-      <a href="auth/logout.php" class="sidebar-link" aria-label="Logout">
-        <img src="public/assets/icon-logout.svg" alt="Logout">
-      </a>
-    </aside>
+    <?php require __DIR__ . '/partials/sidebar.php'; ?>
 
     <main class="main-content">
       <div id="search-container">
@@ -61,7 +43,7 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
     </main>
   </div>
 
-  <script type="module" src="public/map.js" defer></script>
+  <script type="module" src="<?php echo BASE_PATH; ?>/public/map.js" defer></script>
 </body>
 
 </html>

@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/config/admin_check.php';
-require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/../config/admin_check.php';
+require_once __DIR__ . '/../config/database.php';
 
 $errors = [];
 $notice = '';
@@ -145,7 +145,7 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <base href="<?php echo BASE_PATH; ?>/">
   <title>Venue Database - User Management</title>
-  <link rel="stylesheet" href="public/styles.css">
+  <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/public/styles.css">
   <style>
     html,
     body {
@@ -272,23 +272,7 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
 </head>
 <body class="map-page">
   <div class="app-layout">
-    <aside class="sidebar">
-      <nav class="sidebar-nav">
-        <a href="index.php" class="sidebar-link" aria-label="Map">
-          <img src="public/assets/icon-map.svg" alt="Map">
-        </a>
-        <a href="venues.php" class="sidebar-link" aria-label="Venues">
-          <img src="public/assets/icon-venues.svg" alt="Venues">
-        </a>
-        <a href="user_management.php" class="sidebar-link active" aria-label="User management">
-          <img src="public/assets/icon-user.svg" alt="User management">
-        </a>
-      </nav>
-      <div class="sidebar-spacer"></div>
-      <a href="auth/logout.php" class="sidebar-link" aria-label="Logout">
-        <img src="public/assets/icon-logout.svg" alt="Logout">
-      </a>
-    </aside>
+    <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
     <main class="main-content">
       <div class="content-wrapper">
@@ -364,14 +348,14 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
                       <input type="hidden" name="action" value="reset_password">
                       <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
                       <button type="submit" class="icon-button secondary" aria-label="Reset password" title="Reset password">
-                        <img src="public/assets/icon-reset.svg" alt="Reset password">
+                        <img src="<?php echo BASE_PATH; ?>/public/assets/icon-reset.svg" alt="Reset password">
                       </button>
                     </form>
                     <form method="POST" action="" onsubmit="return confirm('Delete this user?');">
                       <input type="hidden" name="action" value="delete">
                       <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
                       <button type="submit" class="icon-button" aria-label="Delete user" title="Delete user">
-                        <img src="public/assets/icon-basket.svg" alt="Delete">
+                        <img src="<?php echo BASE_PATH; ?>/public/assets/icon-basket.svg" alt="Delete">
                       </button>
                     </form>
                   </td>

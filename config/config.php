@@ -12,10 +12,10 @@ define('DB_PASSWORD', 'CGa?655Amcz#kzgl');
 // For example: '' for root, '/venues' for subdirectory
 // Auto-detect from current script location
 $scriptPath = dirname($_SERVER['SCRIPT_NAME']);
-// Remove auth, api, or config from path if present
+// Remove auth, api, config, admin, or venues from path if present
 $pathParts = explode('/', trim($scriptPath, '/'));
 $lastPart = end($pathParts);
-if (in_array($lastPart, ['auth', 'api', 'config'], true)) {
+if (in_array($lastPart, ['auth', 'api', 'config', 'admin', 'venues'], true)) {
     array_pop($pathParts);
 }
 $basePath = implode('/', $pathParts);

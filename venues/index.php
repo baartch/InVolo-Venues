@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/auth/auth_check.php';
-require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/../auth/auth_check.php';
+require_once __DIR__ . '/../config/database.php';
 
 logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue management');
 ?>
@@ -11,7 +11,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <base href="<?php echo BASE_PATH; ?>/">
   <title>Venue Database - Venues</title>
-  <link rel="stylesheet" href="public/styles.css">
+  <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/public/styles.css">
   <style>
     html,
     body {
@@ -42,25 +42,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
 </head>
 <body class="map-page">
   <div class="app-layout">
-    <aside class="sidebar">
-      <nav class="sidebar-nav">
-        <a href="index.php" class="sidebar-link" aria-label="Map">
-          <img src="public/assets/icon-map.svg" alt="Map">
-        </a>
-        <a href="venues.php" class="sidebar-link active" aria-label="Venues">
-          <img src="public/assets/icon-venues.svg" alt="Venues">
-        </a>
-        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
-          <a href="user_management.php" class="sidebar-link" aria-label="User management">
-            <img src="public/assets/icon-user.svg" alt="User management">
-          </a>
-        <?php endif; ?>
-      </nav>
-      <div class="sidebar-spacer"></div>
-      <a href="auth/logout.php" class="sidebar-link" aria-label="Logout">
-        <img src="public/assets/icon-logout.svg" alt="Logout">
-      </a>
-    </aside>
+    <?php require __DIR__ . '/../partials/sidebar.php'; ?>
 
     <main class="main-content">
       <div class="content-wrapper">
