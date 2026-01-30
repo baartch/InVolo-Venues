@@ -16,6 +16,67 @@ body.map-page {
   background: var(--color-bg);
 }
 
+.app-layout {
+  display: flex;
+  min-height: 100vh;
+}
+
+.sidebar {
+  width: 64px;
+  background: var(--color-primary-dark);
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  padding: 16px 0;
+  gap: 12px;
+  position: fixed;
+  left: 0;
+  top: 0;
+  bottom: 0;
+  z-index: 1100;
+}
+
+.sidebar-nav {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+  width: 100%;
+  align-items: center;
+}
+
+.sidebar-link {
+  width: 48px;
+  height: 48px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 12px;
+  transition: background 0.2s ease;
+}
+
+.sidebar-link img {
+  width: 32px;
+  height: 32px;
+}
+
+.sidebar-link:hover {
+  background: rgba(255, 255, 255, 0.15);
+}
+
+.sidebar-link.active {
+  background: rgba(255, 255, 255, 0.25);
+}
+
+.sidebar-spacer {
+  flex: 1;
+}
+
+.main-content {
+  flex: 1;
+  margin-left: 64px;
+  position: relative;
+}
+
 .card {
   background: var(--color-card);
   border-radius: 10px;
@@ -79,6 +140,10 @@ body.map-page {
   z-index: 1000;
   width: 90%;
   max-width: 400px;
+}
+
+.main-content #mapid {
+  min-height: 100vh;
 }
 
 #waypoint-search {
@@ -147,26 +212,3 @@ body.map-page {
   border-bottom: none;
 }
 
-#logout-btn {
-  position: absolute;
-  top: 10px;
-  right: 10px;
-  z-index: 1000;
-  padding: 10px 20px;
-  background: var(--color-card);
-  border: 2px solid var(--color-border);
-  border-radius: 20px;
-  box-shadow: 0 2px 6px var(--color-shadow);
-  cursor: pointer;
-  font-size: 14px;
-  font-weight: 500;
-  color: var(--color-text);
-  text-decoration: none;
-  transition: all 0.3s;
-}
-
-#logout-btn:hover {
-  background: var(--color-danger);
-  color: #fff;
-  border-color: var(--color-danger);
-}

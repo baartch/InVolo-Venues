@@ -192,6 +192,10 @@ Add a cron job to remove old logs and sessions (older than 180 days):
 
 The UI uses a central theme file. Update `public/themes/forest.css` to adjust the forest palette.
 
+### Navigation
+
+The main UI includes a sidebar with map, user management (placeholder), and logout icons.
+
 ### File Structure
 
 ```

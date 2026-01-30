@@ -28,15 +28,33 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
 </head>
 
 <body class="map-page">
-  <a href="auth/logout.php" id="logout-btn">🚪 Logout</a>
-  <div id="search-container">
-    <div style="position: relative;">
-      <input type="text" id="waypoint-search" placeholder="Search for venues...">
-      <span class="keyboard-hint">Ctrl+K</span>
-    </div>
-    <div id="search-results"></div>
+  <div class="app-layout">
+    <aside class="sidebar">
+      <nav class="sidebar-nav">
+        <a href="index.php" class="sidebar-link active" aria-label="Map">
+          <img src="public/assets/icon-map.svg" alt="Map">
+        </a>
+        <a href="user_management.php" class="sidebar-link" aria-label="User management">
+          <img src="public/assets/icon-user.svg" alt="User management">
+        </a>
+      </nav>
+      <div class="sidebar-spacer"></div>
+      <a href="auth/logout.php" class="sidebar-link" aria-label="Logout">
+        <img src="public/assets/icon-logout.svg" alt="Logout">
+      </a>
+    </aside>
+
+    <main class="main-content">
+      <div id="search-container">
+        <div style="position: relative;">
+          <input type="text" id="waypoint-search" placeholder="Search for venues...">
+          <span class="keyboard-hint">Ctrl+K</span>
+        </div>
+        <div id="search-results"></div>
+      </div>
+      <div id="mapid"></div>
+    </main>
   </div>
-  <div id="mapid"></div>
 
   <script type="module" src="public/map.js" defer></script>
 </body>
