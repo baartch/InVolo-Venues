@@ -60,7 +60,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <base href="<?php echo BASE_PATH; ?>/">
-    <title>Venue Crawler - Login</title>
+    <title>Venue Database - Login</title>
     <link rel="stylesheet" href="public/styles.css">
     <style>
         body {
@@ -68,25 +68,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             display: flex;
             align-items: center;
             justify-content: center;
+            padding: 20px;
         }
 
         .login-container {
             padding: 40px;
             border-radius: 10px;
             width: 100%;
-            max-width: 400px;
+            max-width: 420px;
         }
 
         h1 {
             color: var(--color-primary-dark);
             margin-bottom: 10px;
             font-size: 28px;
+            text-align: center;
         }
 
         .subtitle {
             color: var(--color-muted);
             margin-bottom: 30px;
             font-size: 14px;
+            text-align: center;
         }
 
         .form-group {
@@ -100,6 +103,18 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             font-weight: 500;
         }
 
+        input[type="text"],
+        input[type="password"] {
+            width: 100%;
+            padding: 12px;
+        }
+
+        button[type="submit"] {
+            width: 100%;
+            padding: 14px;
+            font-size: 16px;
+        }
+
         .footer {
             margin-top: 20px;
             text-align: center;
@@ -110,7 +125,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 </head>
 <body>
     <div class="login-container card">
-        <h1>🎵 Venue Crawler</h1>
+        <h1>🎵 Venue Database</h1>
         <p class="subtitle">Please login to access the venue map</p>
         
         <?php if ($error): ?>

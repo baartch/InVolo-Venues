@@ -9,7 +9,7 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <base href="<?php echo BASE_PATH; ?>/">
-  <title>Venue Crawler - Map</title>
+  <title>Venue Database - Map</title>
   <link rel="stylesheet" href="https://unpkg.com/leaflet@1.7.1/dist/leaflet.css"
     integrity="sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A=="
     crossorigin="" />

@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🎵 Venue Crawler Frontend Setup"
+echo "🎵 Venue Database Frontend Setup"
 echo "================================"
 echo ""
 
