@@ -31,7 +31,7 @@ set net:max-retries 2
 set net:timeout 10
 set net:persist-retries 1
 
-mirror -R --verbose --delete --delete-first --only-newer \
+mirror -R --verbose --delete --delete-first --delete-excluded --only-newer \
   ${EXCLUDE_ARGS} \
   "${PROJECT_ROOT}" "${REMOTE_DIR}"
 
