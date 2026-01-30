@@ -194,7 +194,7 @@ The UI uses a central theme file. Update `public/themes/forest.css` to adjust th
 
 ### Navigation
 
-The main UI includes a sidebar with map, user management (placeholder), and logout icons.
+The main UI includes a sidebar with map, admin-only user management, and logout icons.
 
 ### File Structure
 

@@ -34,9 +34,11 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
         <a href="index.php" class="sidebar-link active" aria-label="Map">
           <img src="public/assets/icon-map.svg" alt="Map">
         </a>
-        <a href="user_management.php" class="sidebar-link" aria-label="User management">
-          <img src="public/assets/icon-user.svg" alt="User management">
-        </a>
+        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+          <a href="user_management.php" class="sidebar-link" aria-label="User management">
+            <img src="public/assets/icon-user.svg" alt="User management">
+          </a>
+        <?php endif; ?>
       </nav>
       <div class="sidebar-spacer"></div>
       <a href="auth/logout.php" class="sidebar-link" aria-label="Logout">

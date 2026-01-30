@@ -119,6 +119,15 @@ body.map-page {
   color: var(--color-muted);
 }
 
+.notice {
+  background: #e8f4ec;
+  color: var(--color-primary-dark);
+  padding: 12px;
+  border-radius: 6px;
+  margin-bottom: 20px;
+  border-left: 4px solid var(--color-accent);
+}
+
 .error {
   background: var(--color-danger-bg);
   color: var(--color-danger);
