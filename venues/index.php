@@ -509,12 +509,25 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
     }
 
     .row-meta {
-      margin-top: 6px;
+      margin-top: 0;
       font-size: 0.6em;
       color: var(--color-muted);
       display: flex;
       flex-direction: column;
       gap: 2px;
+    }
+
+    .venue-actions {
+      display: flex;
+      flex-direction: column;
+      align-items: flex-start;
+      gap: 6px;
+    }
+
+    .venue-actions-buttons {
+      display: flex;
+      gap: 10px;
+      align-items: center;
     }
   </style>
 </head>
@@ -664,6 +677,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
             <table class="table">
               <thead>
                 <tr>
+                  <th></th>
                   <th>Name</th>
                   <th>Address</th>
                   <th>State</th>
@@ -681,6 +695,11 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
               <tbody>
                 <?php foreach ($venues as $venue): ?>
                   <tr>
+                    <td>
+                      <?php if (!empty($venue['latitude']) && !empty($venue['longitude'])): ?>
+                        <img src="<?php echo BASE_PATH; ?>/public/assets/icon-compass.svg" alt="Has coordinates" class="table-icon">
+                      <?php endif; ?>
+                    </td>
                     <td><?php echo htmlspecialchars($venue['name']); ?></td>
                     <td>
                       <?php
@@ -709,23 +728,27 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                       <?php endif; ?>
                     </td>
                     <td class="table-notes"><?php echo htmlspecialchars($venue['notes'] ?? ''); ?></td>
-                    <td class="table-actions">
-                      <form method="GET" action="" class="table-actions">
-                        <input type="hidden" name="edit" value="<?php echo (int) $venue['id']; ?>">
-                        <button type="submit" class="icon-button secondary" aria-label="Edit venue" title="Edit venue">
-                          <img src="<?php echo BASE_PATH; ?>/public/assets/icon-pen.svg" alt="Edit">
-                        </button>
-                      </form>
-                      <form method="POST" action="" class="table-actions" onsubmit="return confirm('Delete this venue?');">
-                        <input type="hidden" name="action" value="delete">
-                        <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
-                        <button type="submit" class="icon-button" aria-label="Delete venue" title="Delete venue">
-                          <img src="<?php echo BASE_PATH; ?>/public/assets/icon-basket.svg" alt="Delete">
-                        </button>
-                      </form>
-                      <div class="row-meta">
-                        <span>Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
-                        <span>Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
+                    <td>
+                      <div class="venue-actions">
+                        <div class="venue-actions-buttons">
+                          <form method="GET" action="">
+                            <input type="hidden" name="edit" value="<?php echo (int) $venue['id']; ?>">
+                            <button type="submit" class="icon-button secondary" aria-label="Edit venue" title="Edit venue">
+                              <img src="<?php echo BASE_PATH; ?>/public/assets/icon-pen.svg" alt="Edit">
+                            </button>
+                          </form>
+                          <form method="POST" action="" onsubmit="return confirm('Delete this venue?');">
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
+                            <button type="submit" class="icon-button" aria-label="Delete venue" title="Delete venue">
+                              <img src="<?php echo BASE_PATH; ?>/public/assets/icon-basket.svg" alt="Delete">
+                            </button>
+                          </form>
+                        </div>
+                        <div class="row-meta">
+                          <span>Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
+                          <span>Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
+                        </div>
                       </div>
                     </td>
                   </tr>

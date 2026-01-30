@@ -129,22 +129,12 @@ textarea {
   transition: border-color 0.3s;
   background: #fff;
   color: var(--color-text);
+  padding: 12px;
 }
 
 .input,
 select.input {
   width: 100%;
-  padding: 12px;
-}
-
-input[type="text"],
-input[type="email"],
-input[type="password"],
-input[type="number"],
-input[type="url"],
-select,
-textarea {
-  padding: 12px;
 }
 
 .input:focus,
@@ -316,6 +306,12 @@ textarea:focus {
   display: flex;
   gap: 10px;
   align-items: center;
+}
+
+.table-icon {
+  width: 20px;
+  height: 20px;
+  filter: invert(34%) sepia(10%) saturate(1200%) hue-rotate(102deg) brightness(92%) contrast(88%);
 }
 
 .icon-button:hover {
