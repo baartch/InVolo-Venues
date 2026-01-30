@@ -49,22 +49,22 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'reset_password') {
         $userId = (int) ($_POST['user_id'] ?? 0);
-        $password = (string) ($_POST['new_password'] ?? '');
 
-        if ($userId <= 0 || $password === '') {
-            $errors[] = 'Password reset requires a user and new password.';
+        if ($userId <= 0) {
+            $errors[] = 'Please select a user to reset.';
         }
 
         if (!$errors) {
             try {
+                $newPassword = bin2hex(random_bytes(4));
                 $pdo = getDatabaseConnection();
                 $stmt = $pdo->prepare('UPDATE users SET password_hash = :password_hash WHERE id = :id');
                 $stmt->execute([
-                    ':password_hash' => password_hash($password, PASSWORD_DEFAULT),
+                    ':password_hash' => password_hash($newPassword, PASSWORD_DEFAULT),
                     ':id' => $userId
                 ]);
                 logAction($currentUser['user_id'] ?? null, 'password_reset', sprintf('Reset password for user %d', $userId));
-                $notice = 'Password reset successfully.';
+                $notice = 'Password reset successfully. New password: ' . $newPassword;
             } catch (Throwable $error) {
                 $errors[] = 'Failed to reset password.';
                 logAction($currentUser['user_id'] ?? null, 'password_reset_error', $error->getMessage());
@@ -80,8 +80,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             $errors[] = 'Valid user and role are required.';
         }
 
-        if ($currentUser['user_id'] === $userId && $role !== 'admin') {
-            $errors[] = 'You cannot remove your own admin role.';
+        if ($currentUser['user_id'] === $userId) {
+            $errors[] = 'You cannot change your own role.';
         }
 
         if (!$errors) {
@@ -189,6 +189,34 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
       margin-bottom: 16px;
     }
 
+    .create-user-form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    .create-user-row {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
+    @media (min-width: 900px) {
+      .create-user-row {
+        flex-direction: row;
+        align-items: flex-end;
+      }
+
+      .create-user-row .form-group {
+        flex: 1;
+        margin-bottom: 0;
+      }
+
+      .create-user-row .form-group:last-child {
+        max-width: 180px;
+      }
+    }
+
     .form-group label {
       display: block;
       margin-bottom: 8px;
@@ -221,16 +249,6 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
 
     .table th {
       color: var(--color-muted);
-      font-weight: 600;
-    }
-
-    .table td .badge {
-      display: inline-block;
-      padding: 4px 10px;
-      border-radius: 12px;
-      background: var(--color-light);
-      color: var(--color-primary-dark);
-      font-size: 12px;
       font-weight: 600;
     }
 
@@ -286,98 +304,28 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
         <div class="grid">
           <div class="card card-section">
             <h2>Create User</h2>
-            <form method="POST" action="">
+            <form method="POST" action="" class="create-user-form">
               <input type="hidden" name="action" value="create">
-              <div class="form-group">
-                <label for="username">Username</label>
-                <input type="text" id="username" name="username" class="input" required>
+              <div class="create-user-row">
+                <div class="form-group">
+                  <label for="username">Username</label>
+                  <input type="text" id="username" name="username" class="input" required>
+                </div>
+                <div class="form-group">
+                  <label for="password">Password</label>
+                  <input type="password" id="password" name="password" class="input" required>
+                </div>
+                <div class="form-group">
+                  <label for="role">Role</label>
+                  <select id="role" name="role" class="input">
+                    <option value="agent">Agent</option>
+                    <option value="admin">Admin</option>
+                  </select>
+                </div>
+                <div class="form-group">
+                  <button type="submit" class="btn">Create User</button>
+                </div>
               </div>
-              <div class="form-group">
-                <label for="password">Password</label>
-                <input type="password" id="password" name="password" class="input" required>
-              </div>
-              <div class="form-group">
-                <label for="role">Role</label>
-                <select id="role" name="role" class="input">
-                  <option value="agent">Agent</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <button type="submit" class="btn">Create User</button>
-            </form>
-          </div>
-
-          <div class="card card-section">
-            <h2>Reset Password</h2>
-            <form method="POST" action="">
-              <input type="hidden" name="action" value="reset_password">
-              <div class="form-group">
-                <label for="reset_user">User</label>
-                <select id="reset_user" name="user_id" class="input">
-                  <option value="">Select user</option>
-                  <?php foreach ($users as $user): ?>
-                    <option value="<?php echo (int) $user['id']; ?>">
-                      <?php echo htmlspecialchars($user['username']); ?>
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="new_password">New Password</label>
-                <input type="password" id="new_password" name="new_password" class="input" required>
-              </div>
-              <button type="submit" class="btn">Reset Password</button>
-            </form>
-          </div>
-
-          <div class="card card-section">
-            <h2>Role Management</h2>
-            <form method="POST" action="">
-              <input type="hidden" name="action" value="update_role">
-              <div class="form-group">
-                <label for="role_user">User</label>
-                <select id="role_user" name="user_id" class="input">
-                  <option value="">Select user</option>
-                  <?php foreach ($users as $user): ?>
-                    <option value="<?php echo (int) $user['id']; ?>">
-                      <?php echo htmlspecialchars($user['username']); ?> (<?php echo htmlspecialchars($user['role']); ?>)
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <div class="form-group">
-                <label for="role_select">Role</label>
-                <select id="role_select" name="role" class="input">
-                  <option value="agent">Agent</option>
-                  <option value="admin">Admin</option>
-                </select>
-              </div>
-              <?php if (!empty($currentUser['user_id'])): ?>
-                <p class="warning">You cannot remove your own admin role.</p>
-              <?php endif; ?>
-              <button type="submit" class="btn">Update Role</button>
-            </form>
-          </div>
-
-          <div class="card card-section">
-            <h2>Delete User</h2>
-            <form method="POST" action="">
-              <input type="hidden" name="action" value="delete">
-              <div class="form-group">
-                <label for="delete_user">User</label>
-                <select id="delete_user" name="user_id" class="input">
-                  <option value="">Select user</option>
-                  <?php foreach ($users as $user): ?>
-                    <option value="<?php echo (int) $user['id']; ?>">
-                      <?php echo htmlspecialchars($user['username']); ?>
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <?php if (!empty($currentUser['user_id'])): ?>
-                <p class="warning">You cannot delete your own account.</p>
-              <?php endif; ?>
-              <button type="submit" class="btn">Delete User</button>
             </form>
           </div>
         </div>
@@ -390,18 +338,45 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
                 <th>Username</th>
                 <th>Role</th>
                 <th>Created</th>
+                <th>Actions</th>
               </tr>
             </thead>
             <tbody>
               <?php foreach ($users as $user): ?>
                 <tr>
                   <td><?php echo htmlspecialchars($user['username']); ?></td>
-                  <td><span class="badge"><?php echo htmlspecialchars($user['role']); ?></span></td>
+                  <td>
+                    <form method="POST" action="" class="table-actions" onsubmit="return confirm('Update role for this user?');">
+                      <input type="hidden" name="action" value="update_role">
+                      <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
+                      <select name="role" class="inline-select" onchange="this.form.submit()" <?php echo ($currentUser['user_id'] ?? 0) === (int) $user['id'] ? 'disabled' : ''; ?>>
+                        <option value="agent" <?php echo $user['role'] === 'agent' ? 'selected' : ''; ?>>Agent</option>
+                        <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
+                      </select>
+                    </form>
+                  </td>
                   <td><?php echo htmlspecialchars($user['created_at']); ?></td>
+                  <td class="table-actions">
+                    <form method="POST" action="" onsubmit="return confirm('Reset password for this user?');">
+                      <input type="hidden" name="action" value="reset_password">
+                      <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
+                      <button type="submit" class="icon-button secondary" aria-label="Reset password" title="Reset password">
+                        <img src="public/assets/icon-reset.svg" alt="Reset password">
+                      </button>
+                    </form>
+                    <form method="POST" action="" onsubmit="return confirm('Delete this user?');">
+                      <input type="hidden" name="action" value="delete">
+                      <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
+                      <button type="submit" class="icon-button" aria-label="Delete user" title="Delete user">
+                        <img src="public/assets/icon-basket.svg" alt="Delete">
+                      </button>
+                    </form>
+                  </td>
                 </tr>
               <?php endforeach; ?>
             </tbody>
           </table>
+          <p class="warning">Your own role is locked.</p>
         </div>
       </div>
     </main>
