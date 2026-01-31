@@ -222,6 +222,7 @@ frontend/
 │   │   └── logout.php         # Logout handler
 │   ├── venues/                # Venue pages
 │   ├── settings/              # App settings
+│   ├── profile/               # User profile
 │   └── admin/                 # Admin-only pages
 ├── routes/                    # API endpoints
 │   ├── auth/check.php         # Session validator

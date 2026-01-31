@@ -14,6 +14,7 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 ├── index.php                 # Map view (auth required)
 ├── pages/admin/user_management.php # Admin-only user management
 ├── pages/venues/             # Venue management views
+├── pages/profile/            # Profile password reset
 ├── routes/waypoints/index.php # GPX output from DB venues
 ├── pages/auth/               # Login/logout
 ├── routes/auth/check.php     # Auth check (session validation)

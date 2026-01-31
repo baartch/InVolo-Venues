@@ -12,6 +12,7 @@ $isMap = $relativePath === '/' || $relativePath === '/index.php';
 $isVenues = strpos($relativePath, '/pages/venues') === 0;
 $isSettings = strpos($relativePath, '/pages/settings') === 0;
 $isUserManagement = strpos($relativePath, '/pages/admin') === 0;
+$isProfile = strpos($relativePath, '/pages/profile') === 0;
 ?>
 <aside class="sidebar">
   <nav class="sidebar-nav">
@@ -31,6 +32,9 @@ $isUserManagement = strpos($relativePath, '/pages/admin') === 0;
     </a>
   </nav>
   <div class="sidebar-spacer"></div>
+  <a href="<?php echo BASE_PATH; ?>/pages/profile/index.php" class="sidebar-link <?php echo $isProfile ? 'active' : ''; ?>" aria-label="Profile">
+    <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-user.svg" alt="Profile">
+  </a>
   <a href="<?php echo BASE_PATH; ?>/pages/auth/logout.php" class="sidebar-link" aria-label="Logout">
     <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-logout.svg" alt="Logout">
   </a>
