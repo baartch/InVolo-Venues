@@ -1,22 +1,22 @@
-<!-- © 2026 cloudxs GmbH. All rights reserved. / DB.md -->
-
 # Database
 
 ## Connection
+
 Host: localhost:3306
 Database: involo_venues
 User: dbuservenues
 Password: [your_secure_password]
 
-
 ## Tables
+
 - `venues`: Main table storing venue details (name, address, coordinates, capacity, etc.)
-- `users`: User accounts  (username, password hash, role)
+- `users`: User accounts (username, password hash, role)
 - `sessions`: Active user sessions for authentication
 - `logs`: Application logs (user actions, errors, timestamps)
 - `settings`: Application configuration settings
 
 ## Schema
+
 ```sql
 CREATE TABLE `venues` (
   `id` int(11) NOT NULL,

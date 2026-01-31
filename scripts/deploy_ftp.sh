@@ -31,6 +31,7 @@ EXCLUDES=(
   "setup.sh"
   "docs/"
   "AGENTS.md"
+  "dev_helpers/"
 )
 
 EXCLUDE_ARGS=$(printf " --exclude-glob %s" "${EXCLUDES[@]}")
