@@ -8,6 +8,10 @@ REMOTE_DIR="/ch.involo.venues"
 
 PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
+pushd "${PROJECT_ROOT}" >/dev/null
+bun run build
+popd >/dev/null
+
 EXCLUDES=(
   ".git/"
   ".gitignore"
