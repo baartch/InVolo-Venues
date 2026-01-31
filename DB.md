@@ -45,12 +45,16 @@ CREATE TABLE users (
     password_hash VARCHAR(255) NOT NULL,
     role ENUM('admin', 'agent') DEFAULT 'agent',
     ui_theme VARCHAR(20) NOT NULL DEFAULT 'forest',
+    venues_page_size INT NOT NULL DEFAULT 25,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
 
 ALTER TABLE users
   ADD COLUMN ui_theme VARCHAR(20) NOT NULL DEFAULT 'forest';
+
+ALTER TABLE users
+  ADD COLUMN venues_page_size INT NOT NULL DEFAULT 25;
 
 CREATE TABLE sessions (
     id INT PRIMARY KEY AUTO_INCREMENT,

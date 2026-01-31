@@ -8,6 +8,11 @@ $errors = [];
 $notice = '';
 $themeOptions = ['forest' => 'Forest', 'dracula' => 'Dracula'];
 $currentTheme = getCurrentTheme($currentUser['ui_theme'] ?? null, array_keys($themeOptions));
+$defaultPageSize = 25;
+$minPageSize = 25;
+$maxPageSize = 500;
+$currentPageSize = (int) ($currentUser['venues_page_size'] ?? $defaultPageSize);
+$currentPageSize = max($minPageSize, min($maxPageSize, $currentPageSize));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -72,6 +77,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+
+    if ($action === 'update_page_size') {
+        $requestedPageSize = (int) ($_POST['venues_page_size'] ?? $defaultPageSize);
+        $requestedPageSize = max($minPageSize, min($maxPageSize, $requestedPageSize));
+
+        try {
+            $pdo = getDatabaseConnection();
+            $stmt = $pdo->prepare('UPDATE users SET venues_page_size = :venues_page_size WHERE id = :id');
+            $stmt->execute([
+                ':venues_page_size' => $requestedPageSize,
+                ':id' => $currentUser['user_id']
+            ]);
+            $currentPageSize = $requestedPageSize;
+            $currentUser['venues_page_size'] = $requestedPageSize;
+            logAction($currentUser['user_id'] ?? null, 'profile_page_size_updated', sprintf('Page size set to %d', $requestedPageSize));
+            $notice = 'Page size updated successfully.';
+        } catch (Throwable $error) {
+            $errors[] = 'Failed to update page size.';
+            logAction($currentUser['user_id'] ?? null, 'profile_page_size_error', $error->getMessage());
+        }
+    }
 }
 
 logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile');
@@ -105,6 +131,27 @@ logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile'
               </select>
             </div>
             <button type="submit" class="btn">Update Theme</button>
+          </form>
+        </div>
+
+        <div class="card card-section">
+          <h2>Venues List</h2>
+          <form method="POST" action="" class="create-user-form">
+            <input type="hidden" name="action" value="update_page_size">
+            <div class="form-group">
+              <label for="venues_page_size">Venues per page (25-500)</label>
+              <input
+                type="number"
+                id="venues_page_size"
+                name="venues_page_size"
+                class="input"
+                min="<?php echo (int) $minPageSize; ?>"
+                max="<?php echo (int) $maxPageSize; ?>"
+                value="<?php echo (int) $currentPageSize; ?>"
+                required
+              >
+            </div>
+            <button type="submit" class="btn">Update Page Size</button>
           </form>
         </div>
 

@@ -12,6 +12,9 @@ $importPayload = '';
 $showImportModal = false;
 $action = '';
 $filter = trim((string) ($_GET['filter'] ?? ''));
+$pageSize = (int) ($currentUser['venues_page_size'] ?? 25);
+$pageSize = max(25, min(500, $pageSize));
+$page = max(1, (int) ($_GET['page'] ?? 1));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -140,7 +143,29 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 try {
     $pdo = getDatabaseConnection();
+    $filterParam = '%' . $filter . '%';
     if ($filter !== '') {
+        $countStmt = $pdo->prepare(
+            'SELECT COUNT(*) FROM venues
+            WHERE name LIKE ?
+               OR address LIKE ?
+               OR postal_code LIKE ?
+               OR city LIKE ?
+               OR state LIKE ?
+               OR country LIKE ?
+               OR type LIKE ?
+               OR contact_email LIKE ?
+               OR contact_phone LIKE ?
+               OR contact_person LIKE ?
+               OR website LIKE ?
+               OR notes LIKE ?'
+        );
+        $countStmt->execute(array_fill(0, 12, $filterParam));
+        $totalVenues = (int) $countStmt->fetchColumn();
+        $totalPages = max(1, (int) ceil($totalVenues / $pageSize));
+        $page = min($page, $totalPages);
+        $offset = ($page - 1) * $pageSize;
+
         $stmt = $pdo->prepare(
             'SELECT * FROM venues
             WHERE name LIKE ?
@@ -155,16 +180,31 @@ try {
                OR contact_person LIKE ?
                OR website LIKE ?
                OR notes LIKE ?
-            ORDER BY name'
+            ORDER BY name
+            LIMIT ? OFFSET ?'
         );
-        $filterParam = '%' . $filter . '%';
-        $stmt->execute(array_fill(0, 12, $filterParam));
+        $params = array_fill(0, 12, $filterParam);
+        foreach ($params as $index => $value) {
+            $stmt->bindValue($index + 1, $value, PDO::PARAM_STR);
+        }
+        $stmt->bindValue(13, $pageSize, PDO::PARAM_INT);
+        $stmt->bindValue(14, $offset, PDO::PARAM_INT);
+        $stmt->execute();
     } else {
-        $stmt = $pdo->query('SELECT * FROM venues ORDER BY name');
+        $totalVenues = (int) $pdo->query('SELECT COUNT(*) FROM venues')->fetchColumn();
+        $totalPages = max(1, (int) ceil($totalVenues / $pageSize));
+        $page = min($page, $totalPages);
+        $offset = ($page - 1) * $pageSize;
+        $stmt = $pdo->prepare('SELECT * FROM venues ORDER BY name LIMIT ? OFFSET ?');
+        $stmt->bindValue(1, $pageSize, PDO::PARAM_INT);
+        $stmt->bindValue(2, $offset, PDO::PARAM_INT);
+        $stmt->execute();
     }
     $venues = $stmt->fetchAll();
 } catch (Throwable $error) {
     $venues = [];
+    $totalVenues = 0;
+    $totalPages = 1;
     $errors[] = 'Failed to load venues.';
     logAction($currentUser['user_id'] ?? null, 'venue_list_error', $error->getMessage());
 }
@@ -210,6 +250,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
         <div class="card card-section">
           <h2>All Venues</h2>
           <form method="GET" action="" class="table-filter" data-filter-form>
+            <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
             <div class="table-filter-field">
               <input
                 class="input"
@@ -222,6 +263,10 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
               <span class="table-filter-clear" data-filter-clear role="button" tabindex="0" aria-label="Clear filter">❌</span>
             </div>
           </form>
+          <div class="table-meta">
+            <span><?php echo (int) $totalVenues; ?> venues</span>
+            <span>Page <?php echo (int) $page; ?> of <?php echo (int) $totalPages; ?></span>
+          </div>
           <div class="table-wrapper">
             <table class="table">
               <thead>
@@ -302,6 +347,40 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
               </tbody>
             </table>
           </div>
+          <div class="table-pagination" aria-label="Venues pagination">
+            <?php
+              $query = $_GET;
+              $query['page'] = max(1, $page - 1);
+              $prevLink = '?' . http_build_query($query);
+              $query['page'] = min($totalPages, $page + 1);
+              $nextLink = '?' . http_build_query($query);
+              $query['page'] = 1;
+              $firstLink = '?' . http_build_query($query);
+              $query['page'] = $totalPages;
+              $lastLink = '?' . http_build_query($query);
+
+              $range = 2;
+              $startPage = max(1, $page - $range);
+              $endPage = min($totalPages, $page + $range);
+              if ($endPage - $startPage < $range * 2) {
+                $startPage = max(1, min($startPage, $endPage - $range * 2));
+              }
+            ?>
+            <a class="btn" href="<?php echo htmlspecialchars($firstLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>First</a>
+            <a class="btn" href="<?php echo htmlspecialchars($prevLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>Previous</a>
+            <?php for ($pageIndex = $startPage; $pageIndex <= $endPage; $pageIndex++): ?>
+              <?php
+                $query['page'] = $pageIndex;
+                $pageLink = '?' . http_build_query($query);
+              ?>
+              <a class="pagination-page<?php echo $pageIndex === $page ? ' is-active' : ''; ?>" href="<?php echo htmlspecialchars($pageLink); ?>">
+                <?php echo (int) $pageIndex; ?>
+              </a>
+            <?php endfor; ?>
+            <span class="pagination-status">Page <?php echo (int) $page; ?> of <?php echo (int) $totalPages; ?></span>
+            <a class="btn" href="<?php echo htmlspecialchars($nextLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Next</a>
+            <a class="btn" href="<?php echo htmlspecialchars($lastLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Last</a>
+          </div>
         </div>
       </div>
       <script>
@@ -358,6 +437,10 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
             let filterTimeout = null;
             const submitFilter = () => {
               sessionStorage.setItem(focusKey, '1');
+              const pageInput = filterForm.querySelector('input[name="page"]');
+              if (pageInput) {
+                pageInput.value = '1';
+              }
               filterForm.submit();
             };
 

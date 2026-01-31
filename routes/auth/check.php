@@ -55,5 +55,6 @@ $currentUser = [
     'user_id' => (int) $session['user_id'],
     'username' => $session['username'],
     'role' => $session['role'],
-    'ui_theme' => $session['ui_theme'] ?? null
+    'ui_theme' => $session['ui_theme'] ?? null,
+    'venues_page_size' => $session['venues_page_size'] ?? null
 ];

@@ -531,6 +531,53 @@ textarea:focus {
   display: none;
 }
 
+.table-meta {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 12px;
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.table-pagination {
+  display: flex;
+  gap: 8px;
+  margin-top: 16px;
+  flex-wrap: wrap;
+  align-items: center;
+}
+
+.table-pagination .btn[aria-disabled="true"] {
+  pointer-events: none;
+  opacity: 0.5;
+}
+
+.pagination-status {
+  color: var(--color-muted);
+  font-size: 13px;
+}
+
+.pagination-page {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  border-radius: 6px;
+  border: 1px solid var(--color-border);
+  color: var(--color-text);
+  text-decoration: none;
+  font-weight: 600;
+  padding: 0 8px;
+}
+
+.pagination-page.is-active {
+  background: var(--color-primary);
+  color: #fff;
+  border-color: transparent;
+}
+
 .table td {
   vertical-align: top;
 }
