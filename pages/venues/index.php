@@ -307,6 +307,8 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
             let sortIndex = null;
             let sortDirection = 'asc';
 
+            const collator = new Intl.Collator(undefined, { numeric: true, sensitivity: 'base' });
+
             const getCellValue = (row, index) => {
               const cell = row.children[index];
               if (!cell) {
@@ -334,29 +336,35 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                 }
                 return numberA - numberB;
               }
-              return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+              return collator.compare(a, b);
             };
 
             const updateHeaderState = () => {
-              headers.forEach((header, index) => {
+              headers.forEach((header) => {
+                const label = header.dataset.sortLabel || header.textContent.trim();
+                header.dataset.sortLabel = label;
                 header.classList.remove('is-sorted', 'is-sorted-asc', 'is-sorted-desc');
-                if (index === sortIndex) {
+                if (header.cellIndex === sortIndex) {
+                  const arrow = sortDirection === 'asc' ? ' ▲' : ' ▼';
+                  header.textContent = `${label}${arrow}`;
                   header.classList.add('is-sorted', sortDirection === 'asc' ? 'is-sorted-asc' : 'is-sorted-desc');
+                } else {
+                  header.textContent = label;
                 }
               });
             };
 
-            const sortRows = (index, direction) => {
+            const sortRows = (cellIndex, direction, header) => {
               const body = venuesTable.querySelector('tbody');
               if (!body) {
                 return;
               }
-              const type = headers[index].dataset.sortType || 'text';
+              const type = header.dataset.sortType || 'text';
               const rows = Array.from(body.querySelectorAll('tr'));
 
               rows.sort((rowA, rowB) => {
-                const valueA = getCellValue(rowA, index);
-                const valueB = getCellValue(rowB, index);
+                const valueA = getCellValue(rowA, cellIndex);
+                const valueB = getCellValue(rowB, cellIndex);
                 const comparison = compareValues(valueA, valueB, type);
                 return direction === 'asc' ? comparison : -comparison;
               });
@@ -364,14 +372,15 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
               rows.forEach((row) => body.appendChild(row));
             };
 
-            headers.forEach((header, index) => {
+            headers.forEach((header) => {
               header.setAttribute('role', 'button');
               header.setAttribute('tabindex', '0');
               header.addEventListener('click', () => {
-                const isSameColumn = sortIndex === index;
-                sortIndex = index;
+                const cellIndex = header.cellIndex;
+                const isSameColumn = sortIndex === cellIndex;
+                sortIndex = cellIndex;
                 sortDirection = isSameColumn && sortDirection === 'asc' ? 'desc' : 'asc';
-                sortRows(index, sortDirection);
+                sortRows(cellIndex, sortDirection, header);
                 updateHeaderState();
               });
               header.addEventListener('keydown', (event) => {
