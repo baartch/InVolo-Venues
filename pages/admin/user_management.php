@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/admin_check.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../config/admin_check.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src-php/layout.php';
 
 $errors = [];
 $notice = '';
@@ -138,143 +139,7 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened user management');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <base href="<?php echo BASE_PATH; ?>/">
-  <title>Venue Database - User Management</title>
-  <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/public/styles.css">
-  <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
-
-    .page-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .page-header h1 {
-      font-size: 24px;
-      color: var(--color-primary-dark);
-    }
-
-    .content-wrapper {
-      padding: 32px;
-    }
-
-    .grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
-      gap: 24px;
-    }
-
-    .card-section {
-      padding: 24px;
-    }
-
-    .card-section h2 {
-      margin-bottom: 16px;
-      font-size: 18px;
-      color: var(--color-primary-dark);
-    }
-
-    .form-group {
-      margin-bottom: 16px;
-    }
-
-    .create-user-form {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    .create-user-row {
-      display: flex;
-      flex-direction: column;
-      gap: 12px;
-    }
-
-    @media (min-width: 900px) {
-      .create-user-row {
-        flex-direction: row;
-        align-items: flex-end;
-      }
-
-      .create-user-row .form-group {
-        flex: 1;
-        margin-bottom: 0;
-      }
-
-      .create-user-row .form-group:last-child {
-        max-width: 180px;
-      }
-    }
-
-    .form-group label {
-      display: block;
-      margin-bottom: 8px;
-      font-weight: 500;
-      color: var(--color-text);
-    }
-
-    .input,
-    select.input {
-      width: 100%;
-      padding: 12px;
-    }
-
-    .btn {
-      padding: 12px 16px;
-    }
-
-    .table {
-      width: 100%;
-      border-collapse: collapse;
-    }
-
-    .table th,
-    .table td {
-      text-align: left;
-      padding: 12px;
-      border-bottom: 1px solid var(--color-border);
-      font-size: 14px;
-    }
-
-    .table th {
-      color: var(--color-muted);
-      font-weight: 600;
-    }
-
-    .actions {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-    }
-
-    .actions form {
-      flex: 1;
-      min-width: 180px;
-    }
-
-    .warning {
-      color: var(--color-danger);
-      font-size: 12px;
-      margin-top: 6px;
-    }
-  </style>
-</head>
-<body class="map-page">
-  <div class="app-layout">
-    <?php require __DIR__ . '/../partials/sidebar.php'; ?>
-
-    <main class="main-content">
+<?php renderPageStart('Venue Database - User Management'); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <h1>User Management</h1>
@@ -317,7 +182,7 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
           </div>
         </div>
 
-        <div class="card card-section" style="margin-top: 24px;">
+        <div class="card card-section users-card">
           <h2>Current Users</h2>
           <table class="table">
             <thead>
@@ -348,14 +213,14 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
                       <input type="hidden" name="action" value="reset_password">
                       <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
                       <button type="submit" class="icon-button secondary" aria-label="Reset password" title="Reset password">
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icon-reset.svg" alt="Reset password">
+                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-reset.svg" alt="Reset password">
                       </button>
                     </form>
                     <form method="POST" action="" onsubmit="return confirm('Delete this user?');">
                       <input type="hidden" name="action" value="delete">
                       <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
                       <button type="submit" class="icon-button" aria-label="Delete user" title="Delete user">
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icon-basket.svg" alt="Delete">
+                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
                       </button>
                     </form>
                   </td>
@@ -366,7 +231,4 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
           <p class="warning">Your own role is locked.</p>
         </div>
       </div>
-    </main>
-  </div>
-</body>
-</html>
+<?php renderPageEnd(); ?>

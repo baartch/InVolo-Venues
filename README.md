@@ -18,7 +18,7 @@ nano config/config.php
 php -S localhost:8000
 ```
 
-Open: **http://localhost:8000/auth/login.php**
+Open: **http://localhost:8000/pages/auth/login.php**
 
 Set up user accounts in the `users` table (with `password_hash` values). Ensure at least one admin user exists.
 
@@ -66,6 +66,11 @@ Example (generate password hash in PHP):
 
 ## 🔧 Configuration
 
+### Authentication URLs
+
+Login page: `http://localhost:8000/pages/auth/login.php`
+Logout handler: `http://localhost:8000/pages/auth/logout.php`
+
 ### Database Connection
 
 Edit `config/config.php`:
@@ -92,6 +97,8 @@ The application auto-detects its installation path. Works in:
 - Root directory: `https://example.com/`
 - Subdirectory: `https://example.com/venues/`
 - Nested: `https://example.com/apps/venues/`
+
+If assets or links break after moving the app, update `config/config.php` or hard-set `BASE_PATH`.
 
 ## 🌐 Deployment
 
@@ -120,6 +127,14 @@ The application auto-detects its installation path. Works in:
    ```bash
    sudo systemctl restart apache2
    ```
+
+### FTP Deployment
+
+Run the helper script (requires `FTP_PASSWORD` env var):
+
+```bash
+FTP_PASSWORD=your_password ./scripts/deploy_ftp.sh
+```
 
 ### Nginx
 
@@ -162,7 +177,7 @@ If you see "not allowed here" errors:
 3. Ensure the `venues` table has latitude/longitude data
 
 ### Redirects Not Working?
-If redirects go to wrong URLs (e.g., `/auth/login.php` instead of `/venues/auth/login.php`):
+If redirects go to wrong URLs (e.g., `/pages/auth/login.php` instead of `/venues/pages/auth/login.php`):
 - The BASE_PATH should auto-detect correctly
 - Check `config/config.php` has the BASE_PATH code
 - Manually set if needed: `define('BASE_PATH', '/venues');`
@@ -190,7 +205,7 @@ Add a cron job to remove old logs and sessions (older than 180 days):
 
 ### Theme
 
-The UI uses a central theme file. Update `public/themes/forest.css` to adjust the forest palette.
+The UI uses a central theme file. Update `public/css/themes/forest.css` to adjust the forest palette.
 
 ### Navigation
 
@@ -200,20 +215,26 @@ The main UI includes a sidebar with map, admin-only user management, and logout 
 
 ```
 frontend/
-├── index.php              # Main app page
-├── auth/                  # Authentication system
-│   ├── login.php          # Login page
-│   ├── logout.php         # Logout handler
-│   └── auth_check.php     # Session validator
-├── api/                   # API endpoints
-│   └── get_waypoints.php  # Protected venues endpoint
-├── config/                # Configuration (protected)
-│   ├── config.php         # Credentials & settings
-│   └── database.php       # Database helpers
-├── public/                # Public assets
-│   ├── map.ts             # TypeScript source
-│   └── map.js             # Compiled JavaScript
-└── docs/                  # Documentation (archived)
+├── index.php                 # Main app page
+├── pages/                     # Application pages
+│   ├── auth/                  # Authentication system
+│   │   ├── login.php          # Login page
+│   │   └── logout.php         # Logout handler
+│   ├── venues/                # Venue pages
+│   ├── settings/              # App settings
+│   └── admin/                 # Admin-only pages
+├── routes/                    # API endpoints
+│   ├── auth/check.php         # Session validator
+│   └── waypoints/index.php    # Protected venues endpoint (GPX)
+├── config/                    # Configuration (protected)
+│   ├── config.php             # Credentials & settings
+│   └── database.php           # Database helpers
+├── src-php/                   # Shared PHP helpers
+├── public/                    # Public assets
+│   ├── css/                   # Styles
+│   ├── js/                    # Compiled JavaScript
+│   └── assets/                # Assets (icons, marker)
+└── docs/                      # Documentation (archived)
 ```
 
 ## 📊 Adding Venues

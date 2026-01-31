@@ -1,8 +1,8 @@
 <?php
 // Include this file at the top of any protected page
-$configPath = __DIR__ . '/../config/config.php';
+$configPath = __DIR__ . '/../../config/config.php';
 if (!file_exists($configPath)) {
-    $examplePath = __DIR__ . '/../config/config.example.php';
+    $examplePath = __DIR__ . '/../../config/config.example.php';
     if (file_exists($examplePath)) {
         require_once $examplePath;
     } else {
@@ -13,7 +13,7 @@ if (!file_exists($configPath)) {
 } else {
     require_once $configPath;
 }
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../config/database.php';
 unset($configPath, $examplePath);
 
 $token = $_COOKIE[SESSION_NAME] ?? '';
@@ -29,7 +29,7 @@ if (!$session) {
     );
     logAction(null, 'auth_check_failed', $details);
     clearSessionCookie();
-    header('Location: ' . BASE_PATH . '/auth/login.php');
+    header('Location: ' . BASE_PATH . '/pages/auth/login.php');
     exit;
 }
 
@@ -45,7 +45,7 @@ if (!$expiresAt) {
     );
     logAction($session ? (int) $session['user_id'] : null, 'auth_check_refresh_failed', $details);
     clearSessionCookie();
-    header('Location: ' . BASE_PATH . '/auth/login.php');
+    header('Location: ' . BASE_PATH . '/pages/auth/login.php');
     exit;
 }
 

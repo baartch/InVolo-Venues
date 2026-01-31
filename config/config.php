@@ -15,15 +15,22 @@ define('ENCRYPTION_KEY', 'change-this-encryption-key');
 // For example: '' for root, '/venues' for subdirectory
 // Auto-detect from current script location
 $scriptPath = dirname($_SERVER['SCRIPT_NAME']);
-// Remove auth, api, config, admin, venues, or settings from path if present
+// Remove app subdirectories from path if present
 $pathParts = explode('/', trim($scriptPath, '/'));
-$lastPart = end($pathParts);
-if (in_array($lastPart, ['auth', 'api', 'config', 'admin', 'venues', 'settings'], true)) {
-    array_pop($pathParts);
+$baseParts = $pathParts;
+$rootMarkers = ['pages', 'routes'];
+
+foreach ($rootMarkers as $marker) {
+    $markerIndex = array_search($marker, $pathParts, true);
+    if ($markerIndex !== false) {
+        $baseParts = array_slice($pathParts, 0, $markerIndex);
+        break;
+    }
 }
-$basePath = implode('/', $pathParts);
+
+$basePath = implode('/', $baseParts);
 define('BASE_PATH', $basePath === '' ? '' : '/' . $basePath);
-unset($scriptPath, $pathParts, $lastPart, $basePath);
+unset($scriptPath, $pathParts, $baseParts, $rootMarkers, $markerIndex, $basePath);
 
 // Session configuration
 // Managed in the database using the sessions table

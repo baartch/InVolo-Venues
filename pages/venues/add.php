@@ -1,6 +1,10 @@
 <?php
-require_once __DIR__ . '/../auth/auth_check.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../routes/auth/check.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src-php/form_helpers.php';
+require_once __DIR__ . '/../../src-php/search_helpers.php';
+require_once __DIR__ . '/../../src-php/settings.php';
+require_once __DIR__ . '/../../src-php/layout.php';
 
 $errors = [];
 $notice = '';
@@ -30,173 +34,6 @@ $fields = [
 $formValues = array_fill_keys($fields, '');
 $resetForm = false;
 $action = '';
-
-function normalizeOptionalString(string $value): ?string
-{
-    $value = trim($value);
-    return $value === '' ? null : $value;
-}
-
-function normalizeOptionalNumber(string $value, string $fieldName, array &$errors, bool $integer = false): ?float
-{
-    $value = trim($value);
-    if ($value === '') {
-        return null;
-    }
-
-    if (!is_numeric($value)) {
-        $errors[] = sprintf('%s must be a number.', $fieldName);
-        return null;
-    }
-
-    return $integer ? (float) (int) $value : (float) $value;
-}
-
-function loadSettingValues(array $keys): array
-{
-    $values = array_fill_keys($keys, '');
-    if ($keys === []) {
-        return $values;
-    }
-
-    try {
-        $pdo = getDatabaseConnection();
-        $placeholders = implode(',', array_fill(0, count($keys), '?'));
-        $stmt = $pdo->prepare(
-            sprintf('SELECT setting_key, setting_value FROM settings WHERE setting_key IN (%s)', $placeholders)
-        );
-        $stmt->execute(array_values($keys));
-        $rows = $stmt->fetchAll();
-
-        foreach ($rows as $row) {
-            $key = (string) $row['setting_key'];
-            if (array_key_exists($key, $values)) {
-                $values[$key] = decryptSettingValue($row['setting_value'] ?? '');
-            }
-        }
-    } catch (Throwable $error) {
-        return $values;
-    }
-
-    return $values;
-}
-
-function fetchJsonResponse(string $url, array $headers, array &$errors, string $context): ?array
-{
-    $headerLines = [];
-    foreach ($headers as $name => $value) {
-        $headerLines[] = sprintf('%s: %s', $name, $value);
-    }
-
-    $contextOptions = [
-        'http' => [
-            'method' => 'GET',
-            'header' => implode("\r\n", $headerLines),
-            'timeout' => 15,
-            'ignore_errors' => true
-        ]
-    ];
-
-    $response = @file_get_contents($url, false, stream_context_create($contextOptions));
-    if ($response === false) {
-        $errors[] = sprintf('%s request failed.', $context);
-        return null;
-    }
-
-    $statusLine = $http_response_header[0] ?? '';
-    if (preg_match('/HTTP\/[\d.]+\s+(\d{3})/', $statusLine, $matches)) {
-        $statusCode = (int) $matches[1];
-        if ($statusCode < 200 || $statusCode >= 300) {
-            $errors[] = sprintf('%s request failed (HTTP %d).', $context, $statusCode);
-            return null;
-        }
-    }
-
-    $decoded = json_decode($response, true);
-    if (!is_array($decoded)) {
-        $errors[] = sprintf('Unable to parse %s response.', $context);
-        return null;
-    }
-
-    return $decoded;
-}
-
-function getBraveSearchLanguage(string $countryCode): string
-{
-    $countryCode = strtoupper($countryCode);
-    if ($countryCode === 'IT') {
-        return 'it';
-    }
-    if ($countryCode === 'FR') {
-        return 'fr';
-    }
-    return 'de';
-}
-
-function isBraveGeolocal(array $searchResult): bool
-{
-    if (empty($searchResult['query']['is_geolocal'])) {
-        return false;
-    }
-
-    $infoBox = $searchResult['infobox']['results'][0] ?? null;
-    if (!$infoBox || empty($infoBox['is_location'])) {
-        return false;
-    }
-
-    return !empty($infoBox['location']['postal_address']['displayAddress']);
-}
-
-function getMapboxTranslatedName(array $contextEntry): string
-{
-    return $contextEntry['translations']['de']['name'] ?? ($contextEntry['name'] ?? '');
-}
-
-function fetchMapboxData(array $mapboxResult): ?array
-{
-    $features = $mapboxResult['features'] ?? [];
-    if (!is_array($features) || !isset($features[0])) {
-        return null;
-    }
-
-    $feature = $features[0];
-    $context = $feature['properties']['context'] ?? [];
-    $addressContext = $context['address'] ?? [];
-    $streetContext = $context['street'] ?? [];
-    $postcodeContext = $context['postcode'] ?? [];
-    $placeContext = $context['place'] ?? [];
-    $localityContext = $context['locality'] ?? [];
-    $regionContext = $context['region'] ?? [];
-
-    $street = $addressContext['name'] ?? '';
-    if ($street === '') {
-        $streetName = $addressContext['street_name'] ?? ($streetContext['name'] ?? '');
-        $streetNumber = $addressContext['address_number'] ?? '';
-        $street = trim(sprintf('%s %s', $streetName, $streetNumber));
-    }
-
-    $postalCode = $postcodeContext['name'] ?? '';
-    $city = getMapboxTranslatedName($placeContext);
-    if ($city === '') {
-        $city = getMapboxTranslatedName($localityContext);
-    }
-
-    $state = getMapboxTranslatedName($regionContext);
-    $cleanedState = str_replace('Kanton ', '', (string) $state);
-
-    $coordinates = $feature['properties']['coordinates'] ?? [];
-    $latitude = $coordinates['latitude'] ?? null;
-    $longitude = $coordinates['longitude'] ?? null;
-
-    return [
-        'street' => $street,
-        'postalCode' => $postalCode,
-        'city' => $city,
-        'state' => $cleanedState,
-        'latitude' => $latitude,
-        'longitude' => $longitude
-    ];
-}
 
 $webSearchQuery = trim((string) ($_GET['web_search'] ?? ''));
 $webSearchCountry = strtoupper(trim((string) ($_GET['web_search_country'] ?? '')));
@@ -357,7 +194,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 );
                 $stmt->execute($data);
                 logAction($currentUser['user_id'] ?? null, 'venue_created', sprintf('Created venue %s', $payload['name']));
-                header('Location: ' . BASE_PATH . '/venues/index.php');
+                header('Location: ' . BASE_PATH . '/pages/venues/index.php');
                 exit;
             }
 
@@ -433,118 +270,7 @@ if ($editVenue) {
 
 logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprintf('Editing venue %d', $editId) : 'Opened add venue');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <base href="<?php echo BASE_PATH; ?>/">
-  <title>Venue Database - <?php echo $editVenue ? 'Edit Venue' : 'Add Venue'; ?></title>
-  <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/public/styles.css">
-  <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
-
-    .content-wrapper {
-      padding: 32px;
-    }
-
-    .page-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .sr-only {
-      position: absolute;
-      width: 1px;
-      height: 1px;
-      padding: 0;
-      margin: -1px;
-      overflow: hidden;
-      clip: rect(0, 0, 0, 0);
-      border: 0;
-      white-space: nowrap;
-    }
-
-    .page-header h1 {
-      font-size: 24px;
-      color: var(--color-primary-dark);
-    }
-
-    .page-header-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .venue-form {
-      display: flex;
-      flex-direction: column;
-      gap: 16px;
-    }
-
-    .venue-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-      gap: 16px;
-    }
-
-    .venue-grid .form-group {
-      margin-bottom: 0;
-    }
-
-    .venue-form textarea.input {
-      min-height: 120px;
-      resize: vertical;
-    }
-
-    .form-footer {
-      display: flex;
-      flex-wrap: wrap;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .web-search-form {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 12px;
-      margin-bottom: 24px;
-    }
-
-    .web-search-form .input {
-      flex: 1;
-      min-width: 220px;
-    }
-
-    .web-search-form select.input {
-      flex: 0 0 120px;
-      min-width: 120px;
-    }
-
-    .web-search-form .icon-button {
-      width: 44px;
-      height: 44px;
-      padding: 0;
-    }
-
-    .web-search-form .icon-button img {
-      width: 22px;
-      height: 22px;
-    }
-  </style>
-</head>
-<body class="map-page">
-  <div class="app-layout">
-    <?php require __DIR__ . '/../partials/sidebar.php'; ?>
-
-    <main class="main-content">
+<?php renderPageStart(sprintf('Venue Database - %s', $editVenue ? 'Edit Venue' : 'Add Venue')); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <div>
@@ -573,7 +299,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
             <?php endforeach; ?>
           </select>
           <button type="submit" class="icon-button" aria-label="Search">
-            <img src="<?php echo BASE_PATH; ?>/public/assets/icon-compass.svg" alt="">
+            <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-compass.svg" alt="">
           </button>
         </form>
 
@@ -655,7 +381,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
                 <label for="contact_person">Contact Person</label>
                 <input type="text" id="contact_person" name="contact_person" class="input" value="<?php echo htmlspecialchars($formValues['contact_person']); ?>">
               </div>
-              <div class="form-group" style="grid-column: 1 / -1;">
+              <div class="form-group venue-notes">
                 <label for="notes">Notes</label>
                 <textarea id="notes" name="notes" class="input"><?php echo htmlspecialchars($formValues['notes']); ?></textarea>
               </div>
@@ -663,12 +389,9 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
 
             <div class="form-footer">
               <button type="submit" class="btn"><?php echo $editVenue ? 'Update Venue' : 'Add Venue'; ?></button>
-              <a href="<?php echo BASE_PATH; ?>/venues/index.php" class="text-muted">Cancel</a>
+              <a href="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="text-muted">Cancel</a>
             </div>
           </form>
         </div>
       </div>
-    </main>
-  </div>
-</body>
-</html>
+<?php renderPageEnd(); ?>

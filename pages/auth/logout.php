@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
 
 $token = $_COOKIE[SESSION_NAME] ?? '';
 $session = $token !== '' ? fetchSessionUser($token) : null;
@@ -13,5 +13,5 @@ if ($token !== '') {
 clearSessionCookie();
 logAction($userId, 'logout', 'User logged out');
 
-header('Location: ' . BASE_PATH . '/auth/login.php');
+header('Location: ' . BASE_PATH . '/pages/auth/login.php');
 exit;

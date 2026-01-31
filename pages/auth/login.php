@@ -1,6 +1,7 @@
 <?php
-require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src-php/layout.php';
 
 $token = $_COOKIE[SESSION_NAME] ?? '';
 $existingSession = $token !== '' ? fetchSessionUser($token) : null;
@@ -54,101 +55,31 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <base href="<?php echo BASE_PATH; ?>/">
-    <title>Venue Database - Login</title>
-    <link rel="stylesheet" href="public/styles.css">
-    <style>
-        body {
-            min-height: 100vh;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            padding: 20px;
-        }
-
-        .login-container {
-            padding: 40px;
-            border-radius: 10px;
-            width: 100%;
-            max-width: 420px;
-        }
-
-        h1 {
-            color: var(--color-primary-dark);
-            margin-bottom: 10px;
-            font-size: 28px;
-            text-align: center;
-        }
-
-        .subtitle {
-            color: var(--color-muted);
-            margin-bottom: 30px;
-            font-size: 14px;
-            text-align: center;
-        }
-
-        .form-group {
-            margin-bottom: 20px;
-        }
-
-        label {
-            display: block;
-            margin-bottom: 8px;
-            color: var(--color-text);
-            font-weight: 500;
-        }
-
-        input[type="text"],
-        input[type="password"] {
-            width: 100%;
-            padding: 12px;
-        }
-
-        button[type="submit"] {
-            width: 100%;
-            padding: 14px;
-            font-size: 16px;
-        }
-
-        .footer {
-            margin-top: 20px;
-            text-align: center;
-            color: var(--color-muted);
-            font-size: 12px;
-        }
-    </style>
-</head>
-<body>
+<?php renderPageStart('Venue Database - Login', ['includeSidebar' => false, 'bodyClass' => 'login-body']); ?>
     <div class="login-container card">
-        <h1>🎵 Venue Database</h1>
-        <p class="subtitle">Please login to access the venue map</p>
-        
+        <h1 class="login-title">🎵 Venue Database</h1>
+        <p class="login-subtitle">Please login to access the venue map</p>
+
         <?php if ($error): ?>
             <div class="error"><?php echo htmlspecialchars($error); ?></div>
         <?php endif; ?>
-        
+
         <form method="POST" action="">
-            <div class="form-group">
-                <label for="username">Username</label>
+            <div class="login-form-group">
+                <label for="username" class="login-label">Username</label>
                 <input type="text" id="username" name="username" class="input" required autofocus>
             </div>
-            
-            <div class="form-group">
-                <label for="password">Password</label>
+
+            <div class="login-form-group">
+                <label for="password" class="login-label">Password</label>
                 <input type="password" id="password" name="password" class="input" required>
             </div>
-            
-            <button type="submit" class="btn">Login</button>
+
+            <button type="submit" class="btn login-button">Login</button>
         </form>
-        
-        <div class="footer">
+
+        <div class="login-footer">
             Booking Agency for Singer-Songwriters
         </div>
     </div>
-</body>
-</html>
+<?php renderPageEnd(['includeSidebar' => false]); ?>

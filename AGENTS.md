@@ -12,18 +12,20 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 ## Key Paths
 ```
 ├── index.php                 # Map view (auth required)
-├── admin/user_management.php # Admin-only user management
-├── venues/                   # Venue management views
-├── api/get_waypoints.php     # GPX output from DB venues
-├── auth/                     # Login/logout + auth_check
+├── pages/admin/user_management.php # Admin-only user management
+├── pages/venues/             # Venue management views
+├── routes/waypoints/index.php # GPX output from DB venues
+├── pages/auth/               # Login/logout
+├── routes/auth/check.php     # Auth check (session validation)
 ├── config/                   # DB config + helpers
 │   ├── config.php
 │   ├── database.php
 │   └── admin_check.php
+├── src-php/                  # Shared PHP helpers
 ├── public/                   # Static assets
-│   ├── styles.css            # Global UI styles
-│   ├── themes/forest.css     # Theme palette
-│   ├── map.ts/map.js         # Map client
+│   ├── css/styles.css        # Global UI styles
+│   ├── css/themes/forest.css # Theme palette
+│   ├── js/map.js             # Map client
 │   └── assets/               # Icons
 ├── scripts/cleanup.php       # Log/session retention
 └── scripts/deploy_ftp.sh      # Deployment

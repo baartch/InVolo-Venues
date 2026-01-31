@@ -1,6 +1,8 @@
 <?php
-require_once __DIR__ . '/../auth/auth_check.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../../routes/auth/check.php';
+require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src-php/form_helpers.php';
+require_once __DIR__ . '/../../src-php/layout.php';
 
 $errors = [];
 $notice = '';
@@ -8,27 +10,6 @@ $countryOptions = ['DE', 'CH', 'AT', 'IT', 'FR'];
 $importPayload = '';
 $showImportModal = false;
 $action = '';
-
-function normalizeOptionalString(string $value): ?string
-{
-    $value = trim($value);
-    return $value === '' ? null : $value;
-}
-
-function normalizeOptionalNumber(string $value, string $fieldName, array &$errors, bool $integer = false): ?float
-{
-    $value = trim($value);
-    if ($value === '') {
-        return null;
-    }
-
-    if (!is_numeric($value)) {
-        $errors[] = sprintf('%s must be a number.', $fieldName);
-        return null;
-    }
-
-    return $integer ? (float) (int) $value : (float) $value;
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -167,145 +148,12 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue management');
 ?>
-<!DOCTYPE html>
-<html lang="en">
-<head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <base href="<?php echo BASE_PATH; ?>/">
-  <title>Venue Database - Venues</title>
-  <link rel="stylesheet" href="<?php echo BASE_PATH; ?>/public/styles.css">
-  <style>
-    html,
-    body {
-      height: 100%;
-      margin: 0;
-    }
-
-    .content-wrapper {
-      padding: 32px;
-    }
-
-    .page-header {
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      margin-bottom: 24px;
-    }
-
-    .page-header h1 {
-      font-size: 24px;
-      color: var(--color-primary-dark);
-    }
-
-    .page-header-actions {
-      display: flex;
-      gap: 12px;
-      align-items: center;
-    }
-
-    .modal-backdrop {
-      position: fixed;
-      inset: 0;
-      background: rgba(0, 0, 0, 0.45);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      padding: 24px;
-    }
-
-    .modal-backdrop.open {
-      display: flex;
-    }
-
-    .modal-card {
-      background: var(--color-card);
-      border-radius: 12px;
-      padding: 24px;
-      max-width: 640px;
-      width: 100%;
-      box-shadow: 0 12px 40px var(--color-shadow);
-    }
-
-    .modal-card h3 {
-      margin-bottom: 12px;
-      color: var(--color-primary-dark);
-    }
-
-    .modal-card textarea {
-      min-height: 220px;
-      width: 100%;
-    }
-
-    .modal-actions {
-      display: flex;
-      justify-content: flex-end;
-      gap: 12px;
-      margin-top: 16px;
-    }
-
-    .modal-close {
-      background: transparent;
-      border: 1px solid var(--color-border);
-      color: var(--color-text);
-    }
-
-    .table-wrapper {
-      overflow-x: auto;
-    }
-
-    .table td {
-      vertical-align: top;
-    }
-
-    .table-notes {
-      min-width: 200px;
-      max-width: 320px;
-      white-space: pre-wrap;
-    }
-
-    .table a {
-      color: var(--color-primary-dark);
-    }
-
-    .row-meta {
-      margin-top: 0;
-      font-size: 0.6em;
-      color: var(--color-muted);
-      display: flex;
-      flex-direction: column;
-      gap: 2px;
-    }
-
-    .venue-actions {
-      display: flex;
-      flex-direction: column;
-      align-items: flex-start;
-      gap: 6px;
-    }
-
-    .venue-actions-buttons {
-      display: flex;
-      gap: 10px;
-      align-items: center;
-    }
-
-    a.icon-button {
-      text-decoration: none;
-    }
-  </style>
-</head>
-<body class="map-page">
-  <div class="app-layout">
-    <?php require __DIR__ . '/../partials/sidebar.php'; ?>
-
-    <main class="main-content">
+<?php renderPageStart('Venue Database - Venues'); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <h1>Venue Management</h1>
           <div class="page-header-actions">
-            <a href="<?php echo BASE_PATH; ?>/venues/add.php" class="btn">Add Venue</a>
+            <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php" class="btn">Add Venue</a>
             <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
               <button type="button" class="btn" data-import-toggle>Import</button>
             <?php endif; ?>
@@ -362,7 +210,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                   <tr>
                     <td>
                       <?php if (!empty($venue['latitude']) && !empty($venue['longitude'])): ?>
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icon-compass.svg" alt="Has coordinates" class="table-icon">
+                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-compass.svg" alt="Has coordinates" class="table-icon">
                       <?php endif; ?>
                     </td>
                     <td><?php echo htmlspecialchars($venue['name']); ?></td>
@@ -396,14 +244,14 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                     <td>
                       <div class="venue-actions">
                         <div class="venue-actions-buttons">
-                          <a href="<?php echo BASE_PATH; ?>/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="icon-button secondary" aria-label="Edit venue" title="Edit venue">
-                            <img src="<?php echo BASE_PATH; ?>/public/assets/icon-pen.svg" alt="Edit">
+                          <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="icon-button secondary" aria-label="Edit venue" title="Edit venue">
+                            <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
                           </a>
                           <form method="POST" action="" onsubmit="return confirm('Delete this venue?');">
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
                             <button type="submit" class="icon-button" aria-label="Delete venue" title="Delete venue">
-                              <img src="<?php echo BASE_PATH; ?>/public/assets/icon-basket.svg" alt="Delete">
+                              <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
                             </button>
                           </form>
                         </div>
@@ -420,40 +268,37 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
           </div>
         </div>
       </div>
-    </main>
-  </div>
-  <script>
-    (function () {
-      const importToggle = document.querySelector('[data-import-toggle]');
-      const importModal = document.querySelector('[data-import-modal]');
-      const importClose = document.querySelector('[data-import-close]');
+      <script>
+        (function () {
+          const importToggle = document.querySelector('[data-import-toggle]');
+          const importModal = document.querySelector('[data-import-modal]');
+          const importClose = document.querySelector('[data-import-close]');
 
-      if (importToggle && importModal) {
-        importToggle.addEventListener('click', (event) => {
-          event.stopPropagation();
-          importModal.classList.add('open');
-        });
-      }
-
-      if (importClose && importModal) {
-        importClose.addEventListener('click', (event) => {
-          event.stopPropagation();
-          importModal.classList.remove('open');
-        });
-      }
-
-      if (importModal) {
-        importModal.addEventListener('click', (event) => {
-          if (event.target === importModal) {
-            importModal.classList.remove('open');
+          if (importToggle && importModal) {
+            importToggle.addEventListener('click', (event) => {
+              event.stopPropagation();
+              importModal.classList.add('open');
+            });
           }
-        });
-      }
 
-      if (importModal && <?php echo $showImportModal ? 'true' : 'false'; ?>) {
-        importModal.classList.add('open');
-      }
-    })();
-  </script>
-</body>
-</html>
+          if (importClose && importModal) {
+            importClose.addEventListener('click', (event) => {
+              event.stopPropagation();
+              importModal.classList.remove('open');
+            });
+          }
+
+          if (importModal) {
+            importModal.addEventListener('click', (event) => {
+              if (event.target === importModal) {
+                importModal.classList.remove('open');
+              }
+            });
+          }
+
+          if (importModal && <?php echo $showImportModal ? 'true' : 'false'; ?>) {
+            importModal.classList.add('open');
+          }
+        })();
+      </script>
+<?php renderPageEnd(); ?>

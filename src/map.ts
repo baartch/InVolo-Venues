@@ -13,7 +13,7 @@ interface Waypoint {
 const MAP_CONTAINER_ID = 'mapid';
 const SEARCH_INPUT_ID = 'waypoint-search';
 const SEARCH_RESULTS_ID = 'search-results';
-const WAYPOINTS_URL = 'api/get_waypoints.php';
+const WAYPOINTS_URL = 'routes/waypoints/index.php';
 const SEARCH_RESULT_CLASS = 'search-result-item';
 const SELECTED_CLASS = 'selected';
 const DEFAULT_ZOOM = 8;

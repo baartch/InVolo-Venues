@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../auth/auth_check.php';
+require_once __DIR__ . '/../routes/auth/check.php';
 require_once __DIR__ . '/../config/database.php';
 
 if (($currentUser['role'] ?? '') !== 'admin') {
