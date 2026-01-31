@@ -5,7 +5,8 @@ require_once __DIR__ . '/../../config/database.php';
 try {
     $pdo = getDatabaseConnection();
     $stmt = $pdo->query(
-        'SELECT name, website, latitude, longitude
+        'SELECT name, website, address, postal_code, city, state, country, type, contact_email,
+                contact_phone, contact_person, capacity, notes, latitude, longitude
          FROM venues
          WHERE latitude IS NOT NULL AND longitude IS NOT NULL'
     );
@@ -30,6 +31,34 @@ try {
             $url = $xml->createElement('url');
             $url->appendChild($xml->createTextNode((string) $venue['website']));
             $wpt->appendChild($url);
+        }
+
+        $description = $xml->createElement('desc');
+        $details = [];
+        $descriptionFields = [
+            'address' => 'Address',
+            'postal_code' => 'Postal code',
+            'city' => 'City',
+            'state' => 'State',
+            'country' => 'Country',
+            'type' => 'Type',
+            'contact_email' => 'Contact email',
+            'contact_phone' => 'Contact phone',
+            'contact_person' => 'Contact person',
+            'capacity' => 'Capacity',
+            'notes' => 'Notes'
+        ];
+
+        foreach ($descriptionFields as $field => $label) {
+            if ($venue[$field] === null || $venue[$field] === '') {
+                continue;
+            }
+            $details[] = sprintf('%s: %s', $label, (string) $venue[$field]);
+        }
+
+        if (!empty($details)) {
+            $description->appendChild($xml->createTextNode(implode("\n", $details)));
+            $wpt->appendChild($description);
         }
 
         $gpx->appendChild($wpt);

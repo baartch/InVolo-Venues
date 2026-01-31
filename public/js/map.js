@@ -59,9 +59,10 @@ const createMarkerIcon = () => L.divIcon({
     html: `<span style="background-color: rgb(0, ${MARKER_COLOR}, ${MARKER_COLOR / 2}); ${markerHtmlStyles}" />`
 });
 const parseWaypointElement = (wpt) => {
-    var _a, _b, _c, _d;
+    var _a, _b, _c, _d, _e, _f;
     const name = ((_b = (_a = wpt.getElementsByTagName('name')[0]) === null || _a === void 0 ? void 0 : _a.textContent) === null || _b === void 0 ? void 0 : _b.trim()) || 'Unknown venue';
     const url = ((_d = (_c = wpt.getElementsByTagName('url')[0]) === null || _c === void 0 ? void 0 : _c.textContent) === null || _d === void 0 ? void 0 : _d.trim()) || '';
+    const description = ((_f = (_e = wpt.getElementsByTagName('desc')[0]) === null || _e === void 0 ? void 0 : _e.textContent) === null || _f === void 0 ? void 0 : _f.trim()) || '';
     const lat = Number(wpt.getAttribute('lat'));
     const lon = Number(wpt.getAttribute('lon'));
     if (Number.isNaN(lat) || Number.isNaN(lon)) {
@@ -70,6 +71,7 @@ const parseWaypointElement = (wpt) => {
     return {
         name,
         url,
+        description,
         lat,
         lon,
         marker: null,
@@ -78,10 +80,17 @@ const parseWaypointElement = (wpt) => {
 };
 const createWaypointMarker = (waypoint, icon) => {
     const marker = L.marker([waypoint.lat, waypoint.lon], { icon }).addTo(map);
+    const descriptionHtml = waypoint.description
+        ? `<div class="venue-description">${waypoint.description
+            .split('\n')
+            .map(line => `<div>${line}</div>`)
+            .join('')}</div>`
+        : '';
     const popup = marker.bindPopup(`
     <div>
       <h3>${waypoint.name}</h3>
       ${waypoint.url ? `<div><a href="${waypoint.url}" target="_blank" rel="noopener noreferrer">${waypoint.url}</a></div>` : ''}
+      ${descriptionHtml}
     </div>
   `);
     return Object.assign(Object.assign({}, waypoint), { marker,

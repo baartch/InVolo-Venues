@@ -32,6 +32,7 @@ const loadLeaflet: LeafletLoader = (): Promise<void> => {
 interface Waypoint {
   name: string;
   url: string;
+  description: string;
   lat: number;
   lon: number;
   marker: any;
@@ -73,6 +74,7 @@ const createMarkerIcon = (): any => L.divIcon({
 const parseWaypointElement = (wpt: Element): Waypoint | null => {
   const name = wpt.getElementsByTagName('name')[0]?.textContent?.trim() || 'Unknown venue';
   const url = wpt.getElementsByTagName('url')[0]?.textContent?.trim() || '';
+  const description = wpt.getElementsByTagName('desc')[0]?.textContent?.trim() || '';
   const lat = Number(wpt.getAttribute('lat'));
   const lon = Number(wpt.getAttribute('lon'));
 
@@ -83,6 +85,7 @@ const parseWaypointElement = (wpt: Element): Waypoint | null => {
   return {
     name,
     url,
+    description,
     lat,
     lon,
     marker: null,
@@ -92,10 +95,17 @@ const parseWaypointElement = (wpt: Element): Waypoint | null => {
 
 const createWaypointMarker = (waypoint: Waypoint, icon: any): Waypoint => {
   const marker = L.marker([waypoint.lat, waypoint.lon], { icon }).addTo(map);
+  const descriptionHtml = waypoint.description
+    ? `<div class="venue-description">${waypoint.description
+        .split('\n')
+        .map(line => `<div>${line}</div>`)
+        .join('')}</div>`
+    : '';
   const popup = marker.bindPopup(`
     <div>
       <h3>${waypoint.name}</h3>
       ${waypoint.url ? `<div><a href="${waypoint.url}" target="_blank" rel="noopener noreferrer">${waypoint.url}</a></div>` : ''}
+      ${descriptionHtml}
     </div>
   `);
 
