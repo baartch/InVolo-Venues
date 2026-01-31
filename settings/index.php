@@ -35,10 +35,54 @@ logAction($currentUser['user_id'] ?? null, 'view_settings', 'User opened app set
       color: var(--color-primary-dark);
     }
 
-    .settings-grid {
-      display: grid;
-      grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+    .tabs {
+      display: flex;
       gap: 16px;
+      border-bottom: 2px solid var(--color-border);
+      margin-bottom: 24px;
+    }
+
+    .tabs .tab-button {
+      background: none;
+      border: none;
+      border-radius: 0;
+      box-shadow: none;
+      font-size: 15px;
+      font-weight: 600;
+      color: var(--color-muted);
+      padding: 12px 4px;
+      cursor: pointer;
+      border-bottom: 3px solid transparent;
+    }
+
+    .tabs .tab-button:hover,
+    .tabs .tab-button:active {
+      transform: none;
+    }
+
+    .tabs .tab-button.active {
+      color: var(--color-primary-dark);
+      border-bottom-color: var(--color-primary);
+    }
+
+    .tab-panel {
+      display: none;
+    }
+
+    .tab-panel.active {
+      display: block;
+    }
+
+    .panel-header {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 16px;
+    }
+
+    .panel-header h2 {
+      font-size: 20px;
+      color: var(--color-primary-dark);
     }
   </style>
 </head>
@@ -52,11 +96,40 @@ logAction($currentUser['user_id'] ?? null, 'view_settings', 'User opened app set
           <h1>App Settings</h1>
         </div>
 
-        <div class="card card-section">
-          <p class="text-muted">Settings controls will appear here soon.</p>
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab-button active" data-tab="api-keys" role="tab" aria-selected="true">API Keys</button>
+        </div>
+
+        <div class="tab-panel active" data-tab-panel="api-keys" role="tabpanel">
+          <div class="card card-section">
+            <div class="panel-header">
+              <h2>API Keys</h2>
+              <p class="text-muted">Store tokens used for map tiles and integrations.</p>
+            </div>
+            <p class="text-muted">Add API key management here.</p>
+          </div>
         </div>
       </div>
     </main>
   </div>
+  <script>
+    (function () {
+      const tabs = Array.from(document.querySelectorAll('[data-tab]'));
+      const panels = Array.from(document.querySelectorAll('[data-tab-panel]'));
+
+      tabs.forEach((tab) => {
+        tab.addEventListener('click', () => {
+          const target = tab.getAttribute('data-tab');
+          tabs.forEach((button) => {
+            button.classList.toggle('active', button === tab);
+            button.setAttribute('aria-selected', button === tab ? 'true' : 'false');
+          });
+          panels.forEach((panel) => {
+            panel.classList.toggle('active', panel.getAttribute('data-tab-panel') === target);
+          });
+        });
+      });
+    })();
+  </script>
 </body>
 </html>

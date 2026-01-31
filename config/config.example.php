@@ -12,10 +12,10 @@ define('DB_PASSWORD', 'change-this-password'); // CHANGE THIS!
 // For example: '' for root, '/venues' for subdirectory
 // Auto-detect from current script location
 $scriptPath = dirname($_SERVER['SCRIPT_NAME']);
-// Remove auth, api, or config from path if present
+// Remove auth, api, config, admin, venues, or settings from path if present
 $pathParts = explode('/', trim($scriptPath, '/'));
 $lastPart = end($pathParts);
-if (in_array($lastPart, ['auth', 'api', 'config'])) {
+if (in_array($lastPart, ['auth', 'api', 'config', 'admin', 'venues', 'settings'], true)) {
     array_pop($pathParts);
 }
 $basePath = implode('/', $pathParts);
