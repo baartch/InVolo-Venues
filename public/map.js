@@ -1,5 +1,13 @@
 "use strict";
-Object.defineProperty(exports, "__esModule", { value: true });
+var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
+    function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
+    return new (P || (P = Promise))(function (resolve, reject) {
+        function fulfilled(value) { try { step(generator.next(value)); } catch (e) { reject(e); } }
+        function rejected(value) { try { step(generator["throw"](value)); } catch (e) { reject(e); } }
+        function step(result) { result.done ? resolve(result.value) : adopt(result.value).then(fulfilled, rejected); }
+        step((generator = generator.apply(thisArg, _arguments || [])).next());
+    });
+};
 const MAP_CONTAINER_ID = 'mapid';
 const SEARCH_INPUT_ID = 'waypoint-search';
 const SEARCH_RESULTS_ID = 'search-results';
@@ -29,8 +37,9 @@ const createMarkerIcon = () => L.divIcon({
     html: `<span style="background-color: rgb(0, ${MARKER_COLOR}, ${MARKER_COLOR / 2}); ${markerHtmlStyles}" />`
 });
 const parseWaypointElement = (wpt) => {
-    const name = wpt.getElementsByTagName('name')[0]?.textContent?.trim() || 'Unknown venue';
-    const url = wpt.getElementsByTagName('url')[0]?.textContent?.trim() || '';
+    var _a, _b, _c, _d;
+    const name = ((_b = (_a = wpt.getElementsByTagName('name')[0]) === null || _a === void 0 ? void 0 : _a.textContent) === null || _b === void 0 ? void 0 : _b.trim()) || 'Unknown venue';
+    const url = ((_d = (_c = wpt.getElementsByTagName('url')[0]) === null || _c === void 0 ? void 0 : _c.textContent) === null || _d === void 0 ? void 0 : _d.trim()) || '';
     const lat = Number(wpt.getAttribute('lat'));
     const lon = Number(wpt.getAttribute('lon'));
     if (Number.isNaN(lat) || Number.isNaN(lon)) {
@@ -53,11 +62,8 @@ const createWaypointMarker = (waypoint, icon) => {
       ${waypoint.url ? `<div><a href="${waypoint.url}" target="_blank" rel="noopener noreferrer">${waypoint.url}</a></div>` : ''}
     </div>
   `);
-    return {
-        ...waypoint,
-        marker,
-        popup
-    };
+    return Object.assign(Object.assign({}, waypoint), { marker,
+        popup });
 };
 const focusWaypoint = (waypoint, searchInput, searchResults) => {
     map.setView([waypoint.lat, waypoint.lon], FOCUS_ZOOM);
@@ -69,31 +75,33 @@ const focusWaypoint = (waypoint, searchInput, searchResults) => {
         searchResults.style.display = 'none';
     }
 };
-async function parseWaypoints() {
-    const response = await fetch(WAYPOINTS_URL);
-    if (!response.ok) {
-        throw new Error('Failed to load waypoints');
-    }
-    const parser = new DOMParser();
-    const xmlDoc = parser.parseFromString(await response.text(), 'text/xml');
-    const waypointNodes = Array.from(xmlDoc.getElementsByTagName('wpt'));
-    const markerIcon = createMarkerIcon();
-    const bounds = L.latLngBounds([]);
-    waypointNodes.forEach((node) => {
-        const parsed = parseWaypointElement(node);
-        if (!parsed) {
-            return;
+function parseWaypoints() {
+    return __awaiter(this, void 0, void 0, function* () {
+        const response = yield fetch(WAYPOINTS_URL);
+        if (!response.ok) {
+            throw new Error('Failed to load waypoints');
         }
-        const waypoint = createWaypointMarker(parsed, markerIcon);
-        allWaypoints.push(waypoint);
-        bounds.extend([waypoint.lat, waypoint.lon]);
+        const parser = new DOMParser();
+        const xmlDoc = parser.parseFromString(yield response.text(), 'text/xml');
+        const waypointNodes = Array.from(xmlDoc.getElementsByTagName('wpt'));
+        const markerIcon = createMarkerIcon();
+        const bounds = L.latLngBounds([]);
+        waypointNodes.forEach((node) => {
+            const parsed = parseWaypointElement(node);
+            if (!parsed) {
+                return;
+            }
+            const waypoint = createWaypointMarker(parsed, markerIcon);
+            allWaypoints.push(waypoint);
+            bounds.extend([waypoint.lat, waypoint.lon]);
+        });
+        if (allWaypoints.length > 0) {
+            map.fitBounds(bounds, { padding: [40, 40] });
+        }
+        else {
+            map.setView([0, 0], DEFAULT_ZOOM);
+        }
     });
-    if (allWaypoints.length > 0) {
-        map.fitBounds(bounds, { padding: [40, 40] });
-    }
-    else {
-        map.setView([0, 0], DEFAULT_ZOOM);
-    }
 }
 function initializeSearch() {
     const searchInput = document.getElementById(SEARCH_INPUT_ID);
@@ -198,22 +206,24 @@ function initializeSearch() {
         }
     });
 }
-async function initializeMap() {
-    map = L.map(MAP_CONTAINER_ID);
-    L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
-        attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
-        maxZoom: 18,
-        id: 'mapbox/streets-v11',
-        tileSize: 512,
-        zoomOffset: -1,
-        accessToken: 'pk.eyJ1IjoibTByY2gzbCIsImEiOiJjbWtwbHA3ZzQwZjU1M2JyMnJyaDMzZW04In0.-w5O8qGkQj7YrxIFx-lunQ'
-    }).addTo(map);
-    try {
-        await parseWaypoints();
-    }
-    catch (error) {
-        console.error('Failed to initialize waypoints', error);
-    }
-    initializeSearch();
+function initializeMap() {
+    return __awaiter(this, void 0, void 0, function* () {
+        map = L.map(MAP_CONTAINER_ID);
+        L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
+            attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
+            maxZoom: 18,
+            id: 'mapbox/streets-v11',
+            tileSize: 512,
+            zoomOffset: -1,
+            accessToken: 'pk.eyJ1IjoibTByY2gzbCIsImEiOiJjbWtwbHA3ZzQwZjU1M2JyMnJyaDMzZW04In0.-w5O8qGkQj7YrxIFx-lunQ'
+        }).addTo(map);
+        try {
+            yield parseWaypoints();
+        }
+        catch (error) {
+            console.error('Failed to initialize waypoints', error);
+        }
+        initializeSearch();
+    });
 }
 void initializeMap();

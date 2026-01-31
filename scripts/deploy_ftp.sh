@@ -10,7 +10,7 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 pushd "${PROJECT_ROOT}" >/dev/null
 if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
-  if git diff --name-only HEAD~1 HEAD -- "src/**/*.ts" "public/**/*.ts" | grep -q .; then
+  if git diff --name-only HEAD~1 HEAD -- "src/**/*.ts" "public/**/*.ts" "public/**/*.js" | grep -q .; then
     bun run build
   fi
 else

@@ -1,7 +1,7 @@
 {
   "compilerOptions": {
-    "target": "ES2020",
-    "module": "nodenext",
+    "target": "es6",
+    "module": "preserve",
     "lib": ["ES2020", "DOM"],
     "outDir": "./public",
     "rootDir": "./src",
@@ -9,7 +9,6 @@
     "esModuleInterop": true,
     "skipLibCheck": true,
     "forceConsistentCasingInFileNames": true,
-    "moduleResolution": "nodenext",
     "resolveJsonModule": true,
     "allowJs": true
   },
