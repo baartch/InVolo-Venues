@@ -10,6 +10,7 @@ if ($basePath !== '' && strpos($relativePath, $basePath) === 0) {
 $relativePath = '/' . ltrim($relativePath, '/');
 $isMap = $relativePath === '/' || $relativePath === '/index.php';
 $isVenues = strpos($relativePath, '/venues') === 0;
+$isSettings = strpos($relativePath, '/settings') === 0;
 $isUserManagement = strpos($relativePath, '/admin') === 0;
 ?>
 <aside class="sidebar">
@@ -19,6 +20,9 @@ $isUserManagement = strpos($relativePath, '/admin') === 0;
     </a>
     <a href="<?php echo BASE_PATH; ?>/venues/index.php" class="sidebar-link <?php echo $isVenues ? 'active' : ''; ?>" aria-label="Venues">
       <img src="<?php echo BASE_PATH; ?>/public/assets/icon-venues.svg" alt="Venues">
+    </a>
+    <a href="<?php echo BASE_PATH; ?>/settings/index.php" class="sidebar-link <?php echo $isSettings ? 'active' : ''; ?>" aria-label="App settings">
+      <img src="<?php echo BASE_PATH; ?>/public/assets/icon-settings.svg" alt="App settings">
     </a>
     <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
       <a href="<?php echo BASE_PATH; ?>/admin/user_management.php" class="sidebar-link <?php echo $isUserManagement ? 'active' : ''; ?>" aria-label="User management">
