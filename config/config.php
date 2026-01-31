@@ -8,6 +8,9 @@ define('DB_NAME', 'involo_venues');
 define('DB_USER', 'dbuservenues');
 define('DB_PASSWORD', 'CGa?655Amcz#kzgl');
 
+// Encryption key for settings values (32+ chars recommended)
+define('ENCRYPTION_KEY', 'change-this-encryption-key');
+
 // Base path - auto-detect or set manually
 // For example: '' for root, '/venues' for subdirectory
 // Auto-detect from current script location

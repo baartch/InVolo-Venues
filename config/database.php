@@ -25,6 +25,74 @@ function getDatabaseConnection(): PDO
     return $pdo;
 }
 
+function encryptSettingValue(?string $value): ?string
+{
+    if ($value === null || $value === '') {
+        return null;
+    }
+
+    $key = hash('sha256', (string) ENCRYPTION_KEY, true);
+    $ivLength = openssl_cipher_iv_length('aes-256-gcm');
+    if ($ivLength === false) {
+        return null;
+    }
+
+    $iv = random_bytes($ivLength);
+    $tag = '';
+    $cipherText = openssl_encrypt(
+        $value,
+        'aes-256-gcm',
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv,
+        $tag
+    );
+
+    if ($cipherText === false) {
+        return null;
+    }
+
+    return base64_encode($iv . $tag . $cipherText);
+}
+
+function decryptSettingValue(?string $value): string
+{
+    if ($value === null || $value === '') {
+        return '';
+    }
+
+    $decoded = base64_decode($value, true);
+    if ($decoded === false) {
+        return '';
+    }
+
+    $key = hash('sha256', (string) ENCRYPTION_KEY, true);
+    $ivLength = openssl_cipher_iv_length('aes-256-gcm');
+    if ($ivLength === false) {
+        return '';
+    }
+
+    $tagLength = 16;
+    if (strlen($decoded) < ($ivLength + $tagLength)) {
+        return '';
+    }
+
+    $iv = substr($decoded, 0, $ivLength);
+    $tag = substr($decoded, $ivLength, $tagLength);
+    $cipherText = substr($decoded, $ivLength + $tagLength);
+
+    $plainText = openssl_decrypt(
+        $cipherText,
+        'aes-256-gcm',
+        $key,
+        OPENSSL_RAW_DATA,
+        $iv,
+        $tag
+    );
+
+    return $plainText === false ? '' : $plainText;
+}
+
 function logAction(?int $userId, string $action, string $details = ''): void
 {
     try {

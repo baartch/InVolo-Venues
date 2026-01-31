@@ -2,6 +2,71 @@
 require_once __DIR__ . '/../auth/auth_check.php';
 require_once __DIR__ . '/../config/database.php';
 
+$errors = [];
+$notice = '';
+$settings = [
+    'brave_search_api_key' => '',
+    'brave_spellcheck_api_key' => '',
+    'mapbox_api_key' => ''
+];
+$settingsStatus = [
+    'brave_search_api_key' => false,
+    'brave_spellcheck_api_key' => false,
+    'mapbox_api_key' => false
+];
+
+if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    $settings['brave_search_api_key'] = trim((string) ($_POST['brave_search_api_key'] ?? ''));
+    $settings['brave_spellcheck_api_key'] = trim((string) ($_POST['brave_spellcheck_api_key'] ?? ''));
+    $settings['mapbox_api_key'] = trim((string) ($_POST['mapbox_api_key'] ?? ''));
+
+    try {
+        $pdo = getDatabaseConnection();
+        $stmt = $pdo->prepare(
+            'INSERT INTO settings (setting_key, setting_value)
+             VALUES (:setting_key, :setting_value)
+             ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)'
+        );
+
+        foreach ($settings as $key => $value) {
+            if ($value === '') {
+                continue;
+            }
+
+            $stmt->execute([
+                ':setting_key' => $key,
+                ':setting_value' => encryptSettingValue($value)
+            ]);
+        }
+
+        logAction($currentUser['user_id'] ?? null, 'settings_updated', 'Updated API keys');
+        $notice = 'API keys saved successfully.';
+    } catch (Throwable $error) {
+        $errors[] = 'Failed to save settings.';
+        logAction($currentUser['user_id'] ?? null, 'settings_update_error', $error->getMessage());
+    }
+}
+
+try {
+    $pdo = getDatabaseConnection();
+    $placeholders = implode(',', array_fill(0, count($settings), '?'));
+    $stmt = $pdo->prepare(
+        sprintf('SELECT setting_key, setting_value FROM settings WHERE setting_key IN (%s)', $placeholders)
+    );
+    $stmt->execute(array_keys($settings));
+    $rows = $stmt->fetchAll();
+
+    foreach ($rows as $row) {
+        $key = (string) $row['setting_key'];
+        if (array_key_exists($key, $settings)) {
+            $settingsStatus[$key] = !empty($row['setting_value']);
+        }
+    }
+} catch (Throwable $error) {
+    $errors[] = 'Failed to load settings.';
+    logAction($currentUser['user_id'] ?? null, 'settings_load_error', $error->getMessage());
+}
+
 logAction($currentUser['user_id'] ?? null, 'view_settings', 'User opened app settings');
 ?>
 <!DOCTYPE html>
@@ -106,7 +171,48 @@ logAction($currentUser['user_id'] ?? null, 'view_settings', 'User opened app set
               <h2>API Keys</h2>
               <p class="text-muted">Store tokens used for map tiles and integrations.</p>
             </div>
-            <p class="text-muted">Add API key management here.</p>
+
+            <?php if ($notice): ?>
+              <div class="notice"><?php echo htmlspecialchars($notice); ?></div>
+            <?php endif; ?>
+
+            <?php foreach ($errors as $error): ?>
+              <div class="error"><?php echo htmlspecialchars($error); ?></div>
+            <?php endforeach; ?>
+
+            <form method="POST" action="">
+              <div class="form-group">
+                <label for="brave_search_api_key">Brave Search</label>
+                <input
+                  type="password"
+                  id="brave_search_api_key"
+                  name="brave_search_api_key"
+                  class="input"
+                  placeholder="<?php echo $settingsStatus['brave_search_api_key'] ? 'Saved' : 'Not set'; ?>"
+                >
+              </div>
+              <div class="form-group">
+                <label for="brave_spellcheck_api_key">Brave Spellcheck</label>
+                <input
+                  type="password"
+                  id="brave_spellcheck_api_key"
+                  name="brave_spellcheck_api_key"
+                  class="input"
+                  placeholder="<?php echo $settingsStatus['brave_spellcheck_api_key'] ? 'Saved' : 'Not set'; ?>"
+                >
+              </div>
+              <div class="form-group">
+                <label for="mapbox_api_key">Mapbox</label>
+                <input
+                  type="password"
+                  id="mapbox_api_key"
+                  name="mapbox_api_key"
+                  class="input"
+                  placeholder="<?php echo $settingsStatus['mapbox_api_key'] ? 'Saved' : 'Not set'; ?>"
+                >
+              </div>
+              <button type="submit" class="btn">Save API Keys</button>
+            </form>
           </div>
         </div>
       </div>
