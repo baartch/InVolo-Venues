@@ -36,6 +36,7 @@ Uses tables: `venues`, `users`, `sessions`, `logs`, `settings` (see `DB.md`).
 - Sidebar icons: map, venues, user management (admin), logout.
 - User management: create/delete users, role changes, password reset.
 - Logs written via `logAction()` in `config/database.php`.
+- Always commit only the changes you made.
 
 ## Deploy
 ```bash
