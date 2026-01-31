@@ -3,7 +3,7 @@
     "target": "es6",
     "module": "preserve",
     "lib": ["ES2020", "DOM"],
-    "outDir": "./public",
+    "outDir": "./public/js",
     "rootDir": "./src",
     "strict": true,
     "esModuleInterop": true,
