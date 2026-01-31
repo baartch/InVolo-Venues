@@ -499,6 +499,38 @@ textarea:focus {
   overflow-x: auto;
 }
 
+.table-filter {
+  margin-bottom: 16px;
+}
+
+.table-filter-field {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.table-filter .input {
+  max-width: 320px;
+  padding-right: 36px;
+}
+
+.table-filter-clear {
+  position: absolute;
+  right: 10px;
+  background: none;
+  padding: 0;
+  margin: 0;
+  line-height: 1;
+  font-size: 12px;
+  cursor: pointer;
+  display: inline;
+}
+
+.table-filter-clear.is-hidden {
+  display: none;
+}
+
 .table td {
   vertical-align: top;
 }

@@ -11,6 +11,7 @@ $countryOptions = ['DE', 'CH', 'AT', 'IT', 'FR'];
 $importPayload = '';
 $showImportModal = false;
 $action = '';
+$filter = trim((string) ($_GET['filter'] ?? ''));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     $action = $_POST['action'] ?? '';
@@ -139,7 +140,28 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 try {
     $pdo = getDatabaseConnection();
-    $stmt = $pdo->query('SELECT * FROM venues ORDER BY name');
+    if ($filter !== '') {
+        $stmt = $pdo->prepare(
+            'SELECT * FROM venues
+            WHERE name LIKE ?
+               OR address LIKE ?
+               OR postal_code LIKE ?
+               OR city LIKE ?
+               OR state LIKE ?
+               OR country LIKE ?
+               OR type LIKE ?
+               OR contact_email LIKE ?
+               OR contact_phone LIKE ?
+               OR contact_person LIKE ?
+               OR website LIKE ?
+               OR notes LIKE ?
+            ORDER BY name'
+        );
+        $filterParam = '%' . $filter . '%';
+        $stmt->execute(array_fill(0, 12, $filterParam));
+    } else {
+        $stmt = $pdo->query('SELECT * FROM venues ORDER BY name');
+    }
     $venues = $stmt->fetchAll();
 } catch (Throwable $error) {
     $venues = [];
@@ -187,6 +209,19 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
 
         <div class="card card-section">
           <h2>All Venues</h2>
+          <form method="GET" action="" class="table-filter" data-filter-form>
+            <div class="table-filter-field">
+              <input
+                class="input"
+                type="text"
+                name="filter"
+                value="<?php echo htmlspecialchars($filter); ?>"
+                placeholder="Filter venues"
+                autocomplete="off"
+              >
+              <span class="table-filter-clear" data-filter-clear role="button" tabindex="0" aria-label="Clear filter">❌</span>
+            </div>
+          </form>
           <div class="table-wrapper">
             <table class="table">
               <thead>
@@ -275,6 +310,9 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
           const importModal = document.querySelector('[data-import-modal]');
           const importClose = document.querySelector('[data-import-close]');
           const venuesTable = document.querySelector('.table');
+          const filterForm = document.querySelector('[data-filter-form]');
+          const filterInput = filterForm ? filterForm.querySelector('input[name="filter"]') : null;
+          const filterClear = document.querySelector('[data-filter-clear]');
 
           if (importToggle && importModal) {
             importToggle.addEventListener('click', (event) => {
@@ -300,6 +338,74 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
 
           if (importModal && <?php echo $showImportModal ? 'true' : 'false'; ?>) {
             importModal.classList.add('open');
+          }
+
+          if (filterForm && filterInput) {
+            const focusKey = 'venueFilterFocus';
+            const syncClearState = () => {
+              if (!filterClear) {
+                return;
+              }
+              if (filterInput.value.trim() === '') {
+                filterClear.setAttribute('aria-hidden', 'true');
+                filterClear.classList.add('is-hidden');
+              } else {
+                filterClear.removeAttribute('aria-hidden');
+                filterClear.classList.remove('is-hidden');
+              }
+            };
+
+            let filterTimeout = null;
+            const submitFilter = () => {
+              sessionStorage.setItem(focusKey, '1');
+              filterForm.submit();
+            };
+
+            if (sessionStorage.getItem(focusKey) === '1') {
+              filterInput.focus();
+              const valueLength = filterInput.value.length;
+              filterInput.setSelectionRange(valueLength, valueLength);
+              sessionStorage.removeItem(focusKey);
+            }
+
+            filterInput.addEventListener('input', () => {
+              syncClearState();
+              if (filterTimeout) {
+                window.clearTimeout(filterTimeout);
+              }
+              filterTimeout = window.setTimeout(submitFilter, 500);
+            });
+
+            filterInput.addEventListener('keydown', (event) => {
+              if (event.key === 'Enter') {
+                event.preventDefault();
+                if (filterTimeout) {
+                  window.clearTimeout(filterTimeout);
+                }
+                submitFilter();
+              }
+            });
+
+            if (filterClear) {
+              const clearFilter = () => {
+                if (filterTimeout) {
+                  window.clearTimeout(filterTimeout);
+                }
+                filterInput.value = '';
+                syncClearState();
+                submitFilter();
+              };
+
+              filterClear.addEventListener('click', clearFilter);
+              filterClear.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  clearFilter();
+                }
+              });
+            }
+
+            syncClearState();
           }
 
           if (venuesTable) {
