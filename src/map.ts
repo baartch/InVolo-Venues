@@ -1,6 +1,34 @@
 // Type definitions for Leaflet (basic types needed for this project)
 declare const L: any;
 
+type LeafletLoader = () => Promise<void>;
+
+const LEAFLET_SCRIPT_SRC = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js';
+const LEAFLET_SCRIPT_INTEGRITY = 'sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==';
+
+const loadLeaflet: LeafletLoader = (): Promise<void> => {
+  if ((window as typeof window & { L?: unknown }).L) {
+    return Promise.resolve();
+  }
+
+  return new Promise((resolve, reject) => {
+    const existingScript = document.querySelector<HTMLScriptElement>(`script[src="${LEAFLET_SCRIPT_SRC}"]`);
+    if (existingScript) {
+      existingScript.addEventListener('load', () => resolve());
+      existingScript.addEventListener('error', () => reject(new Error('Failed to load Leaflet')));
+      return;
+    }
+
+    const script = document.createElement('script');
+    script.src = LEAFLET_SCRIPT_SRC;
+    script.integrity = LEAFLET_SCRIPT_INTEGRITY;
+    script.crossOrigin = '';
+    script.addEventListener('load', () => resolve());
+    script.addEventListener('error', () => reject(new Error('Failed to load Leaflet')));
+    document.head.appendChild(script);
+  });
+};
+
 interface Waypoint {
   name: string;
   url: string;
@@ -251,6 +279,7 @@ function initializeSearch(): void {
 }
 
 async function initializeMap(): Promise<void> {
+  await loadLeaflet();
   map = L.map(MAP_CONTAINER_ID);
 
   L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {

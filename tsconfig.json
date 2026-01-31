@@ -12,6 +12,6 @@
     "resolveJsonModule": true,
     "allowJs": true
   },
-  "include": ["public/*.ts", "src/map.ts"],
+  "include": ["public/*.ts", "src/*.ts"],
   "exclude": ["node_modules"]
 }

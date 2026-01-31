@@ -132,23 +132,5 @@ logAction($currentUser['user_id'] ?? null, 'view_settings', 'User opened app set
           </div>
         </div>
       </div>
-          <script>
-        (function () {
-          const tabs = Array.from(document.querySelectorAll('[data-tab]'));
-          const panels = Array.from(document.querySelectorAll('[data-tab-panel]'));
-
-          tabs.forEach((tab) => {
-            tab.addEventListener('click', () => {
-              const target = tab.getAttribute('data-tab');
-              tabs.forEach((button) => {
-                button.classList.toggle('active', button === tab);
-                button.setAttribute('aria-selected', button === tab ? 'true' : 'false');
-              });
-              panels.forEach((panel) => {
-                panel.classList.toggle('active', panel.getAttribute('data-tab-panel') === target);
-              });
-            });
-          });
-        })();
-      </script>
+      <script type="module" src="<?php echo BASE_PATH; ?>/public/js/settings.js" defer></script>
 <?php renderPageEnd(); ?>

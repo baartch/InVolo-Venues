@@ -8,6 +8,28 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+const LEAFLET_SCRIPT_SRC = 'https://unpkg.com/leaflet@1.7.1/dist/leaflet.js';
+const LEAFLET_SCRIPT_INTEGRITY = 'sha512-XQoYMqMTK8LvdxXYG3nZ448hOEQiglfqkJs1NOQV44cWnUrBc8PkAOcXy20w0vlaXaVUearIOBhiXZ5V3ynxwA==';
+const loadLeaflet = () => {
+    if (window.L) {
+        return Promise.resolve();
+    }
+    return new Promise((resolve, reject) => {
+        const existingScript = document.querySelector(`script[src="${LEAFLET_SCRIPT_SRC}"]`);
+        if (existingScript) {
+            existingScript.addEventListener('load', () => resolve());
+            existingScript.addEventListener('error', () => reject(new Error('Failed to load Leaflet')));
+            return;
+        }
+        const script = document.createElement('script');
+        script.src = LEAFLET_SCRIPT_SRC;
+        script.integrity = LEAFLET_SCRIPT_INTEGRITY;
+        script.crossOrigin = '';
+        script.addEventListener('load', () => resolve());
+        script.addEventListener('error', () => reject(new Error('Failed to load Leaflet')));
+        document.head.appendChild(script);
+    });
+};
 const MAP_CONTAINER_ID = 'mapid';
 const SEARCH_INPUT_ID = 'waypoint-search';
 const SEARCH_RESULTS_ID = 'search-results';
@@ -208,6 +230,7 @@ function initializeSearch() {
 }
 function initializeMap() {
     return __awaiter(this, void 0, void 0, function* () {
+        yield loadLeaflet();
         map = L.map(MAP_CONTAINER_ID);
         L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
             attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
