@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
+require_once __DIR__ . '/../../src-php/theme.php';
 
 $token = $_COOKIE[SESSION_NAME] ?? '';
 $existingSession = $token !== '' ? fetchSessionUser($token) : null;
@@ -55,7 +56,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<?php renderPageStart('Venue Database - Login', ['includeSidebar' => false, 'bodyClass' => 'login-body']); ?>
+<?php renderPageStart('Venue Database - Login', ['includeSidebar' => false, 'bodyClass' => 'login-body', 'theme' => getCurrentTheme()]); ?>
     <div class="login-container card">
         <h1 class="login-title">🎵 Venue Database</h1>
         <p class="login-subtitle">Please login to access the venue map</p>

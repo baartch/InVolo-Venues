@@ -1,5 +1,3 @@
-@import url("themes/forest.css");
-
 * {
   margin: 0;
   padding: 0;
@@ -650,6 +648,10 @@ a.icon-button {
 
 .users-card {
   margin-top: 24px;
+}
+
+.profile-theme-card {
+  margin-bottom: 24px;
 }
 
 .login-body {

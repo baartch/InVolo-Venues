@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../config/admin_check.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
+require_once __DIR__ . '/../../src-php/theme.php';
 
 $errors = [];
 $notice = '';
@@ -139,7 +140,7 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened user management');
 ?>
-<?php renderPageStart('Venue Database - User Management'); ?>
+<?php renderPageStart('Venue Database - User Management', ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <h1>User Management</h1>

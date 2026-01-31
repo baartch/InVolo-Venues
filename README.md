@@ -205,7 +205,7 @@ Add a cron job to remove old logs and sessions (older than 180 days):
 
 ### Theme
 
-The UI uses a central theme file. Update `public/css/themes/forest.css` to adjust the forest palette.
+The UI uses a central theme file. Update `public/css/themes/forest.css` to adjust the forest palette. Users can switch themes in Profile; the default is "forest" and is stored per user (requires `users.ui_theme`).
 
 ### Navigation
 

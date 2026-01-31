@@ -139,7 +139,7 @@ function fetchSessionUser(string $token): ?array
 
     $pdo = getDatabaseConnection();
     $stmt = $pdo->prepare(
-        'SELECT sessions.id AS session_id, sessions.user_id, sessions.expires_at, users.username, users.role
+        'SELECT sessions.id AS session_id, sessions.user_id, sessions.expires_at, users.username, users.role, users.ui_theme
          FROM sessions
          JOIN users ON users.id = sessions.user_id
          WHERE sessions.session_token = :token

@@ -3,6 +3,7 @@ require_once __DIR__ . '/../../routes/auth/check.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src-php/form_helpers.php';
 require_once __DIR__ . '/../../src-php/layout.php';
+require_once __DIR__ . '/../../src-php/theme.php';
 
 $errors = [];
 $notice = '';
@@ -148,7 +149,7 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue management');
 ?>
-<?php renderPageStart('Venue Database - Venues'); ?>
+<?php renderPageStart('Venue Database - Venues', ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <h1>Venue Management</h1>
@@ -191,17 +192,17 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
               <thead>
                 <tr>
                   <th></th>
-                  <th>Name</th>
-                  <th>Address</th>
-                  <th>State</th>
-                  <th>Country</th>
-                  <th>Type</th>
-                  <th>Contact Email</th>
-                  <th>Contact Phone</th>
-                  <th>Contact Person</th>
-                  <th>Capacity</th>
-                  <th>Website</th>
-                  <th>Notes</th>
+                  <th data-sort>Name</th>
+                  <th data-sort>Address</th>
+                  <th data-sort>State</th>
+                  <th data-sort>Country</th>
+                  <th data-sort>Type</th>
+                  <th data-sort>Contact Email</th>
+                  <th data-sort>Contact Phone</th>
+                  <th data-sort>Contact Person</th>
+                  <th data-sort data-sort-type="number">Capacity</th>
+                  <th data-sort>Website</th>
+                  <th data-sort>Notes</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -273,6 +274,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
           const importToggle = document.querySelector('[data-import-toggle]');
           const importModal = document.querySelector('[data-import-modal]');
           const importClose = document.querySelector('[data-import-close]');
+          const venuesTable = document.querySelector('.table');
 
           if (importToggle && importModal) {
             importToggle.addEventListener('click', (event) => {
@@ -298,6 +300,87 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
 
           if (importModal && <?php echo $showImportModal ? 'true' : 'false'; ?>) {
             importModal.classList.add('open');
+          }
+
+          if (venuesTable) {
+            const headers = venuesTable.querySelectorAll('thead th[data-sort]');
+            let sortIndex = null;
+            let sortDirection = 'asc';
+
+            const getCellValue = (row, index) => {
+              const cell = row.children[index];
+              if (!cell) {
+                return '';
+              }
+              const link = cell.querySelector('a');
+              if (link) {
+                return link.textContent.trim();
+              }
+              return cell.textContent.trim();
+            };
+
+            const compareValues = (a, b, type) => {
+              if (type === 'number') {
+                const numberA = parseFloat(a.replace(/[^0-9.-]/g, ''));
+                const numberB = parseFloat(b.replace(/[^0-9.-]/g, ''));
+                if (Number.isNaN(numberA) && Number.isNaN(numberB)) {
+                  return 0;
+                }
+                if (Number.isNaN(numberA)) {
+                  return 1;
+                }
+                if (Number.isNaN(numberB)) {
+                  return -1;
+                }
+                return numberA - numberB;
+              }
+              return a.localeCompare(b, undefined, { numeric: true, sensitivity: 'base' });
+            };
+
+            const updateHeaderState = () => {
+              headers.forEach((header, index) => {
+                header.classList.remove('is-sorted', 'is-sorted-asc', 'is-sorted-desc');
+                if (index === sortIndex) {
+                  header.classList.add('is-sorted', sortDirection === 'asc' ? 'is-sorted-asc' : 'is-sorted-desc');
+                }
+              });
+            };
+
+            const sortRows = (index, direction) => {
+              const body = venuesTable.querySelector('tbody');
+              if (!body) {
+                return;
+              }
+              const type = headers[index].dataset.sortType || 'text';
+              const rows = Array.from(body.querySelectorAll('tr'));
+
+              rows.sort((rowA, rowB) => {
+                const valueA = getCellValue(rowA, index);
+                const valueB = getCellValue(rowB, index);
+                const comparison = compareValues(valueA, valueB, type);
+                return direction === 'asc' ? comparison : -comparison;
+              });
+
+              rows.forEach((row) => body.appendChild(row));
+            };
+
+            headers.forEach((header, index) => {
+              header.setAttribute('role', 'button');
+              header.setAttribute('tabindex', '0');
+              header.addEventListener('click', () => {
+                const isSameColumn = sortIndex === index;
+                sortIndex = index;
+                sortDirection = isSameColumn && sortDirection === 'asc' ? 'desc' : 'asc';
+                sortRows(index, sortDirection);
+                updateHeaderState();
+              });
+              header.addEventListener('keydown', (event) => {
+                if (event.key === 'Enter' || event.key === ' ') {
+                  event.preventDefault();
+                  header.click();
+                }
+              });
+            });
           }
         })();
       </script>

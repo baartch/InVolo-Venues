@@ -2,9 +2,10 @@
 require_once __DIR__ . '/routes/auth/check.php';
 require_once __DIR__ . '/config/database.php';
 require_once __DIR__ . '/src-php/layout.php';
+require_once __DIR__ . '/src-php/theme.php';
 logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
 ?>
-<?php renderPageStart('Venue Database - Map', ['leaflet' => true]); ?>
+<?php renderPageStart('Venue Database - Map', ['leaflet' => true, 'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
       <div id="search-container">
         <div class="search-input-wrapper">
           <input type="text" id="waypoint-search" placeholder="Search for venues...">

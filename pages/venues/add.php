@@ -5,6 +5,7 @@ require_once __DIR__ . '/../../src-php/form_helpers.php';
 require_once __DIR__ . '/../../src-php/search_helpers.php';
 require_once __DIR__ . '/../../src-php/settings.php';
 require_once __DIR__ . '/../../src-php/layout.php';
+require_once __DIR__ . '/../../src-php/theme.php';
 
 $errors = [];
 $notice = '';
@@ -270,7 +271,7 @@ if ($editVenue) {
 
 logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprintf('Editing venue %d', $editId) : 'Opened add venue');
 ?>
-<?php renderPageStart(sprintf('Venue Database - %s', $editVenue ? 'Edit Venue' : 'Add Venue')); ?>
+<?php renderPageStart(sprintf('Venue Database - %s', $editVenue ? 'Edit Venue' : 'Add Venue'), ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <div>

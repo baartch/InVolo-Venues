@@ -2,6 +2,7 @@
 require_once __DIR__ . '/../../routes/auth/check.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
+require_once __DIR__ . '/../../src-php/theme.php';
 
 $errors = [];
 $notice = '';
@@ -70,7 +71,7 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_settings', 'User opened app settings');
 ?>
-<?php renderPageStart('Venue Database - Settings'); ?>
+<?php renderPageStart('Venue Database - Settings', ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <h1>App Settings</h1>

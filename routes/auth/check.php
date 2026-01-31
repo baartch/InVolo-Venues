@@ -54,5 +54,6 @@ setcookie(SESSION_NAME, $token, buildSessionCookieOptions($expiresAt));
 $currentUser = [
     'user_id' => (int) $session['user_id'],
     'username' => $session['username'],
-    'role' => $session['role']
+    'role' => $session['role'],
+    'ui_theme' => $session['ui_theme'] ?? null
 ];

@@ -7,6 +7,8 @@ function renderPageStart(string $title, array $options = []): void
     $extraStyles = $options['extraStyles'] ?? [];
     $extraScripts = $options['extraScripts'] ?? [];
     $leaflet = $options['leaflet'] ?? false;
+    $theme = $options['theme'] ?? 'forest';
+    $themeHref = BASE_PATH . '/public/css/themes/' . $theme . '.css';
 
     echo "<!DOCTYPE html>\n";
     echo "<html lang=\"en\">\n";
@@ -21,6 +23,7 @@ function renderPageStart(string $title, array $options = []): void
     }
 
     echo "  <link rel=\"stylesheet\" href=\"" . BASE_PATH . "/public/css/styles.css\">\n";
+    echo "  <link rel=\"stylesheet\" href=\"{$themeHref}\">\n";
 
     foreach ($extraStyles as $styleUrl) {
         echo "  <link rel=\"stylesheet\" href=\"{$styleUrl}\">\n";
