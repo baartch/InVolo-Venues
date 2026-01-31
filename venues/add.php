@@ -60,8 +60,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $payload[$field] = trim((string) ($_POST[$field] ?? ''));
     }
 
-    if ($payload['name'] === '' || $payload['state'] === '') {
-        $errors[] = 'Name and state are required.';
+    if ($payload['name'] === '' || $payload['city'] === '') {
+        $errors[] = 'Name and city are required.';
     }
 
     if ($payload['type'] !== '' && !in_array($payload['type'], $venueTypes, true)) {
@@ -294,12 +294,12 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
                 </select>
               </div>
               <div class="form-group">
-                <label for="state">State *</label>
-                <input type="text" id="state" name="state" class="input" required value="<?php echo htmlspecialchars($formValues['state']); ?>">
+                <label for="state">State</label>
+                <input type="text" id="state" name="state" class="input" value="<?php echo htmlspecialchars($formValues['state']); ?>">
               </div>
               <div class="form-group">
-                <label for="city">City</label>
-                <input type="text" id="city" name="city" class="input" value="<?php echo htmlspecialchars($formValues['city']); ?>">
+                <label for="city">City *</label>
+                <input type="text" id="city" name="city" class="input" required value="<?php echo htmlspecialchars($formValues['city']); ?>">
               </div>
               <div class="form-group">
                 <label for="postal_code">Postal Code</label>
