@@ -17,6 +17,8 @@ $pageSize = max(25, min(500, $pageSize));
 $page = max(1, (int) ($_GET['page'] ?? 1));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
+    
     $action = $_POST['action'] ?? '';
 
     if ($action === 'import') {
@@ -236,6 +238,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
             <div class="modal-card">
               <h3>Import Venues (JSON)</h3>
               <form method="POST" action="">
+                <?php renderCsrfField(); ?>
                 <input type="hidden" name="action" value="import">
                 <textarea class="input" name="import_json" placeholder="Paste JSON here"><?php echo htmlspecialchars($importPayload); ?></textarea>
                 <div class="modal-actions">
@@ -329,6 +332,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                             <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
                           </a>
                           <form method="POST" action="" onsubmit="return confirm('Delete this venue?');">
+                            <?php renderCsrfField(); ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
                             <button type="submit" class="icon-button" aria-label="Delete venue" title="Delete venue">

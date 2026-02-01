@@ -14,7 +14,13 @@ if (!file_exists($configPath)) {
     require_once $configPath;
 }
 require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src-php/csrf.php';
 unset($configPath, $examplePath);
+
+// Start session for CSRF token storage
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $token = $_COOKIE[SESSION_NAME] ?? '';
 $session = fetchSessionUser($token);

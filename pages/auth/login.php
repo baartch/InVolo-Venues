@@ -3,6 +3,12 @@ require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../config/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
 require_once __DIR__ . '/../../src-php/theme.php';
+require_once __DIR__ . '/../../src-php/csrf.php';
+
+// Start session for CSRF token storage
+if (session_status() === PHP_SESSION_NONE) {
+    session_start();
+}
 
 $token = $_COOKIE[SESSION_NAME] ?? '';
 $existingSession = $token !== '' ? fetchSessionUser($token) : null;
@@ -23,6 +29,8 @@ $error = '';
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
+    
     $username = trim((string) ($_POST['username'] ?? ''));
     $password = (string) ($_POST['password'] ?? '');
 
@@ -66,6 +74,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="">
+            <?php renderCsrfField(); ?>
             <div class="login-form-group">
                 <label for="username" class="login-label">Username</label>
                 <input type="text" id="username" name="username" class="input" required autofocus>

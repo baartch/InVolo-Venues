@@ -15,6 +15,8 @@ $currentPageSize = (int) ($currentUser['venues_page_size'] ?? $defaultPageSize);
 $currentPageSize = max($minPageSize, min($maxPageSize, $currentPageSize));
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
+    
     $action = $_POST['action'] ?? '';
 
     if ($action === 'update_password') {
@@ -119,6 +121,7 @@ logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile'
         <div class="card card-section profile-theme-card">
           <h2>Theme</h2>
           <form method="POST" action="" class="create-user-form">
+            <?php renderCsrfField(); ?>
             <input type="hidden" name="action" value="update_theme">
             <div class="form-group">
               <label for="theme">Color Theme</label>
@@ -137,6 +140,7 @@ logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile'
         <div class="card card-section">
           <h2>Venues List</h2>
           <form method="POST" action="" class="create-user-form">
+            <?php renderCsrfField(); ?>
             <input type="hidden" name="action" value="update_page_size">
             <div class="form-group">
               <label for="venues_page_size">Venues per page (25-500)</label>
@@ -158,6 +162,7 @@ logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile'
         <div class="card card-section">
           <h2>Reset Password</h2>
           <form method="POST" action="" class="create-user-form">
+            <?php renderCsrfField(); ?>
             <input type="hidden" name="action" value="update_password">
             <div class="form-group">
               <label for="current_password">Current Password</label>

@@ -8,6 +8,8 @@ $errors = [];
 $notice = '';
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
+    
     $action = $_POST['action'] ?? '';
 
     if ($action === 'create') {
@@ -158,6 +160,7 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
           <div class="card card-section">
             <h2>Create User</h2>
             <form method="POST" action="" class="create-user-form">
+              <?php renderCsrfField(); ?>
               <input type="hidden" name="action" value="create">
               <div class="create-user-row">
                 <div class="form-group">
@@ -200,6 +203,7 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
                   <td><?php echo htmlspecialchars($user['username']); ?></td>
                   <td>
                     <form method="POST" action="" class="table-actions" onsubmit="return confirm('Update role for this user?');">
+                      <?php renderCsrfField(); ?>
                       <input type="hidden" name="action" value="update_role">
                       <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
                       <select name="role" class="inline-select" onchange="this.form.submit()" <?php echo ($currentUser['user_id'] ?? 0) === (int) $user['id'] ? 'disabled' : ''; ?>>
@@ -211,6 +215,7 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
                   <td><?php echo htmlspecialchars($user['created_at']); ?></td>
                   <td class="table-actions">
                     <form method="POST" action="" onsubmit="return confirm('Reset password for this user?');">
+                      <?php renderCsrfField(); ?>
                       <input type="hidden" name="action" value="reset_password">
                       <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
                       <button type="submit" class="icon-button secondary" aria-label="Reset password" title="Reset password">
@@ -218,6 +223,7 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
                       </button>
                     </form>
                     <form method="POST" action="" onsubmit="return confirm('Delete this user?');">
+                      <?php renderCsrfField(); ?>
                       <input type="hidden" name="action" value="delete">
                       <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
                       <button type="submit" class="icon-button" aria-label="Delete user" title="Delete user">

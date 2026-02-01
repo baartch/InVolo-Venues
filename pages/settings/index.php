@@ -18,6 +18,8 @@ $settingsStatus = [
 ];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
+    
     $settings['brave_search_api_key'] = trim((string) ($_POST['brave_search_api_key'] ?? ''));
     $settings['brave_spellcheck_api_key'] = trim((string) ($_POST['brave_spellcheck_api_key'] ?? ''));
     $settings['mapbox_api_key'] = trim((string) ($_POST['mapbox_api_key'] ?? ''));
@@ -97,6 +99,7 @@ logAction($currentUser['user_id'] ?? null, 'view_settings', 'User opened app set
             <?php endforeach; ?>
 
             <form method="POST" action="">
+              <?php renderCsrfField(); ?>
               <div class="form-group">
                 <label for="brave_search_api_key">Brave Search</label>
                 <input

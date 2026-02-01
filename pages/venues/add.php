@@ -141,6 +141,8 @@ if ($webSearchQuery !== '' && $editId === 0 && $_SERVER['REQUEST_METHOD'] === 'G
 }
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
+    verifyCsrfToken();
+    
     $action = $_POST['action'] ?? '';
 
     $payload = [];
@@ -306,6 +308,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
 
         <div class="card card-section">
           <form method="POST" action="" class="venue-form">
+            <?php renderCsrfField(); ?>
             <input type="hidden" name="action" value="<?php echo $editVenue ? 'update' : 'create'; ?>">
             <?php if ($editVenue): ?>
               <input type="hidden" name="venue_id" value="<?php echo (int) $editVenue['id']; ?>">
