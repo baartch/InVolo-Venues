@@ -1,14 +1,9 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src-php/database.php';
+require_once __DIR__ . '/../../src-php/rate_limit.php';
 require_once __DIR__ . '/../../src-php/layout.php';
 require_once __DIR__ . '/../../src-php/theme.php';
-require_once __DIR__ . '/../../src-php/csrf.php';
-
-// Start session for CSRF token storage
-if (session_status() === PHP_SESSION_NONE) {
-    session_start();
-}
 
 $token = $_COOKIE[SESSION_NAME] ?? '';
 $existingSession = $token !== '' ? fetchSessionUser($token) : null;
@@ -29,38 +24,63 @@ $error = '';
 
 // Handle login form submission
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
-    verifyCsrfToken();
-    
     $username = trim((string) ($_POST['username'] ?? ''));
     $password = (string) ($_POST['password'] ?? '');
+    $clientIp = getClientIdentifier();
+    
+    // Check rate limit by IP
+    $rateLimitByIp = checkRateLimit($clientIp, 'login', 5, 900); // 5 attempts per 15 minutes
+    
+    // Check rate limit by username (if provided)
+    $rateLimitByUsername = $username !== '' 
+        ? checkRateLimit('user:' . $username, 'login', 10, 1800) // 10 attempts per 30 minutes
+        : ['allowed' => true];
+    
+    if (!$rateLimitByIp['allowed']) {
+        $error = sprintf(
+            'Too many login attempts from your IP address. Please try again in %s.',
+            formatRateLimitReset($rateLimitByIp['reset_at'])
+        );
+        logAction(null, 'login_rate_limit_ip', sprintf('Rate limit exceeded for IP %s', $clientIp));
+    } elseif (!$rateLimitByUsername['allowed']) {
+        $error = sprintf(
+            'Too many login attempts for this account. Please try again in %s.',
+            formatRateLimitReset($rateLimitByUsername['reset_at'])
+        );
+        logAction(null, 'login_rate_limit_user', sprintf('Rate limit exceeded for username %s', $username));
+    } else {
+        try {
+            $pdo = getDatabaseConnection();
+            $stmt = $pdo->prepare('SELECT id, username, password_hash, role FROM users WHERE username = :username LIMIT 1');
+            $stmt->execute([':username' => $username]);
+            $user = $stmt->fetch();
 
-    try {
-        $pdo = getDatabaseConnection();
-        $stmt = $pdo->prepare('SELECT id, username, password_hash, role FROM users WHERE username = :username LIMIT 1');
-        $stmt->execute([':username' => $username]);
-        $user = $stmt->fetch();
+            if ($user && password_verify($password, $user['password_hash'])) {
+                // Clear rate limit attempts on successful login
+                recordRateLimitAttempt($clientIp, 'login', true);
+                recordRateLimitAttempt('user:' . $username, 'login', true);
+                
+                $sessionData = createSession((int) $user['id']);
+                setcookie(SESSION_NAME, $sessionData['token'], buildSessionCookieOptions($sessionData['expiresAt']));
+                logAction((int) $user['id'], 'login', 'User logged in');
+                header('Location: ' . BASE_PATH . '/index.php');
+                exit;
+            }
 
-        if ($user && password_verify($password, $user['password_hash'])) {
-            $sessionData = createSession((int) $user['id']);
-            setcookie(SESSION_NAME, $sessionData['token'], buildSessionCookieOptions($sessionData['expiresAt']));
-            logAction((int) $user['id'], 'login', 'User logged in');
-            header('Location: ' . BASE_PATH . '/index.php');
-            exit;
+            // Record failed login attempts
+            recordRateLimitAttempt($clientIp, 'login', false);
+            if ($username !== '') {
+                recordRateLimitAttempt('user:' . $username, 'login', false);
+            }
+
+            $details = sprintf('Login failed (user=%s, ip=%s)', $username, $clientIp);
+            logAction($user ? (int) $user['id'] : null, 'login_failed', $details);
+            $error = 'Invalid username or password';
+        } catch (Throwable $errorException) {
+            $details = sprintf('Login error: %s', $errorException->getMessage());
+            logAction(null, 'login_error', $details);
+            $error = 'Login failed. Please try again later.';
         }
-
-        $details = sprintf(
-            'Login failed (user=%s)',
-            $username
-        );
-        logAction($user ? (int) $user['id'] : null, 'login_failed', $details);
-        $error = 'Invalid username or password';
-    } catch (Throwable $errorException) {
-        $details = sprintf(
-            'Login error: %s',
-            $errorException->getMessage()
-        );
-        logAction(null, 'login_error', $details);
-        $error = 'Login failed. Please try again later.';
     }
 }
 ?>
@@ -74,7 +94,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         <?php endif; ?>
 
         <form method="POST" action="">
-            <?php renderCsrfField(); ?>
             <div class="login-form-group">
                 <label for="username" class="login-label">Username</label>
                 <input type="text" id="username" name="username" class="input" required autofocus>

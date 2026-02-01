@@ -23,6 +23,7 @@ Open: **http://localhost:8000/pages/auth/login.php**
 Set up user accounts in the `users` table (with `password_hash` values). Ensure at least one admin user exists.
 
 Example (generate password hash in PHP):
+
 ```php
 <?php echo password_hash('your-password', PASSWORD_DEFAULT); ?>
 ```
@@ -30,27 +31,31 @@ Example (generate password hash in PHP):
 ## ✨ Features
 
 ### 🗺️ Interactive Map
+
 - Powered by Leaflet and Mapbox
 - Custom venue markers
 - Click markers to see venue details
 - Smooth zoom and pan
 
 ### 🔍 Smart Search
+
 - **Ctrl+K** - Quick access to search field
 - Real-time filtering as you type
 - Keyboard navigation with arrow keys
 - Press Enter to select a venue
 
 ### ⌨️ Keyboard Shortcuts
-| Key | Action |
-|-----|--------|
-| `Ctrl+K` or `Cmd+K` | Focus search field |
-| `↓` Arrow Down | Next search result |
-| `↑` Arrow Up | Previous search result |
-| `Enter` | Go to selected venue |
-| `Escape` | Close search results |
+
+| Key                 | Action                 |
+| ------------------- | ---------------------- |
+| `Ctrl+K` or `Cmd+K` | Focus search field     |
+| `↓` Arrow Down      | Next search result     |
+| `↑` Arrow Up        | Previous search result |
+| `Enter`             | Go to selected venue   |
+| `Escape`            | Close search results   |
 
 ### 🔒 Security
+
 - Database-backed authentication
 - Sessions stored in MariaDB
 - Automatic logout after 1 hour
@@ -94,6 +99,7 @@ define('SESSION_LIFETIME', 7200); // 2 hours in seconds
 ### Base Path
 
 The application auto-detects its installation path. Works in:
+
 - Root directory: `https://example.com/`
 - Subdirectory: `https://example.com/venues/`
 - Nested: `https://example.com/apps/venues/`
@@ -105,17 +111,20 @@ If assets or links break after moving the app, update `config/config.php` or har
 ### Apache (Recommended)
 
 1. **Copy files to web directory:**
+
    ```bash
    cp -r frontend/* /var/www/html/venues/
    ```
 
 2. **Set permissions:**
+
    ```bash
    chmod 644 /var/www/html/venues/*.php
    chmod 600 /var/www/html/venues/config/config.php
    ```
 
 3. **Enable .htaccess in Apache config:**
+
    ```apache
    <Directory /var/www/html/venues>
        AllowOverride All
@@ -158,26 +167,33 @@ location ~ \.php$ {
 ## 🆘 Troubleshooting
 
 ### Can't Login?
+
 1. Verify the user exists in the `users` table
 2. Clear browser cookies
 3. Check database connectivity
 
 ### .htaccess Errors?
+
 If you see "not allowed here" errors:
+
 1. Enable `AllowOverride All` in Apache config
 2. Restart Apache: `sudo systemctl restart apache2`
 
 ### Search Results Misaligned?
+
 1. Clear browser cache (Ctrl+F5)
 2. Check browser zoom is at 100%
 
 ### Venues Not Loading?
+
 1. Verify you're logged in
 2. Check browser console for errors
 3. Ensure the `venues` table has latitude/longitude data
 
 ### Redirects Not Working?
+
 If redirects go to wrong URLs (e.g., `/pages/auth/login.php` instead of `/venues/pages/auth/login.php`):
+
 - The BASE_PATH should auto-detect correctly
 - Check `config/config.php` has the BASE_PATH code
 - Manually set if needed: `define('BASE_PATH', '/venues');`
@@ -227,15 +243,22 @@ frontend/
 ├── routes/                    # API endpoints
 │   ├── auth/check.php         # Session validator
 │   └── waypoints/index.php    # Protected venues endpoint (GPX)
-├── config/                    # Configuration (protected)
-│   ├── config.php             # Credentials & settings
-│   └── database.php           # Database helpers
+├── config/                    # Configuration only (protected)
+│   └── config.php             # Credentials & settings
 ├── src-php/                   # Shared PHP helpers
+│   ├── database.php           # Database functions
+│   ├── admin_check.php        # Admin authorization
+│   ├── rate_limit.php         # Rate limiting
+│   ├── csrf.php               # CSRF protection
+│   ├── form_helpers.php       # Form validation
+│   ├── layout.php             # Page layout
+│   ├── search_helpers.php     # Web search API
+│   ├── settings.php           # Settings management
+│   └── theme.php              # Theme selection
 ├── public/                    # Public assets
-│   ├── css/                   # Styles
-│   ├── js/                    # Compiled JavaScript
-│   └── assets/                # Assets (icons, marker)
-└── docs/                      # Documentation (archived)
+    ├── css/                   # Styles
+    ├── js/                    # Compiled JavaScript
+    └── assets/                # Assets (icons, marker)
 ```
 
 ## 📊 Adding Venues
@@ -255,30 +278,21 @@ Before going live:
 - [ ] Verified logs are written to the `logs` table
 - [ ] Checked that direct access to `/config/config.php` returns 403
 
-## 📱 Browser Support
-
-Tested and works in:
-- ✅ Chrome/Edge 90+
-- ✅ Firefox 88+
-- ✅ Safari 14+
-- ✅ Mobile browsers (iOS Safari, Chrome Mobile)
-
 ## 🎓 Tips & Tricks
 
 ### Quick Search Workflow
+
 ```
 Ctrl+K → Type venue name → ↓/↑ to select → Enter
 ```
 
 ### Finding Venues by City
+
 Just type the city name in the search box.
 
 ### Clearing Search
+
 Press `Escape` or clear the search field.
-
-## 📞 Support
-
-For technical documentation and development details, see `AGENTS.md`.
 
 ## 📄 License
 

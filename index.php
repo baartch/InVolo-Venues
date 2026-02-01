@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/routes/auth/check.php';
-require_once __DIR__ . '/config/database.php';
+require_once __DIR__ . '/src-php/database.php';
 require_once __DIR__ . '/src-php/layout.php';
 require_once __DIR__ . '/src-php/theme.php';
 logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');

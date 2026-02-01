@@ -28,7 +28,6 @@ EXCLUDES=(
   "tsconfig.json"
   "src/"
   "setup.sh"
-  "docs/"
   "dev_helpers/"
 )
 

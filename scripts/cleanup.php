@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../config/database.php';
+require_once __DIR__ . '/../src-php/database.php';
 
 $defaultDays = 180;
 $daysToKeep = $defaultDays;
@@ -25,9 +25,15 @@ try {
     $stmt->execute([':cutoff' => $cutoff]);
     $sessionsDeleted = $stmt->rowCount();
 
-    logAction(null, 'cleanup', sprintf('Deleted %d logs and %d sessions older than %s', $logsDeleted, $sessionsDeleted, $cutoff));
+    // Clean rate limits older than 30 days (they're only needed for recent tracking)
+    $rateLimitCutoff = date('Y-m-d H:i:s', strtotime('-30 days'));
+    $stmt = $pdo->prepare('DELETE FROM rate_limits WHERE attempted_at < :cutoff');
+    $stmt->execute([':cutoff' => $rateLimitCutoff]);
+    $rateLimitsDeleted = $stmt->rowCount();
 
-    echo sprintf("Cleanup complete. Logs deleted: %d, sessions deleted: %d (days=%d)\n", $logsDeleted, $sessionsDeleted, $daysToKeep);
+    logAction(null, 'cleanup', sprintf('Deleted %d logs, %d sessions, %d rate limits older than %s', $logsDeleted, $sessionsDeleted, $rateLimitsDeleted, $cutoff));
+
+    echo sprintf("Cleanup complete. Logs deleted: %d, sessions deleted: %d, rate limits deleted: %d (days=%d)\n", $logsDeleted, $sessionsDeleted, $rateLimitsDeleted, $daysToKeep);
 } catch (Throwable $error) {
     logAction(null, 'cleanup_error', $error->getMessage());
     http_response_code(500);

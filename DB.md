@@ -14,6 +14,7 @@ Password: [your_secure_password]
 - `sessions`: Active user sessions for authentication
 - `logs`: Application logs (user actions, errors, timestamps)
 - `settings`: Application configuration settings
+- `rate_limits`: Rate limiting tracking for brute force protection
 
 ## Schema
 
@@ -79,4 +80,13 @@ CREATE TABLE settings (
     setting_value TEXT,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
+
+CREATE TABLE rate_limits (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    identifier VARCHAR(255) NOT NULL COMMENT 'IP address or user identifier',
+    action VARCHAR(50) NOT NULL COMMENT 'Action being rate limited (e.g., login)',
+    attempted_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    INDEX idx_identifier_action (identifier, action),
+    INDEX idx_attempted_at (attempted_at)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 ```

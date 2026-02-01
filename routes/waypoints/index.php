@@ -1,6 +1,6 @@
 <?php
 require_once __DIR__ . '/../../routes/auth/check.php';
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src-php/database.php';
 
 try {
     $pdo = getDatabaseConnection();

@@ -21,11 +21,12 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 ├── routes/waypoints/index.php # GPX output from DB venues
 ├── pages/auth/               # Login/logout
 ├── routes/auth/check.php     # Auth check (session validation)
-├── config/                   # DB config + helpers
-│   ├── config.php
-│   ├── database.php
-│   └── admin_check.php
+├── config/                   # Configuration only
+│   └── config.php            # DB credentials & app settings
 ├── src-php/                  # Shared PHP helpers
+│   ├── database.php          # DB functions (connection, sessions, logging)
+│   ├── admin_check.php       # Admin role authorization check
+│   ├── rate_limit.php        # Rate limiting (brute force protection)
 │   ├── csrf.php              # CSRF token protection
 │   ├── form_helpers.php      # Form validation helpers
 │   ├── layout.php            # Page layout rendering
@@ -37,21 +38,23 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 │   ├── css/themes/forest.css # Theme palette
 │   ├── js/map.js             # Map client
 │   └── assets/               # Icons
-├── scripts/cleanup.php       # Log/session retention
-└── scripts/deploy_ftp.sh      # Deployment
+├── scripts/cleanup.php       # Log/session/rate limit retention
+└── scripts/deploy_ftp.sh     # Deployment
 ```
 
 ## Database
 
-Uses tables: `venues`, `users`, `sessions`, `logs`, `settings` (see `DB.md`).
+Uses tables: `venues`, `users`, `sessions`, `logs`, `settings`, `rate_limits` (see `DB.md`).
 
 ## Notes
 
+- **config/** directory is for configuration files ONLY (config.php)
+- All PHP helper functions belong in **src-php/** directory
 - Sidebar consists only of icons, no labels
-- Logs written via `logAction()` in `config/database.php`.
+- Logs written via `logAction()` in `src-php/database.php`
 - Edit TypeScript sources (not compiled JS) when changing map logic; rebuild the JS output as needed. TypeScript sources live in `src/`.
 - Do NOT create a new markdown file to document each change or summarize your work unless specifically requested by the user.
-- Always commit only the changes you made.
+- Do NOT automatically create GIT commits. But when user asks for it, commit only the changes you made.
 
 ## Deploy
 

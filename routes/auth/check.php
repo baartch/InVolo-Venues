@@ -13,7 +13,7 @@ if (!file_exists($configPath)) {
 } else {
     require_once $configPath;
 }
-require_once __DIR__ . '/../../config/database.php';
+require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/csrf.php';
 unset($configPath, $examplePath);
 
