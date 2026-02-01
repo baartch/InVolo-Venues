@@ -1,6 +1,14 @@
 <?php
+require_once __DIR__ . '/security_headers.php';
+
 function renderPageStart(string $title, array $options = []): void
 {
+    // Set security headers for all pages
+    setSecurityHeaders();
+    
+    // Don't cache sensitive pages
+    setNoCacheHeaders();
+    
     global $currentUser;
     $includeSidebar = $options['includeSidebar'] ?? true;
     $bodyClass = $options['bodyClass'] ?? 'map-page';

@@ -1,6 +1,10 @@
 <?php
 require_once __DIR__ . '/../../routes/auth/check.php';
 require_once __DIR__ . '/../../src-php/database.php';
+require_once __DIR__ . '/../../src-php/security_headers.php';
+
+// Set API-specific security headers
+setApiSecurityHeaders();
 
 try {
     $pdo = getDatabaseConnection();

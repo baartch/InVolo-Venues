@@ -1,0 +1,97 @@
+# Venue Database - Root .htaccess
+
+# Security headers and URL rewriting
+
+# Enable rewrite engine
+
+RewriteEngine On
+
+# Prevent access to sensitive files
+
+<FilesMatch "^(\.env|\.git|composer\.(json|lock)|package(-lock)?\.json|tsconfig\.json|bun\.lock|AGENTS\.md)$">
+Require all denied
+</FilesMatch>
+
+# Security Headers
+
+# Prevent clickjacking attacks
+
+Header always set X-Frame-Options "SAMEORIGIN"
+
+# Prevent MIME type sniffing
+
+Header always set X-Content-Type-Options "nosniff"
+
+# Enable XSS filtering in older browsers
+
+Header always set X-XSS-Protection "1; mode=block"
+
+# Referrer Policy - only send referrer to same origin
+
+Header always set Referrer-Policy "strict-origin-when-cross-origin"
+
+# Permissions Policy - restrict browser features
+
+Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()"
+
+# Content Security Policy
+
+# Note: Adjust if you add external scripts/styles
+# OpenStreetMap wildcard covers all tile server subdomains
+
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.openstreetmap.org https://api.mapbox.com; font-src 'self' data:; connect-src 'self' https://unpkg.com https://api.mapbox.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+
+# HSTS - Force HTTPS (only enable if you have SSL/TLS configured)
+
+# Uncomment the following line after confirming HTTPS works
+
+Header always set Strict-Transport-Security "max-age=31536000; includeSubDomains; preload"
+
+# Disable server signature
+
+ServerSignature Off
+
+# Disable directory browsing
+
+Options -Indexes
+
+# Enable ETags for caching
+
+FileETag MTime Size
+
+# Cache static assets
+
+<IfModule mod_expires.c>
+    ExpiresActive On
+    
+    # Images
+    ExpiresByType image/jpeg "access plus 1 year"
+    ExpiresByType image/png "access plus 1 year"
+    ExpiresByType image/gif "access plus 1 year"
+    ExpiresByType image/svg+xml "access plus 1 year"
+    ExpiresByType image/webp "access plus 1 year"
+    ExpiresByType image/x-icon "access plus 1 year"
+    
+    # CSS and JavaScript
+    ExpiresByType text/css "access plus 1 month"
+    ExpiresByType application/javascript "access plus 1 month"
+    ExpiresByType text/javascript "access plus 1 month"
+    
+    # Fonts
+    ExpiresByType font/woff2 "access plus 1 year"
+    ExpiresByType font/woff "access plus 1 year"
+    ExpiresByType font/ttf "access plus 1 year"
+    
+    # Default
+    ExpiresDefault "access plus 1 week"
+</IfModule>
+
+# Compression
+
+<IfModule mod_deflate.c>
+    AddOutputFilterByType DEFLATE text/html text/plain text/xml text/css text/javascript application/javascript application/json
+</IfModule>
+
+# UTF-8 encoding
+
+AddDefaultCharset UTF-8

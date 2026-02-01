@@ -15,6 +15,7 @@ if (!file_exists($configPath)) {
 }
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/csrf.php';
+require_once __DIR__ . '/../../src-php/cookie_helpers.php';
 unset($configPath, $examplePath);
 
 // Start session for CSRF token storage
@@ -22,7 +23,7 @@ if (session_status() === PHP_SESSION_NONE) {
     session_start();
 }
 
-$token = $_COOKIE[SESSION_NAME] ?? '';
+$token = getSessionToken();
 $session = fetchSessionUser($token);
 if (!$session) {
     $details = sprintf(
@@ -42,9 +43,8 @@ if (!$session) {
 $expiresAt = refreshSession($token);
 if (!$expiresAt) {
     $details = sprintf(
-        'Failed to refresh session. token=%s cookies=%s host=%s https=%s forwarded_proto=%s',
+        'Failed to refresh session. token=%s host=%s https=%s forwarded_proto=%s',
         $token,
-        json_encode($_COOKIE, JSON_UNESCAPED_SLASHES | JSON_UNESCAPED_UNICODE),
         $_SERVER['HTTP_HOST'] ?? '',
         $_SERVER['HTTPS'] ?? '',
         $_SERVER['HTTP_X_FORWARDED_PROTO'] ?? ''
@@ -55,7 +55,8 @@ if (!$expiresAt) {
     exit;
 }
 
-setcookie(SESSION_NAME, $token, buildSessionCookieOptions($expiresAt));
+// Set/migrate session cookie with secure flags and prefix
+migrateSessionCookie($token, $expiresAt);
 
 $currentUser = [
     'user_id' => (int) $session['user_id'],

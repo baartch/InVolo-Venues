@@ -192,8 +192,3 @@ function deleteSession(string $token): void
     $stmt = $pdo->prepare('DELETE FROM sessions WHERE session_token = :token');
     $stmt->execute([':token' => $token]);
 }
-
-function clearSessionCookie(): void
-{
-    setcookie(SESSION_NAME, '', buildSessionCookieOptions(time() - 3600));
-}

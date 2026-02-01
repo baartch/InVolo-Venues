@@ -2,15 +2,16 @@
 require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/rate_limit.php';
+require_once __DIR__ . '/../../src-php/cookie_helpers.php';
 require_once __DIR__ . '/../../src-php/layout.php';
 require_once __DIR__ . '/../../src-php/theme.php';
 
-$token = $_COOKIE[SESSION_NAME] ?? '';
+$token = getSessionToken();
 $existingSession = $token !== '' ? fetchSessionUser($token) : null;
 if ($existingSession) {
     $expiresAt = refreshSession($token);
     if ($expiresAt) {
-        setcookie(SESSION_NAME, $token, buildSessionCookieOptions($expiresAt));
+        migrateSessionCookie($token, $expiresAt);
         header('Location: ' . BASE_PATH . '/index.php');
         exit;
     }
@@ -61,7 +62,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                 recordRateLimitAttempt('user:' . $username, 'login', true);
                 
                 $sessionData = createSession((int) $user['id']);
-                setcookie(SESSION_NAME, $sessionData['token'], buildSessionCookieOptions($sessionData['expiresAt']));
+                setSessionCookie($sessionData['token'], $sessionData['expiresAt']);
                 logAction((int) $user['id'], 'login', 'User logged in');
                 header('Location: ' . BASE_PATH . '/index.php');
                 exit;
