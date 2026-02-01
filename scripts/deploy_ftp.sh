@@ -19,18 +19,16 @@ fi
 popd >/dev/null
 
 EXCLUDES=(
+  "*.md"
   ".git/"
   ".gitignore"
   "node_modules/"
-  #"config/config.php"
   "bun.lock"
   "package.json"
   "tsconfig.json"
   "src/"
-  "README.md"
   "setup.sh"
   "docs/"
-  "AGENTS.md"
   "dev_helpers/"
 )
 
