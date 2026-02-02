@@ -6,22 +6,27 @@ require_once __DIR__ . '/../../src-php/theme.php';
 
 $errors = [];
 $notice = '';
+$activeTab = $_GET['tab'] ?? 'users';
+$editUserId = isset($_GET['edit_user_id']) ? (int) $_GET['edit_user_id'] : 0;
+$editUser = null;
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrfToken();
     
     $action = $_POST['action'] ?? '';
+    $activeTab = $_POST['tab'] ?? $activeTab;
 
     if ($action === 'create') {
         $username = trim((string) ($_POST['username'] ?? ''));
         $role = $_POST['role'] ?? 'agent';
         $password = (string) ($_POST['password'] ?? '');
+        $teamIds = array_map('intval', $_POST['team_ids'] ?? []);
 
         if ($username === '' || $password === '') {
             $errors[] = 'Username and password are required.';
         }
 
-        if (!in_array($role, ['admin', 'agent'], true)) {
+        if (!in_array($role, ['admin', 'agent', 'team_admin'], true)) {
             $errors[] = 'Invalid role selected.';
         }
 
@@ -41,12 +46,114 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':password_hash' => password_hash($password, PASSWORD_DEFAULT),
                         ':role' => $role
                     ]);
+                    $userId = (int) $pdo->lastInsertId();
+                    if ($teamIds) {
+                        $teamStmt = $pdo->prepare(
+                            'INSERT INTO team_members (team_id, user_id)
+                             SELECT :team_id, :user_id
+                             WHERE EXISTS (SELECT 1 FROM teams WHERE id = :team_id_check)'
+                        );
+                        foreach ($teamIds as $teamId) {
+                            $teamStmt->execute([
+                                ':team_id' => $teamId,
+                                ':user_id' => $userId,
+                                ':team_id_check' => $teamId
+                            ]);
+                        }
+                    }
                     logAction($currentUser['user_id'] ?? null, 'user_created', sprintf('Created user %s', $username));
                     $notice = 'User created successfully.';
                 }
             } catch (Throwable $error) {
                 $errors[] = 'Failed to create user.';
                 logAction($currentUser['user_id'] ?? null, 'user_create_error', $error->getMessage());
+            }
+        }
+    }
+
+    if ($action === 'update_user') {
+        $userId = (int) ($_POST['user_id'] ?? 0);
+        $username = trim((string) ($_POST['username'] ?? ''));
+        $role = $_POST['role'] ?? '';
+        $password = (string) ($_POST['password'] ?? '');
+        $teamIds = array_map('intval', $_POST['team_ids'] ?? []);
+
+        if ($userId <= 0 || $username === '') {
+            $errors[] = 'Username is required.';
+        }
+
+        if ($role !== '' && !in_array($role, ['admin', 'agent', 'team_admin'], true)) {
+            $errors[] = 'Invalid role selected.';
+        }
+
+        if ($currentUser['user_id'] === $userId && $role !== '' && $role !== ($currentUser['role'] ?? '')) {
+            $errors[] = 'You cannot change your own role.';
+        }
+
+        if (!$errors) {
+            try {
+                $pdo = getDatabaseConnection();
+                $stmt = $pdo->prepare('SELECT id FROM users WHERE username = :username AND id != :id');
+                $stmt->execute([
+                    ':username' => $username,
+                    ':id' => $userId
+                ]);
+                if ($stmt->fetch()) {
+                    $errors[] = 'Username already exists.';
+                } else {
+                    $pdo->beginTransaction();
+                    $updateFields = [
+                        'username' => $username,
+                        'role' => $role !== '' ? $role : 'agent'
+                    ];
+                    $sql = 'UPDATE users SET username = :username, role = :role';
+                    if ($password !== '') {
+                        $sql .= ', password_hash = :password_hash';
+                        $updateFields['password_hash'] = password_hash($password, PASSWORD_DEFAULT);
+                    }
+                    $sql .= ' WHERE id = :id';
+                    $updateFields['id'] = $userId;
+
+                    $stmt = $pdo->prepare($sql);
+                    $params = [
+                        ':username' => $updateFields['username'],
+                        ':role' => $updateFields['role'],
+                        ':id' => $updateFields['id']
+                    ];
+                    if (isset($updateFields['password_hash'])) {
+                        $params[':password_hash'] = $updateFields['password_hash'];
+                    }
+                    $stmt->execute($params);
+
+                    $deleteStmt = $pdo->prepare('DELETE FROM team_members WHERE user_id = :user_id');
+                    $deleteStmt->execute([':user_id' => $userId]);
+
+                    if ($teamIds) {
+                        $insertStmt = $pdo->prepare(
+                            'INSERT INTO team_members (team_id, user_id)
+                             SELECT :team_id, :user_id
+                             WHERE EXISTS (SELECT 1 FROM teams WHERE id = :team_id_check)'
+                        );
+                        foreach ($teamIds as $teamId) {
+                            $insertStmt->execute([
+                                ':team_id' => $teamId,
+                                ':user_id' => $userId,
+                                ':team_id_check' => $teamId
+                            ]);
+                        }
+                    }
+
+                    $pdo->commit();
+                    logAction($currentUser['user_id'] ?? null, 'user_updated', sprintf('Updated user %d', $userId));
+                    $notice = 'User updated successfully.';
+                    $editUserId = 0;
+                }
+            } catch (Throwable $error) {
+                if ($pdo && $pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                $errors[] = 'Failed to update user.';
+                logAction($currentUser['user_id'] ?? null, 'user_update_error', $error->getMessage());
             }
         }
     }
@@ -76,31 +183,45 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'update_role') {
+    if ($action === 'update_user_teams') {
         $userId = (int) ($_POST['user_id'] ?? 0);
-        $role = $_POST['role'] ?? '';
+        $teamIds = array_map('intval', $_POST['team_ids'] ?? []);
 
-        if ($userId <= 0 || !in_array($role, ['admin', 'agent'], true)) {
-            $errors[] = 'Valid user and role are required.';
-        }
-
-        if ($currentUser['user_id'] === $userId) {
-            $errors[] = 'You cannot change your own role.';
+        if ($userId <= 0) {
+            $errors[] = 'Please select a user to update teams.';
         }
 
         if (!$errors) {
             try {
                 $pdo = getDatabaseConnection();
-                $stmt = $pdo->prepare('UPDATE users SET role = :role WHERE id = :id');
-                $stmt->execute([
-                    ':role' => $role,
-                    ':id' => $userId
-                ]);
-                logAction($currentUser['user_id'] ?? null, 'role_updated', sprintf('Updated role for user %d to %s', $userId, $role));
-                $notice = 'Role updated successfully.';
+                $pdo->beginTransaction();
+                $deleteStmt = $pdo->prepare('DELETE FROM team_members WHERE user_id = :user_id');
+                $deleteStmt->execute([':user_id' => $userId]);
+
+                if ($teamIds) {
+                    $insertStmt = $pdo->prepare(
+                        'INSERT INTO team_members (team_id, user_id)
+                         SELECT :team_id, :user_id
+                         WHERE EXISTS (SELECT 1 FROM teams WHERE id = :team_id_check)'
+                    );
+                    foreach ($teamIds as $teamId) {
+                        $insertStmt->execute([
+                            ':team_id' => $teamId,
+                            ':user_id' => $userId,
+                            ':team_id_check' => $teamId
+                        ]);
+                    }
+                }
+
+                $pdo->commit();
+                logAction($currentUser['user_id'] ?? null, 'user_teams_updated', sprintf('Updated teams for user %d', $userId));
+                $notice = 'User teams updated successfully.';
             } catch (Throwable $error) {
-                $errors[] = 'Failed to update role.';
-                logAction($currentUser['user_id'] ?? null, 'role_update_error', $error->getMessage());
+                if ($pdo && $pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
+                $errors[] = 'Failed to update user teams.';
+                logAction($currentUser['user_id'] ?? null, 'user_teams_update_error', $error->getMessage());
             }
         }
     }
@@ -128,21 +249,138 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+
+    if ($action === 'create_team') {
+        $teamName = trim((string) ($_POST['team_name'] ?? ''));
+        $teamDescription = trim((string) ($_POST['team_description'] ?? ''));
+
+        if ($teamName === '') {
+            $errors[] = 'Team name is required.';
+        }
+
+        if (!$errors) {
+            try {
+                $pdo = getDatabaseConnection();
+                $stmt = $pdo->prepare('SELECT id FROM teams WHERE name = :name');
+                $stmt->execute([':name' => $teamName]);
+                if ($stmt->fetch()) {
+                    $errors[] = 'Team name already exists.';
+                } else {
+                    $stmt = $pdo->prepare('INSERT INTO teams (name, description) VALUES (:name, :description)');
+                    $stmt->execute([
+                        ':name' => $teamName,
+                        ':description' => $teamDescription !== '' ? $teamDescription : null
+                    ]);
+                    logAction($currentUser['user_id'] ?? null, 'team_created', sprintf('Created team %s', $teamName));
+                    $notice = 'Team created successfully.';
+                }
+            } catch (Throwable $error) {
+                $errors[] = 'Failed to create team.';
+                logAction($currentUser['user_id'] ?? null, 'team_create_error', $error->getMessage());
+            }
+        }
+    }
+
+    if ($action === 'update_team') {
+        $teamId = (int) ($_POST['team_id'] ?? 0);
+        $teamName = trim((string) ($_POST['team_name'] ?? ''));
+        $teamDescription = trim((string) ($_POST['team_description'] ?? ''));
+
+        if ($teamId <= 0 || $teamName === '') {
+            $errors[] = 'Team name is required.';
+        }
+
+        if (!$errors) {
+            try {
+                $pdo = getDatabaseConnection();
+                $stmt = $pdo->prepare('UPDATE teams SET name = :name, description = :description WHERE id = :id');
+                $stmt->execute([
+                    ':name' => $teamName,
+                    ':description' => $teamDescription !== '' ? $teamDescription : null,
+                    ':id' => $teamId
+                ]);
+                logAction($currentUser['user_id'] ?? null, 'team_updated', sprintf('Updated team %d', $teamId));
+                $notice = 'Team updated successfully.';
+            } catch (Throwable $error) {
+                $errors[] = 'Failed to update team.';
+                logAction($currentUser['user_id'] ?? null, 'team_update_error', $error->getMessage());
+            }
+        }
+    }
+
+    if ($action === 'delete_team') {
+        $teamId = (int) ($_POST['team_id'] ?? 0);
+
+        if ($teamId <= 0) {
+            $errors[] = 'Please select a team to delete.';
+        }
+
+        if (!$errors) {
+            try {
+                $pdo = getDatabaseConnection();
+                $stmt = $pdo->prepare('DELETE FROM teams WHERE id = :id');
+                $stmt->execute([':id' => $teamId]);
+                logAction($currentUser['user_id'] ?? null, 'team_deleted', sprintf('Deleted team %d', $teamId));
+                $notice = 'Team deleted successfully.';
+            } catch (Throwable $error) {
+                $errors[] = 'Failed to delete team.';
+                logAction($currentUser['user_id'] ?? null, 'team_delete_error', $error->getMessage());
+            }
+        }
+    }
 }
 
 try {
     $pdo = getDatabaseConnection();
     $stmt = $pdo->query('SELECT id, username, role, created_at FROM users ORDER BY username');
     $users = $stmt->fetchAll();
+    $teamsStmt = $pdo->query('SELECT id, name, description, created_at FROM teams ORDER BY name');
+    $teams = $teamsStmt->fetchAll();
+    $teamMembersStmt = $pdo->query(
+        'SELECT tm.team_id, tm.user_id, u.username
+         FROM team_members tm
+         JOIN users u ON u.id = tm.user_id
+         ORDER BY u.username'
+    );
+    $teamMembersRows = $teamMembersStmt->fetchAll();
+    $teamsByUser = [];
+    $membersByTeam = [];
+    foreach ($teamMembersRows as $row) {
+        $teamId = (int) $row['team_id'];
+        $userId = (int) $row['user_id'];
+        $teamsByUser[$userId][] = $teamId;
+        $membersByTeam[$teamId][] = (string) $row['username'];
+    }
+
+    if ($editUserId > 0) {
+        foreach ($users as $user) {
+            if ((int) $user['id'] === $editUserId) {
+                $editUser = $user;
+                break;
+            }
+        }
+        if (!$editUser) {
+            $errors[] = 'User not found.';
+            $editUserId = 0;
+        }
+    }
 } catch (Throwable $error) {
-    $users = [];
-    $errors[] = 'Failed to load users.';
-    logAction($currentUser['user_id'] ?? null, 'user_list_error', $error->getMessage());
+    $users = $users ?? [];
+    $teams = $teams ?? [];
+    $teamsByUser = $teamsByUser ?? [];
+    $membersByTeam = $membersByTeam ?? [];
+    $errors[] = 'Failed to load users or teams.';
+    logAction($currentUser['user_id'] ?? null, 'user_team_list_error', $error->getMessage());
 }
 
 logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened user management');
 ?>
-<?php renderPageStart('Venue Database - User Management', ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
+<?php renderPageStart('Venue Database - User Management', [
+    'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
+    'extraScripts' => [
+        '<script type="module" src="' . BASE_PATH . '/public/js/settings.js" defer></script>'
+    ]
+]); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <h1>User Management</h1>
@@ -156,86 +394,17 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
           <div class="error"><?php echo htmlspecialchars($error); ?></div>
         <?php endforeach; ?>
 
-        <div class="grid">
-          <div class="card card-section">
-            <h2>Create User</h2>
-            <form method="POST" action="" class="create-user-form">
-              <?php renderCsrfField(); ?>
-              <input type="hidden" name="action" value="create">
-              <div class="create-user-row">
-                <div class="form-group">
-                  <label for="username">Username</label>
-                  <input type="text" id="username" name="username" class="input" required>
-                </div>
-                <div class="form-group">
-                  <label for="password">Password</label>
-                  <input type="password" id="password" name="password" class="input" required>
-                </div>
-                <div class="form-group">
-                  <label for="role">Role</label>
-                  <select id="role" name="role" class="input">
-                    <option value="agent">Agent</option>
-                    <option value="admin">Admin</option>
-                  </select>
-                </div>
-                <div class="form-group">
-                  <button type="submit" class="btn">Create User</button>
-                </div>
-              </div>
-            </form>
-          </div>
+        <div class="tabs" role="tablist">
+          <button type="button" class="tab-button <?php echo $activeTab === 'users' ? 'active' : ''; ?>" data-tab="users" role="tab" aria-selected="<?php echo $activeTab === 'users' ? 'true' : 'false'; ?>">Users</button>
+          <button type="button" class="tab-button <?php echo $activeTab === 'teams' ? 'active' : ''; ?>" data-tab="teams" role="tab" aria-selected="<?php echo $activeTab === 'teams' ? 'true' : 'false'; ?>">Teams</button>
         </div>
 
-        <div class="card card-section users-card">
-          <h2>Current Users</h2>
-          <table class="table">
-            <thead>
-              <tr>
-                <th>Username</th>
-                <th>Role</th>
-                <th>Created</th>
-                <th>Actions</th>
-              </tr>
-            </thead>
-            <tbody>
-              <?php foreach ($users as $user): ?>
-                <tr>
-                  <td><?php echo htmlspecialchars($user['username']); ?></td>
-                  <td>
-                    <form method="POST" action="" class="table-actions" onsubmit="return confirm('Update role for this user?');">
-                      <?php renderCsrfField(); ?>
-                      <input type="hidden" name="action" value="update_role">
-                      <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
-                      <select name="role" class="inline-select" onchange="this.form.submit()" <?php echo ($currentUser['user_id'] ?? 0) === (int) $user['id'] ? 'disabled' : ''; ?>>
-                        <option value="agent" <?php echo $user['role'] === 'agent' ? 'selected' : ''; ?>>Agent</option>
-                        <option value="admin" <?php echo $user['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
-                      </select>
-                    </form>
-                  </td>
-                  <td><?php echo htmlspecialchars($user['created_at']); ?></td>
-                  <td class="table-actions">
-                    <form method="POST" action="" onsubmit="return confirm('Reset password for this user?');">
-                      <?php renderCsrfField(); ?>
-                      <input type="hidden" name="action" value="reset_password">
-                      <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
-                      <button type="submit" class="icon-button secondary" aria-label="Reset password" title="Reset password">
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-reset.svg" alt="Reset password">
-                      </button>
-                    </form>
-                    <form method="POST" action="" onsubmit="return confirm('Delete this user?');">
-                      <?php renderCsrfField(); ?>
-                      <input type="hidden" name="action" value="delete">
-                      <input type="hidden" name="user_id" value="<?php echo (int) $user['id']; ?>">
-                      <button type="submit" class="icon-button" aria-label="Delete user" title="Delete user">
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
-                      </button>
-                    </form>
-                  </td>
-                </tr>
-              <?php endforeach; ?>
-            </tbody>
-          </table>
-          <p class="warning">Your own role is locked.</p>
+        <div class="tab-panel <?php echo $activeTab === 'users' ? 'active' : ''; ?>" data-tab-panel="users" role="tabpanel">
+          <?php require __DIR__ . '/user_management_users.php'; ?>
+        </div>
+
+        <div class="tab-panel <?php echo $activeTab === 'teams' ? 'active' : ''; ?>" data-tab-panel="teams" role="tabpanel">
+          <?php require __DIR__ . '/user_management_teams.php'; ?>
         </div>
       </div>
 <?php renderPageEnd(); ?>
