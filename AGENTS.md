@@ -46,7 +46,14 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 
 ## Database
 
-Uses tables: `venues`, `users`, `sessions`, `logs`, `settings`, `rate_limits` (see `DB.md`).
+The database schema is in `sql/schema.sql` and includes the following tables:
+
+- `venues`: Main table storing venue details (name, address, coordinates, capacity, etc.)
+- `users`: User accounts (username, password hash, role)
+- `sessions`: Active user sessions for authentication
+- `logs`: Application logs (user actions, errors, timestamps)
+- `settings`: Application configuration settings
+- `rate_limits`: Rate limiting tracking for brute force protection
 
 ## Security
 

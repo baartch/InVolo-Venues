@@ -1,24 +1,3 @@
-# Database
-
-## Connection
-
-Host: localhost:3306
-Database: involo_venues
-User: dbuservenues
-Password: [your_secure_password]
-
-## Tables
-
-- `venues`: Main table storing venue details (name, address, coordinates, capacity, etc.)
-- `users`: User accounts (username, password hash, role)
-- `sessions`: Active user sessions for authentication
-- `logs`: Application logs (user actions, errors, timestamps)
-- `settings`: Application configuration settings
-- `rate_limits`: Rate limiting tracking for brute force protection
-
-## Schema
-
-```sql
 CREATE TABLE `venues` (
   `id` int(11) NOT NULL,
   `name` varchar(255) NOT NULL,
@@ -89,4 +68,3 @@ CREATE TABLE rate_limits (
     INDEX idx_identifier_action (identifier, action),
     INDEX idx_attempted_at (attempted_at)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
-```
