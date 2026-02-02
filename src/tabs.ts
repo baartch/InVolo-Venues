@@ -1,4 +1,4 @@
-const initAdminTabs = (): void => {
+const initTabs = (): void => {
   const tabs = Array.from(document.querySelectorAll<HTMLElement>('[data-tab]'));
   const panels = Array.from(document.querySelectorAll<HTMLElement>('[data-tab-panel]'));
 
@@ -20,4 +20,4 @@ const initAdminTabs = (): void => {
   });
 };
 
-initAdminTabs();
+initTabs();
