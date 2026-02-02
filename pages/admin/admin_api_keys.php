@@ -1,0 +1,47 @@
+<?php if (!isset($settingsStatus)): ?>
+  <?php return; ?>
+<?php endif; ?>
+
+<div class="card card-section">
+  <div class="panel-header">
+    <h2>API Keys</h2>
+    <p class="text-muted">Store tokens used for map tiles and integrations.</p>
+  </div>
+
+  <form method="POST" action="">
+    <?php renderCsrfField(); ?>
+    <input type="hidden" name="action" value="save_api_keys">
+    <input type="hidden" name="tab" value="api-keys">
+    <div class="form-group">
+      <label for="brave_search_api_key">Brave Search</label>
+      <input
+        type="password"
+        id="brave_search_api_key"
+        name="brave_search_api_key"
+        class="input"
+        placeholder="<?php echo $settingsStatus['brave_search_api_key'] ? 'Saved' : 'Not set'; ?>"
+      >
+    </div>
+    <div class="form-group">
+      <label for="brave_spellcheck_api_key">Brave Spellcheck</label>
+      <input
+        type="password"
+        id="brave_spellcheck_api_key"
+        name="brave_spellcheck_api_key"
+        class="input"
+        placeholder="<?php echo $settingsStatus['brave_spellcheck_api_key'] ? 'Saved' : 'Not set'; ?>"
+      >
+    </div>
+    <div class="form-group">
+      <label for="mapbox_api_key">Mapbox</label>
+      <input
+        type="password"
+        id="mapbox_api_key"
+        name="mapbox_api_key"
+        class="input"
+        placeholder="<?php echo $settingsStatus['mapbox_api_key'] ? 'Saved' : 'Not set'; ?>"
+      >
+    </div>
+    <button type="submit" class="btn">Save API Keys</button>
+  </form>
+</div>

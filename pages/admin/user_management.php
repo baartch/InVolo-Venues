@@ -3,12 +3,24 @@ require_once __DIR__ . '/../../src-php/admin_check.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
 require_once __DIR__ . '/../../src-php/theme.php';
+require_once __DIR__ . '/../../src-php/settings.php';
 
 $errors = [];
 $notice = '';
 $activeTab = $_GET['tab'] ?? 'users';
 $editUserId = isset($_GET['edit_user_id']) ? (int) $_GET['edit_user_id'] : 0;
 $editUser = null;
+
+$settings = [
+    'brave_search_api_key' => '',
+    'brave_spellcheck_api_key' => '',
+    'mapbox_api_key' => ''
+];
+$settingsStatus = [
+    'brave_search_api_key' => false,
+    'brave_spellcheck_api_key' => false,
+    'mapbox_api_key' => false
+];
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrfToken();
@@ -328,6 +340,40 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             }
         }
     }
+
+    if ($action === 'save_api_keys') {
+        $settings = [
+            'brave_search_api_key' => trim((string) ($_POST['brave_search_api_key'] ?? '')),
+            'brave_spellcheck_api_key' => trim((string) ($_POST['brave_spellcheck_api_key'] ?? '')),
+            'mapbox_api_key' => trim((string) ($_POST['mapbox_api_key'] ?? ''))
+        ];
+
+        try {
+            $pdo = getDatabaseConnection();
+            $stmt = $pdo->prepare(
+                'INSERT INTO settings (setting_key, setting_value)
+                 VALUES (:setting_key, :setting_value)
+                 ON DUPLICATE KEY UPDATE setting_value = VALUES(setting_value)'
+            );
+
+            foreach ($settings as $key => $value) {
+                if ($value === '') {
+                    continue;
+                }
+
+                $stmt->execute([
+                    ':setting_key' => $key,
+                    ':setting_value' => encryptSettingValue($value)
+                ]);
+            }
+
+            logAction($currentUser['user_id'] ?? null, 'settings_updated', 'Updated API keys');
+            $notice = 'API keys saved successfully.';
+        } catch (Throwable $error) {
+            $errors[] = 'Failed to save API keys.';
+            logAction($currentUser['user_id'] ?? null, 'settings_update_error', $error->getMessage());
+        }
+    }
 }
 
 try {
@@ -352,6 +398,17 @@ try {
         $membersByTeam[$teamId][] = (string) $row['username'];
     }
 
+    $settings = loadSettingValues([
+        'brave_search_api_key',
+        'brave_spellcheck_api_key',
+        'mapbox_api_key'
+    ]);
+    $settingsStatus = [
+        'brave_search_api_key' => $settings['brave_search_api_key'] !== '',
+        'brave_spellcheck_api_key' => $settings['brave_spellcheck_api_key'] !== '',
+        'mapbox_api_key' => $settings['mapbox_api_key'] !== ''
+    ];
+
     if ($editUserId > 0) {
         foreach ($users as $user) {
             if ((int) $user['id'] === $editUserId) {
@@ -369,21 +426,31 @@ try {
     $teams = $teams ?? [];
     $teamsByUser = $teamsByUser ?? [];
     $membersByTeam = $membersByTeam ?? [];
-    $errors[] = 'Failed to load users or teams.';
+    $settings = $settings ?? [
+        'brave_search_api_key' => '',
+        'brave_spellcheck_api_key' => '',
+        'mapbox_api_key' => ''
+    ];
+    $settingsStatus = $settingsStatus ?? [
+        'brave_search_api_key' => false,
+        'brave_spellcheck_api_key' => false,
+        'mapbox_api_key' => false
+    ];
+    $errors[] = 'Failed to load users, teams, or settings.';
     logAction($currentUser['user_id'] ?? null, 'user_team_list_error', $error->getMessage());
 }
 
-logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened user management');
+logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened admin panel');
 ?>
-<?php renderPageStart('Venue Database - User Management', [
+<?php renderPageStart('Venue Database - Admin', [
     'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
     'extraScripts' => [
-        '<script type="module" src="' . BASE_PATH . '/public/js/settings.js" defer></script>'
+        '<script type="module" src="' . BASE_PATH . '/public/js/admin.js" defer></script>'
     ]
 ]); ?>
       <div class="content-wrapper">
         <div class="page-header">
-          <h1>User Management</h1>
+          <h1>Admin</h1>
         </div>
 
         <?php if ($notice): ?>
@@ -397,14 +464,19 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
         <div class="tabs" role="tablist">
           <button type="button" class="tab-button <?php echo $activeTab === 'users' ? 'active' : ''; ?>" data-tab="users" role="tab" aria-selected="<?php echo $activeTab === 'users' ? 'true' : 'false'; ?>">Users</button>
           <button type="button" class="tab-button <?php echo $activeTab === 'teams' ? 'active' : ''; ?>" data-tab="teams" role="tab" aria-selected="<?php echo $activeTab === 'teams' ? 'true' : 'false'; ?>">Teams</button>
+          <button type="button" class="tab-button <?php echo $activeTab === 'api-keys' ? 'active' : ''; ?>" data-tab="api-keys" role="tab" aria-selected="<?php echo $activeTab === 'api-keys' ? 'true' : 'false'; ?>">API Keys</button>
         </div>
 
         <div class="tab-panel <?php echo $activeTab === 'users' ? 'active' : ''; ?>" data-tab-panel="users" role="tabpanel">
-          <?php require __DIR__ . '/user_management_users.php'; ?>
+          <?php require __DIR__ . '/admin_users.php'; ?>
         </div>
 
         <div class="tab-panel <?php echo $activeTab === 'teams' ? 'active' : ''; ?>" data-tab-panel="teams" role="tabpanel">
-          <?php require __DIR__ . '/user_management_teams.php'; ?>
+          <?php require __DIR__ . '/admin_teams.php'; ?>
+        </div>
+
+        <div class="tab-panel <?php echo $activeTab === 'api-keys' ? 'active' : ''; ?>" data-tab-panel="api-keys" role="tabpanel">
+          <?php require __DIR__ . '/admin_api_keys.php'; ?>
         </div>
       </div>
 <?php renderPageEnd(); ?>

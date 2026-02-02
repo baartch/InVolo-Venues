@@ -10,8 +10,7 @@ if ($basePath !== '' && strpos($relativePath, $basePath) === 0) {
 $relativePath = '/' . ltrim($relativePath, '/');
 $isMap = $relativePath === '/' || $relativePath === '/index.php';
 $isVenues = strpos($relativePath, '/pages/venues') === 0;
-$isSettings = strpos($relativePath, '/pages/settings') === 0;
-$isUserManagement = strpos($relativePath, '/pages/admin') === 0;
+$isAdmin = strpos($relativePath, '/pages/admin') === 0;
 $isProfile = strpos($relativePath, '/pages/profile') === 0;
 ?>
 <aside class="sidebar">
@@ -23,13 +22,10 @@ $isProfile = strpos($relativePath, '/pages/profile') === 0;
       <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-venues.svg" alt="Venues">
     </a>
     <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
-      <a href="<?php echo BASE_PATH; ?>/pages/admin/user_management.php" class="sidebar-link <?php echo $isUserManagement ? 'active' : ''; ?>" aria-label="User management">
-        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-user.svg" alt="User management">
+      <a href="<?php echo BASE_PATH; ?>/pages/admin/user_management.php" class="sidebar-link <?php echo $isAdmin ? 'active' : ''; ?>" aria-label="Admin">
+        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-settings.svg" alt="Admin">
       </a>
     <?php endif; ?>
-    <a href="<?php echo BASE_PATH; ?>/pages/settings/index.php" class="sidebar-link <?php echo $isSettings ? 'active' : ''; ?>" aria-label="App settings">
-      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-settings.svg" alt="App settings">
-    </a>
   </nav>
   <div class="sidebar-spacer"></div>
   <a href="<?php echo BASE_PATH; ?>/pages/profile/index.php" class="sidebar-link <?php echo $isProfile ? 'active' : ''; ?>" aria-label="Profile">

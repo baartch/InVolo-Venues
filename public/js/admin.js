@@ -1,5 +1,5 @@
 "use strict";
-const initSettingsTabs = () => {
+const initAdminTabs = () => {
     const tabs = Array.from(document.querySelectorAll('[data-tab]'));
     const panels = Array.from(document.querySelectorAll('[data-tab-panel]'));
     if (tabs.length === 0 || panels.length === 0) {
@@ -18,4 +18,4 @@ const initSettingsTabs = () => {
         });
     });
 };
-initSettingsTabs();
+initAdminTabs();
