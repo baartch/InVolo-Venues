@@ -228,10 +228,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     );
                     $stmt->execute($data);
                     logAction($currentUser['user_id'] ?? null, 'venue_updated', sprintf('Updated venue %d', $venueId));
-                    $notice = 'Venue updated successfully.';
-                    $editId = 0;
-                    $editVenue = null;
-                    $resetForm = true;
+                    header('Location: ' . BASE_PATH . '/pages/venues/index.php');
+                    exit;
                 }
             }
         } catch (Throwable $error) {
