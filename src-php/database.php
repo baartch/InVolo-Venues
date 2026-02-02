@@ -113,7 +113,10 @@ function logAction(?int $userId, string $action, string $details = ''): void
 function createSession(int $userId): array
 {
     $token = bin2hex(random_bytes(32));
-    $expiresAt = time() + SESSION_LIFETIME;
+    $createdAt = time();
+    $maxExpiresAt = $createdAt + SESSION_MAX_LIFETIME;
+    $idleExpiresAt = $createdAt + SESSION_IDLE_LIFETIME;
+    $expiresAt = min($idleExpiresAt, $maxExpiresAt);
 
     $pdo = getDatabaseConnection();
     $stmt = $pdo->prepare(
@@ -139,7 +142,7 @@ function fetchSessionUser(string $token): ?array
 
     $pdo = getDatabaseConnection();
     $stmt = $pdo->prepare(
-        'SELECT sessions.id AS session_id, sessions.user_id, sessions.expires_at, users.username, users.role, users.ui_theme,
+        'SELECT sessions.id AS session_id, sessions.user_id, sessions.expires_at, sessions.created_at, users.username, users.role, users.ui_theme,
                 users.venues_page_size
          FROM sessions
          JOIN users ON users.id = sessions.user_id
@@ -160,17 +163,48 @@ function fetchSessionUser(string $token): ?array
         return null;
     }
 
+    if (!empty($session['created_at'])) {
+        $createdAt = strtotime((string) $session['created_at']);
+        if ($createdAt !== false) {
+            $maxExpiresAt = $createdAt + SESSION_MAX_LIFETIME;
+            if ($maxExpiresAt < time()) {
+                deleteSession($token);
+                return null;
+            }
+        }
+    }
+
     return $session;
 }
 
-function refreshSession(string $token): ?int
+function refreshSession(string $token, ?array $session = null): ?int
 {
     if ($token === '') {
         return null;
     }
 
-    $expiresAt = time() + SESSION_LIFETIME;
     $pdo = getDatabaseConnection();
+    if ($session === null) {
+        $stmt = $pdo->prepare(
+            'SELECT created_at FROM sessions WHERE session_token = :token LIMIT 1'
+        );
+        $stmt->execute([':token' => $token]);
+        $session = $stmt->fetch();
+    }
+
+    if (!$session || empty($session['created_at'])) {
+        return null;
+    }
+
+    $createdAt = strtotime((string) $session['created_at']);
+    if ($createdAt === false) {
+        return null;
+    }
+
+    $idleExpiresAt = time() + SESSION_IDLE_LIFETIME;
+    $maxExpiresAt = $createdAt + SESSION_MAX_LIFETIME;
+    $expiresAt = min($idleExpiresAt, $maxExpiresAt);
+
     $stmt = $pdo->prepare(
         'UPDATE sessions SET expires_at = :expires_at WHERE session_token = :token'
     );

@@ -29,7 +29,10 @@ unset($scriptPath, $pathParts, $lastPart, $basePath);
 // Managed in the database using the sessions table
 // Cookie name is used to store the session token
 define('SESSION_NAME', 'venue_crawler_session');
-define('SESSION_LIFETIME', 3600); // 1 hour in seconds
+// Sessions expire after 24 hours of inactivity, capped at 7 days from creation
+// (Idle timeout is refreshed on each authenticated request).
+define('SESSION_IDLE_LIFETIME', 86400); // 24 hours in seconds
+define('SESSION_MAX_LIFETIME', 604800); // 7 days in seconds
 
 function buildSessionCookieOptions(int $expiresAt): array
 {

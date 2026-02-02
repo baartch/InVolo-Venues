@@ -9,7 +9,7 @@ require_once __DIR__ . '/../../src-php/theme.php';
 $token = getSessionToken();
 $existingSession = $token !== '' ? fetchSessionUser($token) : null;
 if ($existingSession) {
-    $expiresAt = refreshSession($token);
+    $expiresAt = refreshSession($token, $existingSession);
     if ($expiresAt) {
         migrateSessionCookie($token, $expiresAt);
         header('Location: ' . BASE_PATH . '/index.php');

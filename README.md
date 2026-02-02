@@ -90,10 +90,11 @@ define('DB_PASSWORD', 'your_secure_password');
 
 ### Session Timeout
 
-Default is 1 hour. To change:
+Default is 24 hours of inactivity with a 7 day maximum. To change:
 
 ```php
-define('SESSION_LIFETIME', 7200); // 2 hours in seconds
+define('SESSION_IDLE_LIFETIME', 86400); // 24 hours in seconds
+define('SESSION_MAX_LIFETIME', 604800); // 7 days in seconds
 ```
 
 ### Base Path

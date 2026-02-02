@@ -40,7 +40,7 @@ if (!$session) {
     exit;
 }
 
-$expiresAt = refreshSession($token);
+$expiresAt = refreshSession($token, $session);
 if (!$expiresAt) {
     $details = sprintf(
         'Failed to refresh session. token=%s host=%s https=%s forwarded_proto=%s',
