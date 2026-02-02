@@ -42,6 +42,40 @@ if ($webSearchCountry === '') {
     $webSearchCountry = $formValues['country'] !== '' ? $formValues['country'] : 'DE';
 }
 
+$mapboxSearchRequested = ($_GET['mapbox_search'] ?? '') === '1';
+$mapboxSearchAddress = trim((string) ($_GET['mapbox_address'] ?? ''));
+$mapboxSearchCity = trim((string) ($_GET['mapbox_city'] ?? ''));
+$mapboxSearchCountry = strtoupper(trim((string) ($_GET['mapbox_country'] ?? '')));
+if ($mapboxSearchCountry === '') {
+    $mapboxSearchCountry = $formValues['country'] !== '' ? $formValues['country'] : 'DE';
+}
+
+if ($mapboxSearchRequested && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    foreach ($fields as $field) {
+        if (isset($_GET[$field])) {
+            $formValues[$field] = trim((string) $_GET[$field]);
+        }
+    }
+    if ($mapboxSearchAddress !== '') {
+        $formValues['address'] = $mapboxSearchAddress;
+    }
+    if ($mapboxSearchCity !== '') {
+        $formValues['city'] = $mapboxSearchCity;
+    }
+    if ($mapboxSearchCountry !== '') {
+        $formValues['country'] = $mapboxSearchCountry;
+    }
+}
+
+$mapboxSearchNotice = '';
+if ($mapboxSearchRequested && $mapboxSearchAddress === '' && $mapboxSearchCity === '') {
+    $mapboxSearchNotice = 'Enter address and city to run a Mapbox search.';
+} elseif ($mapboxSearchRequested && $mapboxSearchAddress === '') {
+    $mapboxSearchNotice = 'Enter an address to run a Mapbox search.';
+} elseif ($mapboxSearchRequested && $mapboxSearchCity === '') {
+    $mapboxSearchNotice = 'Enter a city to run a Mapbox search.';
+}
+
 if ($webSearchQuery !== '' && $editId === 0 && $_SERVER['REQUEST_METHOD'] === 'GET') {
     $settings = loadSettingValues([
         'brave_search_api_key',
@@ -136,6 +170,54 @@ if ($webSearchQuery !== '' && $editId === 0 && $_SERVER['REQUEST_METHOD'] === 'G
             }
         } elseif (!$errors) {
             $errors[] = 'Brave search did not return a geolocal result.';
+        }
+    }
+}
+
+if ($mapboxSearchRequested && $editId === 0 && $_SERVER['REQUEST_METHOD'] === 'GET') {
+    if ($mapboxSearchAddress === '' || $mapboxSearchCity === '') {
+        $errors[] = 'Enter both address and city before running a Mapbox search.';
+    } else {
+        $settings = loadSettingValues(['mapbox_api_key']);
+        if ($settings['mapbox_api_key'] === '') {
+            $errors[] = 'Missing Mapbox API key in settings.';
+        } else {
+            $mapboxQuery = trim(sprintf('%s, %s', $mapboxSearchAddress, $mapboxSearchCity));
+            $mapboxUrl = 'https://api.mapbox.com/search/geocode/v6/forward?' . http_build_query([
+                'q' => $mapboxQuery,
+                'access_token' => $settings['mapbox_api_key'],
+                'language' => 'de',
+                'country' => $mapboxSearchCountry,
+                'limit' => 1,
+                'types' => 'address'
+            ]);
+            $mapboxResult = fetchJsonResponse(
+                $mapboxUrl,
+                [
+                    'Accept' => '*/*',
+                    'User-Agent' => 'InVoloVenue/1.0'
+                ],
+                $errors,
+                'Mapbox geocoding'
+            );
+
+            $mapboxData = $mapboxResult ? fetchMapboxData($mapboxResult) : null;
+            if ($mapboxData) {
+                $formValues['postal_code'] = (string) ($mapboxData['postalCode'] ?? $formValues['postal_code']);
+                $formValues['state'] = (string) ($mapboxData['state'] ?? $formValues['state']);
+                if ($mapboxData['latitude'] !== null) {
+                    $formValues['latitude'] = (string) $mapboxData['latitude'];
+                }
+                if ($mapboxData['longitude'] !== null) {
+                    $formValues['longitude'] = (string) $mapboxData['longitude'];
+                }
+
+                if ($notice === '') {
+                    $notice = 'Mapbox search completed and location details updated.';
+                }
+            } else {
+                $errors[] = 'No address details found from Mapbox.';
+            }
         }
     }
 }
@@ -271,7 +353,10 @@ if ($editVenue) {
 
 logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprintf('Editing venue %d', $editId) : 'Opened add venue');
 ?>
-<?php renderPageStart(sprintf('Venue Database - %s', $editVenue ? 'Edit Venue' : 'Add Venue'), ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
+<?php renderPageStart(sprintf('Venue Database - %s', $editVenue ? 'Edit Venue' : 'Add Venue'), [
+    'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
+    'afterMain' => '<script defer>document.addEventListener("DOMContentLoaded",()=>{const form=document.getElementById("mapbox_search_form");const addressButton=document.getElementById("address_mapbox_button");const buttons=[addressButton].filter(Boolean);const addressInput=document.getElementById("address");const cityInput=document.getElementById("city");const countrySelect=document.getElementById("country");const hiddenAddress=document.getElementById("mapbox_address");const hiddenCity=document.getElementById("mapbox_city");const hiddenCountry=document.getElementById("mapbox_country");const syncMap={name:{inputId:"name",hiddenId:"mapbox_name"},postal_code:{inputId:"postal_code",hiddenId:"mapbox_postal_code"},state:{inputId:"state",hiddenId:"mapbox_state"},latitude:{inputId:"latitude",hiddenId:"mapbox_latitude"},longitude:{inputId:"longitude",hiddenId:"mapbox_longitude"},type:{inputId:"type",hiddenId:"mapbox_type"},contact_email:{inputId:"contact_email",hiddenId:"mapbox_contact_email"},contact_phone:{inputId:"contact_phone",hiddenId:"mapbox_contact_phone"},contact_person:{inputId:"contact_person",hiddenId:"mapbox_contact_person"},capacity:{inputId:"capacity",hiddenId:"mapbox_capacity"},website:{inputId:"website",hiddenId:"mapbox_website"},notes:{inputId:"notes",hiddenId:"mapbox_notes"}};if(!form||!addressInput||!cityInput){return;}const updateState=()=>{const address=addressInput.value.trim();const city=cityInput.value.trim();const isReady=address!==""&&city!=="";buttons.forEach((button)=>{button.disabled=!isReady;button.classList.toggle("is-disabled",!isReady);if(!isReady){button.setAttribute("aria-disabled","true");}else{button.removeAttribute("aria-disabled");}});};const syncFields=()=>{if(hiddenAddress){hiddenAddress.value=addressInput.value;}if(hiddenCity){hiddenCity.value=cityInput.value;}if(hiddenCountry){hiddenCountry.value=countrySelect?countrySelect.value:"";}Object.values(syncMap).forEach(({inputId,hiddenId})=>{const input=document.getElementById(inputId);const hidden=document.getElementById(hiddenId);if(input&&hidden){if(input.tagName.toLowerCase()==="select"){hidden.value=input.value;}else{hidden.value=input.value;}}});};[addressInput,cityInput].forEach((input)=>{input.addEventListener("input",()=>{syncFields();updateState();});input.addEventListener("change",()=>{syncFields();updateState();});});if(countrySelect){countrySelect.addEventListener("change",syncFields);}Object.values(syncMap).forEach(({inputId})=>{const input=document.getElementById(inputId);if(input){input.addEventListener("input",syncFields);input.addEventListener("change",syncFields);}});form.addEventListener("submit",(event)=>{syncFields();const address=addressInput.value.trim();const city=cityInput.value.trim();if(address===""||city===""){event.preventDefault();updateState();}});syncFields();updateState();});</script>'
+]); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <div>
@@ -287,6 +372,29 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
         <?php foreach ($errors as $error): ?>
           <div class="error"><?php echo htmlspecialchars($error); ?></div>
         <?php endforeach; ?>
+
+        <?php if ($mapboxSearchNotice !== ''): ?>
+          <div class="error"><?php echo htmlspecialchars($mapboxSearchNotice); ?></div>
+        <?php endif; ?>
+
+        <form method="GET" action="" class="inline-mapbox-search" id="mapbox_search_form">
+          <input type="hidden" name="mapbox_search" value="1">
+          <input type="hidden" name="mapbox_address" id="mapbox_address" value="<?php echo htmlspecialchars($formValues['address']); ?>">
+          <input type="hidden" name="mapbox_city" id="mapbox_city" value="<?php echo htmlspecialchars($formValues['city']); ?>">
+          <input type="hidden" name="mapbox_country" id="mapbox_country" value="<?php echo htmlspecialchars($formValues['country']); ?>">
+          <input type="hidden" name="name" id="mapbox_name" value="<?php echo htmlspecialchars($formValues['name']); ?>">
+          <input type="hidden" name="postal_code" id="mapbox_postal_code" value="<?php echo htmlspecialchars($formValues['postal_code']); ?>">
+          <input type="hidden" name="state" id="mapbox_state" value="<?php echo htmlspecialchars($formValues['state']); ?>">
+          <input type="hidden" name="latitude" id="mapbox_latitude" value="<?php echo htmlspecialchars($formValues['latitude']); ?>">
+          <input type="hidden" name="longitude" id="mapbox_longitude" value="<?php echo htmlspecialchars($formValues['longitude']); ?>">
+          <input type="hidden" name="type" id="mapbox_type" value="<?php echo htmlspecialchars($formValues['type']); ?>">
+          <input type="hidden" name="contact_email" id="mapbox_contact_email" value="<?php echo htmlspecialchars($formValues['contact_email']); ?>">
+          <input type="hidden" name="contact_phone" id="mapbox_contact_phone" value="<?php echo htmlspecialchars($formValues['contact_phone']); ?>">
+          <input type="hidden" name="contact_person" id="mapbox_contact_person" value="<?php echo htmlspecialchars($formValues['contact_person']); ?>">
+          <input type="hidden" name="capacity" id="mapbox_capacity" value="<?php echo htmlspecialchars($formValues['capacity']); ?>">
+          <input type="hidden" name="website" id="mapbox_website" value="<?php echo htmlspecialchars($formValues['website']); ?>">
+          <input type="hidden" name="notes" id="mapbox_notes" value="<?php echo htmlspecialchars($formValues['notes']); ?>">
+        </form>
 
         <form method="GET" action="" class="web-search-form">
           <label for="web_search" class="sr-only">Search the web</label>
@@ -353,7 +461,12 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
               </div>
               <div class="form-group">
                 <label for="address">Address</label>
-                <input type="text" id="address" name="address" class="input" value="<?php echo htmlspecialchars($formValues['address']); ?>">
+                <div class="address-field">
+                  <input type="text" id="address" name="address" class="input" value="<?php echo htmlspecialchars($formValues['address']); ?>">
+                  <button type="submit" form="mapbox_search_form" class="icon-button address-search-button" id="address_mapbox_button" aria-label="Search address">
+                    <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-search.svg" alt="">
+                  </button>
+                </div>
               </div>
               <div class="form-group">
                 <label for="latitude">Latitude</label>

@@ -393,6 +393,27 @@ textarea:focus {
   gap: 16px;
 }
 
+.address-field {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.address-field .input {
+  flex: 1;
+}
+
+.address-search-button {
+  width: 44px;
+  height: 44px;
+  padding: 0;
+}
+
+.icon-button.is-disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
 .venue-grid {
   display: grid;
   grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
