@@ -1,4 +1,8 @@
-<?php if (!isset($settingsStatus)): ?>
+<?php
+require_once __DIR__ . '/../../src-php/admin_check.php';
+
+if (!isset($settingsStatus)):
+?>
   <?php return; ?>
 <?php endif; ?>
 

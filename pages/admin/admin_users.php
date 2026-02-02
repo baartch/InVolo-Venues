@@ -1,4 +1,8 @@
-<?php if (!isset($users, $teams, $teamsByUser)): ?>
+<?php
+require_once __DIR__ . '/../../src-php/admin_check.php';
+
+if (!isset($users, $teams, $teamsByUser)):
+?>
   <?php return; ?>
 <?php endif; ?>
 
