@@ -68,8 +68,9 @@ The database schema is in `sql/schema.sql` and includes the following tables:
 
 ## Notes
 
-- **config/** directory is for configuration files ONLY (config.php)
-- All PHP helper functions belong in **src-php/** directory
+- `config/` directory is for configuration files ONLY (config.php)
+- Don't write any inline CSS or JS in PHP files. CSS goes in `public/css/` and JS gets compiled from TypeScript in `src/` to `public/js/`.
+- All PHP helper functions belong in `src-php/` directory
 - **Security headers** automatically loaded via `src-php/layout.php` on every page
 - **Cookies** must be set via `src-php/cookie_helpers.php` functions (setSessionCookie, clearSessionCookie)
 - Sidebar consists only of icons, no labels

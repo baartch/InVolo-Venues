@@ -3,4 +3,9 @@
 node_modules/
 dev_helpers/
 
+# Config files
 config/config.php
+
+
+# Compiled JS output (edit TypeScript sources in src/ instead)
+public/js/
