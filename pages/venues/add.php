@@ -11,6 +11,9 @@ $errors = [];
 $notice = '';
 $editVenue = null;
 $editId = isset($_GET['edit']) ? (int) $_GET['edit'] : 0;
+if ($editId <= 0 && $_SERVER['REQUEST_METHOD'] === 'POST') {
+    $editId = (int) ($_POST['venue_id'] ?? 0);
+}
 $venueTypes = ['Kulturlokal', 'Kneipe', 'Festival', 'Shop', 'Café', 'Bar', 'Restaurant'];
 $countryOptions = ['DE', 'CH', 'AT', 'IT', 'FR'];
 
