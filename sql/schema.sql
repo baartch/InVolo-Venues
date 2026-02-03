@@ -23,7 +23,7 @@ CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
     password_hash VARCHAR(255) NOT NULL,
-    role ENUM('admin', 'agent', 'team_admin') DEFAULT 'agent',
+    role ENUM('admin', 'agent') DEFAULT 'agent',
     ui_theme VARCHAR(20) NOT NULL DEFAULT 'forest',
     venues_page_size INT NOT NULL DEFAULT 25,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
@@ -71,6 +71,7 @@ CREATE TABLE teams (
 CREATE TABLE team_members (
     team_id INT NOT NULL,
     user_id INT NOT NULL,
+    role ENUM('member', 'admin') NOT NULL DEFAULT 'member',
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     PRIMARY KEY (team_id, user_id),
     FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,

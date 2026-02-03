@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../src-php/admin_check.php';
 
-if (!isset($teams, $membersByTeam)):
+if (!isset($teams, $users, $memberIdsByTeam, $adminIdsByTeam)):
 ?>
   <?php return; ?>
 <?php endif; ?>
@@ -26,18 +26,20 @@ if (!isset($teams, $membersByTeam)):
           <button type="submit" class="btn">Create Team</button>
         </div>
       </div>
+      <p class="text-muted">Assign team members and admins after creation.</p>
     </form>
   </div>
 </div>
 
 <div class="card card-section users-card">
   <h2>Teams</h2>
-  <table class="table">
+  <table class="table team-table">
     <thead>
       <tr>
         <th>Team</th>
         <th>Description</th>
         <th>Members</th>
+        <th>Admins</th>
         <th>Created</th>
         <th>Actions</th>
       </tr>
@@ -45,7 +47,8 @@ if (!isset($teams, $membersByTeam)):
     <tbody>
       <?php foreach ($teams as $team): ?>
         <?php $teamId = (int) $team['id']; ?>
-        <?php $members = $membersByTeam[$teamId] ?? []; ?>
+        <?php $memberIds = $memberIdsByTeam[$teamId] ?? []; ?>
+        <?php $adminIds = $adminIdsByTeam[$teamId] ?? []; ?>
         <?php $updateFormId = 'team_update_' . $teamId; ?>
         <tr>
           <td>
@@ -55,30 +58,45 @@ if (!isset($teams, $membersByTeam)):
             <input type="text" name="team_description" class="input" value="<?php echo htmlspecialchars((string) ($team['description'] ?? '')); ?>" form="<?php echo htmlspecialchars($updateFormId); ?>">
           </td>
           <td>
-            <?php if (empty($members)): ?>
-              <span class="text-muted">No members</span>
-            <?php else: ?>
-              <?php echo htmlspecialchars(implode(', ', $members)); ?>
-            <?php endif; ?>
+            <select name="team_member_ids[]" class="input" multiple form="<?php echo htmlspecialchars($updateFormId); ?>" style="min-width: 180px; max-width: 220px;">
+              <?php foreach ($users as $user): ?>
+                <?php $userId = (int) $user['id']; ?>
+                <option value="<?php echo $userId; ?>" <?php echo in_array($userId, $memberIds, true) ? 'selected' : ''; ?>>
+                  <?php echo htmlspecialchars($user['username']); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
+          </td>
+          <td>
+            <select name="team_admin_ids[]" class="input" multiple form="<?php echo htmlspecialchars($updateFormId); ?>" style="min-width: 180px; max-width: 220px;">
+              <?php foreach ($users as $user): ?>
+                <?php $userId = (int) $user['id']; ?>
+                <option value="<?php echo $userId; ?>" <?php echo in_array($userId, $adminIds, true) ? 'selected' : ''; ?>>
+                  <?php echo htmlspecialchars($user['username']); ?>
+                </option>
+              <?php endforeach; ?>
+            </select>
           </td>
           <td><?php echo htmlspecialchars($team['created_at']); ?></td>
-          <td class="table-actions">
-            <form method="POST" action="" id="<?php echo htmlspecialchars($updateFormId); ?>" onsubmit="return confirm('Update this team?');">
-              <?php renderCsrfField(); ?>
-              <input type="hidden" name="action" value="update_team">
-              <input type="hidden" name="tab" value="teams">
-              <input type="hidden" name="team_id" value="<?php echo $teamId; ?>">
-              <button type="submit" class="btn">Save</button>
-            </form>
-            <form method="POST" action="" onsubmit="return confirm('Delete this team?');">
-              <?php renderCsrfField(); ?>
-              <input type="hidden" name="action" value="delete_team">
-              <input type="hidden" name="tab" value="teams">
-              <input type="hidden" name="team_id" value="<?php echo $teamId; ?>">
-              <button type="submit" class="icon-button" aria-label="Delete team" title="Delete team">
-                <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
-              </button>
-            </form>
+          <td>
+            <div class="table-actions">
+              <form method="POST" action="" id="<?php echo htmlspecialchars($updateFormId); ?>" onsubmit="return confirm('Update this team?');">
+                <?php renderCsrfField(); ?>
+                <input type="hidden" name="action" value="update_team">
+                <input type="hidden" name="tab" value="teams">
+                <input type="hidden" name="team_id" value="<?php echo $teamId; ?>">
+                <button type="submit" class="btn">Save</button>
+              </form>
+              <form method="POST" action="" onsubmit="return confirm('Delete this team?');">
+                <?php renderCsrfField(); ?>
+                <input type="hidden" name="action" value="delete_team">
+                <input type="hidden" name="tab" value="teams">
+                <input type="hidden" name="team_id" value="<?php echo $teamId; ?>">
+                <button type="submit" class="icon-button" aria-label="Delete team" title="Delete team">
+                  <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
+                </button>
+              </form>
+            </div>
           </td>
         </tr>
       <?php endforeach; ?>

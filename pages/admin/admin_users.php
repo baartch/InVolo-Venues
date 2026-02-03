@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../../src-php/admin_check.php';
 
-if (!isset($users, $teams, $teamsByUser)):
+if (!isset($users, $teamsByUser)):
 ?>
   <?php return; ?>
 <?php endif; ?>
@@ -33,7 +33,6 @@ if (!isset($users, $teams, $teamsByUser)):
           <label for="role">Role</label>
           <select id="role" name="role" class="input" <?php echo $isEditing && ($currentUser['user_id'] ?? 0) === $editUserId ? 'disabled' : ''; ?>>
             <option value="agent" <?php echo $isEditing && $editUser['role'] === 'agent' ? 'selected' : ''; ?>>Agent</option>
-            <option value="team_admin" <?php echo $isEditing && $editUser['role'] === 'team_admin' ? 'selected' : ''; ?>>Team Admin</option>
             <option value="admin" <?php echo $isEditing && $editUser['role'] === 'admin' ? 'selected' : ''; ?>>Admin</option>
           </select>
           <?php if ($isEditing && ($currentUser['user_id'] ?? 0) === $editUserId): ?>
@@ -41,19 +40,14 @@ if (!isset($users, $teams, $teamsByUser)):
           <?php endif; ?>
         </div>
         <div class="form-group">
-          <label for="team_ids">Teams</label>
-          <select id="team_ids" name="team_ids[]" class="input" multiple <?php echo empty($teams) ? 'disabled' : ''; ?> style="min-width: 180px; max-width: 220px;">
-            <?php if (empty($teams)): ?>
-              <option value="">No teams available</option>
+          <label>Teams</label>
+          <div class="input input-readonly">
+            <?php if (empty($editTeams)): ?>
+              <span class="text-muted">No teams</span>
             <?php else: ?>
-              <?php foreach ($teams as $team): ?>
-                <?php $teamId = (int) $team['id']; ?>
-                <option value="<?php echo $teamId; ?>" <?php echo $isEditing && in_array($teamId, $editTeams, true) ? 'selected' : ''; ?>>
-                  <?php echo htmlspecialchars($team['name']); ?>
-                </option>
-              <?php endforeach; ?>
+              <?php echo htmlspecialchars(implode(', ', $editTeams)); ?>
             <?php endif; ?>
-          </select>
+          </div>
         </div>
         <div class="form-group">
           <button type="submit" class="btn"><?php echo $isEditing ? 'Save User' : 'Create User'; ?></button>
@@ -88,29 +82,19 @@ if (!isset($users, $teams, $teamsByUser)):
           <td><?php echo htmlspecialchars($user['username']); ?></td>
           <td>
             <?php
-              $roleLabel = $user['role'] === 'team_admin' ? 'Team Admin' : ucfirst($user['role']);
-              echo htmlspecialchars($roleLabel);
+              echo htmlspecialchars(ucfirst($user['role']));
             ?>
           </td>
           <td>
             <?php if (empty($assignedTeams)): ?>
               <span class="text-muted">No teams</span>
             <?php else: ?>
-              <?php
-                $teamNames = [];
-                foreach ($teams as $team) {
-                    $teamId = (int) $team['id'];
-                    if (in_array($teamId, $assignedTeams, true)) {
-                        $teamNames[] = $team['name'];
-                    }
-                }
-              ?>
-              <?php echo htmlspecialchars(implode(', ', $teamNames)); ?>
+              <?php echo htmlspecialchars(implode(', ', $assignedTeams)); ?>
             <?php endif; ?>
           </td>
           <td><?php echo htmlspecialchars($user['created_at']); ?></td>
           <td class="table-actions">
-            <a class="icon-button" href="<?php echo BASE_PATH; ?>/pages/admin/user_management.php?tab=users&edit_user_id=<?php echo $userId; ?>" aria-label="Edit user teams" title="Edit user teams">
+            <a class="icon-button" href="<?php echo BASE_PATH; ?>/pages/admin/user_management.php?tab=users&edit_user_id=<?php echo $userId; ?>" aria-label="Edit user" title="Edit user">
               <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
             </a>
             <form method="POST" action="" onsubmit="return confirm('Reset password for this user?');">

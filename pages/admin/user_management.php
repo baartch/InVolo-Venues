@@ -32,13 +32,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim((string) ($_POST['username'] ?? ''));
         $role = $_POST['role'] ?? 'agent';
         $password = (string) ($_POST['password'] ?? '');
-        $teamIds = array_map('intval', $_POST['team_ids'] ?? []);
 
         if ($username === '' || $password === '') {
             $errors[] = 'Username and password are required.';
         }
 
-        if (!in_array($role, ['admin', 'agent', 'team_admin'], true)) {
+        if (!in_array($role, ['admin', 'agent'], true)) {
             $errors[] = 'Invalid role selected.';
         }
 
@@ -59,20 +58,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':role' => $role
                     ]);
                     $userId = (int) $pdo->lastInsertId();
-                    if ($teamIds) {
-                        $teamStmt = $pdo->prepare(
-                            'INSERT INTO team_members (team_id, user_id)
-                             SELECT :team_id, :user_id
-                             WHERE EXISTS (SELECT 1 FROM teams WHERE id = :team_id_check)'
-                        );
-                        foreach ($teamIds as $teamId) {
-                            $teamStmt->execute([
-                                ':team_id' => $teamId,
-                                ':user_id' => $userId,
-                                ':team_id_check' => $teamId
-                            ]);
-                        }
-                    }
                     logAction($currentUser['user_id'] ?? null, 'user_created', sprintf('Created user %s', $username));
                     $notice = 'User created successfully.';
                 }
@@ -88,13 +73,12 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $username = trim((string) ($_POST['username'] ?? ''));
         $role = $_POST['role'] ?? '';
         $password = (string) ($_POST['password'] ?? '');
-        $teamIds = array_map('intval', $_POST['team_ids'] ?? []);
 
         if ($userId <= 0 || $username === '') {
             $errors[] = 'Username is required.';
         }
 
-        if ($role !== '' && !in_array($role, ['admin', 'agent', 'team_admin'], true)) {
+        if ($role !== '' && !in_array($role, ['admin', 'agent'], true)) {
             $errors[] = 'Invalid role selected.';
         }
 
@@ -137,24 +121,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     }
                     $stmt->execute($params);
 
-                    $deleteStmt = $pdo->prepare('DELETE FROM team_members WHERE user_id = :user_id');
-                    $deleteStmt->execute([':user_id' => $userId]);
-
-                    if ($teamIds) {
-                        $insertStmt = $pdo->prepare(
-                            'INSERT INTO team_members (team_id, user_id)
-                             SELECT :team_id, :user_id
-                             WHERE EXISTS (SELECT 1 FROM teams WHERE id = :team_id_check)'
-                        );
-                        foreach ($teamIds as $teamId) {
-                            $insertStmt->execute([
-                                ':team_id' => $teamId,
-                                ':user_id' => $userId,
-                                ':team_id_check' => $teamId
-                            ]);
-                        }
-                    }
-
                     $pdo->commit();
                     logAction($currentUser['user_id'] ?? null, 'user_updated', sprintf('Updated user %d', $userId));
                     $notice = 'User updated successfully.';
@@ -191,49 +157,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             } catch (Throwable $error) {
                 $errors[] = 'Failed to reset password.';
                 logAction($currentUser['user_id'] ?? null, 'password_reset_error', $error->getMessage());
-            }
-        }
-    }
-
-    if ($action === 'update_user_teams') {
-        $userId = (int) ($_POST['user_id'] ?? 0);
-        $teamIds = array_map('intval', $_POST['team_ids'] ?? []);
-
-        if ($userId <= 0) {
-            $errors[] = 'Please select a user to update teams.';
-        }
-
-        if (!$errors) {
-            try {
-                $pdo = getDatabaseConnection();
-                $pdo->beginTransaction();
-                $deleteStmt = $pdo->prepare('DELETE FROM team_members WHERE user_id = :user_id');
-                $deleteStmt->execute([':user_id' => $userId]);
-
-                if ($teamIds) {
-                    $insertStmt = $pdo->prepare(
-                        'INSERT INTO team_members (team_id, user_id)
-                         SELECT :team_id, :user_id
-                         WHERE EXISTS (SELECT 1 FROM teams WHERE id = :team_id_check)'
-                    );
-                    foreach ($teamIds as $teamId) {
-                        $insertStmt->execute([
-                            ':team_id' => $teamId,
-                            ':user_id' => $userId,
-                            ':team_id_check' => $teamId
-                        ]);
-                    }
-                }
-
-                $pdo->commit();
-                logAction($currentUser['user_id'] ?? null, 'user_teams_updated', sprintf('Updated teams for user %d', $userId));
-                $notice = 'User teams updated successfully.';
-            } catch (Throwable $error) {
-                if ($pdo && $pdo->inTransaction()) {
-                    $pdo->rollBack();
-                }
-                $errors[] = 'Failed to update user teams.';
-                logAction($currentUser['user_id'] ?? null, 'user_teams_update_error', $error->getMessage());
             }
         }
     }
@@ -297,23 +220,68 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $teamId = (int) ($_POST['team_id'] ?? 0);
         $teamName = trim((string) ($_POST['team_name'] ?? ''));
         $teamDescription = trim((string) ($_POST['team_description'] ?? ''));
+        $teamMemberIds = array_unique(array_map('intval', $_POST['team_member_ids'] ?? []));
+        $teamAdminIds = array_unique(array_map('intval', $_POST['team_admin_ids'] ?? []));
 
         if ($teamId <= 0 || $teamName === '') {
             $errors[] = 'Team name is required.';
         }
 
+        $overlap = array_intersect($teamMemberIds, $teamAdminIds);
+        if ($overlap) {
+            $errors[] = 'A user cannot be both member and admin for the same team.';
+        }
+
         if (!$errors) {
             try {
                 $pdo = getDatabaseConnection();
+                $pdo->beginTransaction();
                 $stmt = $pdo->prepare('UPDATE teams SET name = :name, description = :description WHERE id = :id');
                 $stmt->execute([
                     ':name' => $teamName,
                     ':description' => $teamDescription !== '' ? $teamDescription : null,
                     ':id' => $teamId
                 ]);
+
+                $deleteStmt = $pdo->prepare('DELETE FROM team_members WHERE team_id = :team_id');
+                $deleteStmt->execute([':team_id' => $teamId]);
+
+                if ($teamMemberIds || $teamAdminIds) {
+                    $insertStmt = $pdo->prepare(
+                        'INSERT INTO team_members (team_id, user_id, role)
+                         SELECT :team_id, :user_id, :role
+                         WHERE EXISTS (SELECT 1 FROM teams WHERE id = :team_id_check)
+                           AND EXISTS (SELECT 1 FROM users WHERE id = :user_id_check)'
+                    );
+
+                    foreach ($teamMemberIds as $memberId) {
+                        $insertStmt->execute([
+                            ':team_id' => $teamId,
+                            ':user_id' => $memberId,
+                            ':role' => 'member',
+                            ':team_id_check' => $teamId,
+                            ':user_id_check' => $memberId
+                        ]);
+                    }
+
+                    foreach ($teamAdminIds as $adminId) {
+                        $insertStmt->execute([
+                            ':team_id' => $teamId,
+                            ':user_id' => $adminId,
+                            ':role' => 'admin',
+                            ':team_id_check' => $teamId,
+                            ':user_id_check' => $adminId
+                        ]);
+                    }
+                }
+
+                $pdo->commit();
                 logAction($currentUser['user_id'] ?? null, 'team_updated', sprintf('Updated team %d', $teamId));
                 $notice = 'Team updated successfully.';
             } catch (Throwable $error) {
+                if ($pdo && $pdo->inTransaction()) {
+                    $pdo->rollBack();
+                }
                 $errors[] = 'Failed to update team.';
                 logAction($currentUser['user_id'] ?? null, 'team_update_error', $error->getMessage());
             }
@@ -383,19 +351,31 @@ try {
     $teamsStmt = $pdo->query('SELECT id, name, description, created_at FROM teams ORDER BY name');
     $teams = $teamsStmt->fetchAll();
     $teamMembersStmt = $pdo->query(
-        'SELECT tm.team_id, tm.user_id, u.username
+        'SELECT tm.team_id, tm.user_id, tm.role, u.username, t.name AS team_name
          FROM team_members tm
          JOIN users u ON u.id = tm.user_id
+         JOIN teams t ON t.id = tm.team_id
          ORDER BY u.username'
     );
     $teamMembersRows = $teamMembersStmt->fetchAll();
     $teamsByUser = [];
     $membersByTeam = [];
+    $adminsByTeam = [];
+    $memberIdsByTeam = [];
+    $adminIdsByTeam = [];
     foreach ($teamMembersRows as $row) {
         $teamId = (int) $row['team_id'];
         $userId = (int) $row['user_id'];
-        $teamsByUser[$userId][] = $teamId;
-        $membersByTeam[$teamId][] = (string) $row['username'];
+        $teamName = (string) $row['team_name'];
+        $role = (string) $row['role'];
+        $teamsByUser[$userId][] = $teamName;
+        if ($role === 'admin') {
+            $adminsByTeam[$teamId][] = (string) $row['username'];
+            $adminIdsByTeam[$teamId][] = $userId;
+        } else {
+            $membersByTeam[$teamId][] = (string) $row['username'];
+            $memberIdsByTeam[$teamId][] = $userId;
+        }
     }
 
     $settings = loadSettingValues([
@@ -426,6 +406,9 @@ try {
     $teams = $teams ?? [];
     $teamsByUser = $teamsByUser ?? [];
     $membersByTeam = $membersByTeam ?? [];
+    $adminsByTeam = $adminsByTeam ?? [];
+    $memberIdsByTeam = $memberIdsByTeam ?? [];
+    $adminIdsByTeam = $adminIdsByTeam ?? [];
     $settings = $settings ?? [
         'brave_search_api_key' => '',
         'brave_spellcheck_api_key' => '',

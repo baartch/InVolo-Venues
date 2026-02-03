@@ -326,8 +326,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                     </td>
                     <td class="table-notes"><?php echo htmlspecialchars($venue['notes'] ?? ''); ?></td>
                     <td>
-                      <div class="venue-actions">
-                        <div class="venue-actions-buttons">
+                      <div class="table-actions">
                           <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="icon-button secondary" aria-label="Edit venue" title="Edit venue">
                             <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
                           </a>
@@ -340,10 +339,10 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                             </button>
                           </form>
                         </div>
-                        <div class="row-meta">
-                          <span>Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
-                          <span>Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
-                        </div>
+                      </div>
+                      <div class="row-meta">
+                        <span>Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
+                        <span>Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
                       </div>
                     </td>
                   </tr>
