@@ -30,6 +30,7 @@ EXCLUDES=(
   "bun.lock"
   "package.json"
   "tsconfig.json"
+  "sql/"
   "src/"
   "setup.sh"
   "dev_helpers/"
