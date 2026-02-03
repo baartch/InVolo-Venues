@@ -10,6 +10,7 @@ if ($basePath !== '' && strpos($relativePath, $basePath) === 0) {
 $relativePath = '/' . ltrim($relativePath, '/');
 $isMap = $relativePath === '/' || $relativePath === '/index.php';
 $isVenues = strpos($relativePath, '/pages/venues') === 0;
+$isTeam = strpos($relativePath, '/pages/team') === 0;
 $isAdmin = strpos($relativePath, '/pages/admin') === 0;
 $isProfile = strpos($relativePath, '/pages/profile') === 0;
 ?>
@@ -20,6 +21,9 @@ $isProfile = strpos($relativePath, '/pages/profile') === 0;
     </a>
     <a href="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="sidebar-link <?php echo $isVenues ? 'active' : ''; ?>" aria-label="Venues">
       <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-venues.svg" alt="Venues">
+    </a>
+    <a href="<?php echo BASE_PATH; ?>/pages/team/index.php" class="sidebar-link <?php echo $isTeam ? 'active' : ''; ?>" aria-label="Team">
+      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-team.svg" alt="Team">
     </a>
     <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
       <a href="<?php echo BASE_PATH; ?>/pages/admin/user_management.php" class="sidebar-link <?php echo $isAdmin ? 'active' : ''; ?>" aria-label="Admin">
