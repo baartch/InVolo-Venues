@@ -65,3 +65,7 @@ $currentUser = [
     'ui_theme' => $session['ui_theme'] ?? null,
     'venues_page_size' => $session['venues_page_size'] ?? null
 ];
+
+$currentUser['is_team_admin'] = $currentUser['user_id'] > 0
+    ? isTeamAdmin($currentUser['user_id'])
+    : false;

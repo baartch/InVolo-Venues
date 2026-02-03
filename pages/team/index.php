@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../routes/auth/check.php';
+require_once __DIR__ . '/../../src-php/team_admin_check.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
 require_once __DIR__ . '/../../src-php/theme.php';

@@ -110,6 +110,21 @@ function logAction(?int $userId, string $action, string $details = ''): void
     }
 }
 
+function isTeamAdmin(int $userId): bool
+{
+    try {
+        $pdo = getDatabaseConnection();
+        $stmt = $pdo->prepare(
+            "SELECT 1 FROM team_members WHERE user_id = :user_id AND role = 'admin' LIMIT 1"
+        );
+        $stmt->execute([':user_id' => $userId]);
+        return (bool) $stmt->fetchColumn();
+    } catch (Throwable $error) {
+        error_log('Team admin check failed: ' . $error->getMessage());
+        return false;
+    }
+}
+
 function createSession(int $userId): array
 {
     $token = bin2hex(random_bytes(32));
