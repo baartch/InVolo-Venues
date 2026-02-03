@@ -252,7 +252,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
 
         <div class="card card-section">
           <h2>All Venues</h2>
-          <form method="GET" action="" class="table-filter" data-filter-form>
+          <form method="GET" action="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="table-filter" data-filter-form>
             <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
             <div class="table-filter-field">
               <input
@@ -355,13 +355,14 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
             <?php
               $query = $_GET;
               $query['page'] = max(1, $page - 1);
-              $prevLink = '?' . http_build_query($query);
+              $baseUrl = BASE_PATH . '/pages/venues/index.php';
+              $prevLink = $baseUrl . '?' . http_build_query($query);
               $query['page'] = min($totalPages, $page + 1);
-              $nextLink = '?' . http_build_query($query);
+              $nextLink = $baseUrl . '?' . http_build_query($query);
               $query['page'] = 1;
-              $firstLink = '?' . http_build_query($query);
+              $firstLink = $baseUrl . '?' . http_build_query($query);
               $query['page'] = $totalPages;
-              $lastLink = '?' . http_build_query($query);
+              $lastLink = $baseUrl . '?' . http_build_query($query);
 
               $range = 2;
               $startPage = max(1, $page - $range);

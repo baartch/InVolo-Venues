@@ -177,7 +177,7 @@ if ($webSearchQuery !== '' && $editId === 0 && $_SERVER['REQUEST_METHOD'] === 'G
     }
 }
 
-if ($mapboxSearchRequested && $editId === 0 && $_SERVER['REQUEST_METHOD'] === 'GET') {
+if ($mapboxSearchRequested && $_SERVER['REQUEST_METHOD'] === 'GET') {
     if ($mapboxSearchAddress === '' || $mapboxSearchCity === '') {
         $errors[] = 'Enter both address and city before running a Mapbox search.';
     } else {
@@ -348,7 +348,7 @@ if ($editId > 0 && $editVenue === null) {
     }
 }
 
-if ($editVenue) {
+if ($editVenue && !$mapboxSearchRequested) {
     foreach ($fields as $field) {
         $formValues[$field] = (string) ($editVenue[$field] ?? '');
     }
@@ -382,6 +382,9 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
 
         <form method="GET" action="" class="inline-mapbox-search" id="mapbox_search_form">
           <input type="hidden" name="mapbox_search" value="1">
+          <?php if ($editVenue): ?>
+            <input type="hidden" name="edit" value="<?php echo (int) $editVenue['id']; ?>">
+          <?php endif; ?>
           <input type="hidden" name="mapbox_address" id="mapbox_address" value="<?php echo htmlspecialchars($formValues['address']); ?>">
           <input type="hidden" name="mapbox_city" id="mapbox_city" value="<?php echo htmlspecialchars($formValues['city']); ?>">
           <input type="hidden" name="mapbox_country" id="mapbox_country" value="<?php echo htmlspecialchars($formValues['country']); ?>">
