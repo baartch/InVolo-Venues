@@ -53,6 +53,8 @@ The database schema is in `sql/schema.sql` and includes the following tables:
 - `sessions`: Active user sessions for authentication
 - `logs`: Application logs (user actions, errors, timestamps)
 - `settings`: Application configuration settings
+- `teams`: User teams for grouping
+- `team_members`: Many-to-many mapping of users to teams
 - `rate_limits`: Rate limiting tracking for brute force protection
 
 ## Security
@@ -72,7 +74,7 @@ The database schema is in `sql/schema.sql` and includes the following tables:
 - **Cookies** must be set via `src-php/cookie_helpers.php` functions (setSessionCookie, clearSessionCookie)
 - Sidebar consists only of icons, no labels
 - Logs written via `logAction()` in `src-php/database.php` (do NOT log sensitive data like cookies)
-- Edit TypeScript sources (not compiled JS) when changing map logic; rebuild the JS output as needed. TypeScript sources live in `src/`.
+- Edit TypeScript sources (not compiled JS) when JS logic changes; rebuild the JS output as needed. TypeScript sources live in `src/`.
 - Do NOT create a new markdown file to document each change or summarize your work unless specifically requested by the user.
 - Do NOT automatically create GIT commits. But when user asks for it, commit only the changes you made.
 
