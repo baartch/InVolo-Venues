@@ -221,10 +221,36 @@ const initSorting = (): void => {
   });
 };
 
+const initVenueDetails = (): void => {
+  const table = qs<HTMLTableElement>('.table');
+  if (!table) {
+    return;
+  }
+
+  const toggleButtons = qsAll<HTMLButtonElement>('[data-venue-info-toggle]', table);
+  toggleButtons.forEach((button) => {
+    button.addEventListener('click', () => {
+      const row = button.closest('tr');
+      if (!row) {
+        return;
+      }
+      const detailsRow = row.nextElementSibling as HTMLTableRowElement | null;
+      if (!detailsRow || !detailsRow.hasAttribute('data-venue-details')) {
+        return;
+      }
+      const isHidden = detailsRow.dataset.visible !== 'true';
+      detailsRow.dataset.visible = isHidden ? 'true' : 'false';
+      detailsRow.classList.toggle('is-open', isHidden);
+      button.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
+    });
+  });
+};
+
 const initVenuesPage = (): void => {
   initImportModal();
   initFilterForm();
   initSorting();
+  initVenueDetails();
 };
 
 initVenuesPage();

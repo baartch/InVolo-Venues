@@ -303,6 +303,10 @@ textarea:focus {
   font-size: 14px;
 }
 
+.table td .table-actions {
+  flex-wrap: wrap;
+}
+
 .table th {
   color: var(--color-muted);
   font-weight: 600;
@@ -607,10 +611,35 @@ textarea:focus {
   vertical-align: middle;
 }
 
-.table-notes {
-  min-width: 200px;
-  max-width: 320px;
+.venue-details-row {
+  display: none;
+  background: var(--color-bg);
+}
+
+.venue-details-row.is-open {
+  display: table-row;
+}
+
+.venue-details {
+  padding: 12px 0;
+  background: transparent;
+  border: none;
+  border-radius: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.venue-details-notes {
   white-space: pre-wrap;
+}
+
+.venue-details-meta {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 0.8em;
+  color: var(--color-muted);
 }
 
 .table a {

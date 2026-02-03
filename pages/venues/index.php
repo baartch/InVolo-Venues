@@ -285,7 +285,6 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                   <th data-sort>Contact Person</th>
                   <th data-sort data-sort-type="number">Capacity</th>
                   <th data-sort>Website</th>
-                  <th data-sort>Notes</th>
                   <th>Actions</th>
                 </tr>
               </thead>
@@ -324,25 +323,39 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                         </a>
                       <?php endif; ?>
                     </td>
-                    <td class="table-notes"><?php echo htmlspecialchars($venue['notes'] ?? ''); ?></td>
                     <td>
                       <div class="table-actions">
-                          <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="icon-button secondary" aria-label="Edit venue" title="Edit venue">
-                            <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
-                          </a>
-                          <form method="POST" action="" onsubmit="return confirm('Delete this venue?');">
-                            <?php renderCsrfField(); ?>
-                            <input type="hidden" name="action" value="delete">
-                            <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
-                            <button type="submit" class="icon-button" aria-label="Delete venue" title="Delete venue">
-                              <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
-                            </button>
-                          </form>
-                        </div>
+                        <button type="button" class="icon-button secondary" data-venue-info-toggle aria-label="Show venue details" title="Show venue details">
+                          <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-info.svg" alt="Info">
+                        </button>
+                        <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="icon-button secondary" aria-label="Edit venue" title="Edit venue">
+                          <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
+                        </a>
+                        <form method="POST" action="" onsubmit="return confirm('Delete this venue?');">
+                          <?php renderCsrfField(); ?>
+                          <input type="hidden" name="action" value="delete">
+                          <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
+                          <button type="submit" class="icon-button" aria-label="Delete venue" title="Delete venue">
+                            <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
+                          </button>
+                        </form>
                       </div>
-                      <div class="row-meta">
-                        <span>Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
-                        <span>Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
+                    </td>
+                  </tr>
+                  <tr class="venue-details-row" data-venue-details>
+                    <td colspan="12">
+                      <div class="venue-details">
+                        <?php if (!empty($venue['notes'])): ?>
+                          <div class="venue-details-notes">
+                            <?php echo nl2br(htmlspecialchars($venue['notes'] ?? '')); ?>
+                          </div>
+                        <?php else: ?>
+                          <div class="venue-details-notes text-muted">No notes.</div>
+                        <?php endif; ?>
+                        <div class="venue-details-meta">
+                          <span>Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
+                          <span>Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
+                        </div>
                       </div>
                     </td>
                   </tr>
