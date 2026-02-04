@@ -48,8 +48,12 @@ const SELECTED_CLASS = 'selected';
 const DEFAULT_ZOOM = 8;
 const FOCUS_ZOOM = 15;
 const MARKER_COLOR = 60;
+const URL_LAT_PARAM = 'lat';
+const URL_LNG_PARAM = 'lng';
+const URL_ZOOM_PARAM = 'zoom';
 
 let map: any;
+let hasUrlView = false;
 const allWaypoints: Waypoint[] = [];
 
 const markerHtmlStyles = `
@@ -154,11 +158,54 @@ async function parseWaypoints(): Promise<void> {
   });
 
   if (allWaypoints.length > 0) {
-    map.fitBounds(bounds, { padding: [40, 40] });
+    if (!hasUrlView) {
+      map.fitBounds(bounds, { padding: [40, 40] });
+    }
   } else {
-    map.setView([0, 0], DEFAULT_ZOOM);
+    if (!hasUrlView) {
+      map.setView([0, 0], DEFAULT_ZOOM);
+    }
   }
 }
+
+const updateMapUrl = (): void => {
+  if (!map) {
+    return;
+  }
+
+  const center = map.getCenter();
+  const zoom = map.getZoom();
+  const params = new URLSearchParams(window.location.search);
+
+  params.set(URL_LAT_PARAM, center.lat.toFixed(6));
+  params.set(URL_LNG_PARAM, center.lng.toFixed(6));
+  params.set(URL_ZOOM_PARAM, String(zoom));
+
+  const newUrl = `${window.location.pathname}?${params.toString()}`;
+  window.history.replaceState({}, '', newUrl);
+};
+
+const applyUrlView = (): void => {
+  const params = new URLSearchParams(window.location.search);
+  const latParam = params.get(URL_LAT_PARAM);
+  const lngParam = params.get(URL_LNG_PARAM);
+  const zoomParam = params.get(URL_ZOOM_PARAM);
+
+  if (!latParam || !lngParam || !zoomParam) {
+    return;
+  }
+
+  const lat = Number.parseFloat(latParam);
+  const lng = Number.parseFloat(lngParam);
+  const zoom = Number.parseInt(zoomParam, 10);
+
+  if (Number.isNaN(lat) || Number.isNaN(lng) || Number.isNaN(zoom)) {
+    return;
+  }
+
+  hasUrlView = true;
+  map.setView([lat, lng], zoom);
+};
 
 function initializeSearch(): void {
   const searchInput = document.getElementById(SEARCH_INPUT_ID) as HTMLInputElement | null;
@@ -291,6 +338,7 @@ function initializeSearch(): void {
 async function initializeMap(): Promise<void> {
   await loadLeaflet();
   map = L.map(MAP_CONTAINER_ID);
+  applyUrlView();
 
   L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -307,6 +355,8 @@ async function initializeMap(): Promise<void> {
     console.error('Failed to initialize waypoints', error);
   }
 
+  map.on('moveend', updateMapUrl);
+  updateMapUrl();
   initializeSearch();
 }
 
