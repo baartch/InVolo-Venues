@@ -8,7 +8,8 @@ if ($basePath !== '' && strpos($relativePath, $basePath) === 0) {
 }
 
 $relativePath = '/' . ltrim($relativePath, '/');
-$isMap = $relativePath === '/' || $relativePath === '/index.php';
+$isDashboard = $relativePath === '/' || $relativePath === '/index.php' || strpos($relativePath, '/pages/dashboard') === 0;
+$isMap = strpos($relativePath, '/pages/map') === 0;
 $isVenues = strpos($relativePath, '/pages/venues') === 0;
 $isTeam = strpos($relativePath, '/pages/team') === 0;
 $isAdmin = strpos($relativePath, '/pages/admin') === 0;
@@ -17,7 +18,10 @@ $isTeamAdmin = $currentUser['is_team_admin'] ?? false;
 ?>
 <aside class="sidebar">
   <nav class="sidebar-nav">
-    <a href="<?php echo BASE_PATH; ?>/index.php" class="sidebar-link <?php echo $isMap ? 'active' : ''; ?>" aria-label="Map">
+    <a href="<?php echo BASE_PATH; ?>/index.php" class="sidebar-link <?php echo $isDashboard ? 'active' : ''; ?>" aria-label="Dashboard">
+      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-dashboard.svg" alt="Dashboard">
+    </a>
+    <a href="<?php echo BASE_PATH; ?>/pages/map/index.php" class="sidebar-link <?php echo $isMap ? 'active' : ''; ?>" aria-label="Map">
       <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-map.svg" alt="Map">
     </a>
     <a href="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="sidebar-link <?php echo $isVenues ? 'active' : ''; ?>" aria-label="Venues">
