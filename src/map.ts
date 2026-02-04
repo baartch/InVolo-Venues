@@ -39,12 +39,23 @@ interface Waypoint {
   popup: any;
 }
 
+interface SearchResult {
+  id: number;
+  name: string;
+  lat: number;
+  lng: number;
+  website: string;
+}
+
 const MAP_CONTAINER_ID = 'mapid';
 const SEARCH_INPUT_ID = 'waypoint-search';
 const SEARCH_RESULTS_ID = 'search-results';
 const WAYPOINTS_URL = 'routes/waypoints/index.php';
 const SEARCH_RESULT_CLASS = 'search-result-item';
 const SELECTED_CLASS = 'selected';
+const SEARCH_API_URL = 'routes/venues/search.php';
+const SEARCH_MIN_LENGTH = 2;
+const SEARCH_DEBOUNCE_MS = 500;
 const DEFAULT_LAT = 50.394512;
 const DEFAULT_LNG = 11.480713;
 const DEFAULT_ZOOM = 6;
@@ -132,6 +143,18 @@ const focusWaypoint = (waypoint: Waypoint, searchInput?: HTMLInputElement, searc
 
   if (searchInput) {
     searchInput.value = waypoint.name;
+  }
+
+  if (searchResults) {
+    searchResults.style.display = 'none';
+  }
+};
+
+const focusSearchResult = (result: SearchResult, searchInput?: HTMLInputElement, searchResults?: HTMLDivElement): void => {
+  map.setView([result.lat, result.lng], FOCUS_ZOOM);
+
+  if (searchInput) {
+    searchInput.value = result.name;
   }
 
   if (searchResults) {
@@ -313,6 +336,9 @@ function initializeSearch(): void {
 
   let selectedIndex = -1;
   let filteredWaypoints: Waypoint[] = [];
+  let searchMatches: SearchResult[] = [];
+  let activeRequest = 0;
+  let debounceId: number | null = null;
 
   const clearSearchResults = (): void => {
     searchResults.style.display = 'none';
@@ -337,15 +363,35 @@ function initializeSearch(): void {
   };
 
   const navigateToSelected = (): void => {
-    if (selectedIndex >= 0 && selectedIndex < filteredWaypoints.length) {
+    if (selectedIndex < 0) {
+      return;
+    }
+
+    if (searchMatches[selectedIndex]) {
+      focusSearchResult(searchMatches[selectedIndex], searchInput, searchResults);
+      selectedIndex = -1;
+      return;
+    }
+
+    if (filteredWaypoints[selectedIndex]) {
       focusWaypoint(filteredWaypoints[selectedIndex], searchInput, searchResults);
       selectedIndex = -1;
     }
   };
 
   const renderResults = (): void => {
-    if (filteredWaypoints.length === 0) {
+    if (searchMatches.length === 0 && filteredWaypoints.length === 0) {
       searchResults.innerHTML = `<div class="${SEARCH_RESULT_CLASS}">No venues found</div>`;
+      searchResults.style.display = 'block';
+      return;
+    }
+
+    if (searchMatches.length > 0) {
+      searchResults.innerHTML = searchMatches.map((result, index) => `
+        <div class="${SEARCH_RESULT_CLASS}" data-index="${index}">
+          ${result.name}
+        </div>
+      `).join('');
       searchResults.style.display = 'block';
       return;
     }
@@ -359,19 +405,53 @@ function initializeSearch(): void {
     searchResults.style.display = 'block';
   };
 
+  const performSearch = async (query: string): Promise<void> => {
+    const requestId = ++activeRequest;
+
+    if (query.length < SEARCH_MIN_LENGTH) {
+      searchMatches = [];
+      renderResults();
+      return;
+    }
+
+    try {
+      const response = await fetch(`${SEARCH_API_URL}?q=${encodeURIComponent(query)}`);
+      if (!response.ok) {
+        return;
+      }
+      const data = (await response.json()) as SearchResult[];
+      if (requestId !== activeRequest) {
+        return;
+      }
+      searchMatches = data;
+      renderResults();
+    } catch (error) {
+      console.error('Failed to search venues', error);
+    }
+  };
+
   searchInput.addEventListener('input', (event: Event) => {
     const target = event.target as HTMLInputElement;
-    const searchTerm = target.value.toLowerCase().trim();
+    const searchTerm = target.value.trim();
 
     if (!searchTerm) {
       filteredWaypoints = [];
+      searchMatches = [];
       clearSearchResults();
       return;
     }
 
     filteredWaypoints = allWaypoints.filter(waypoint =>
-      waypoint.name.toLowerCase().includes(searchTerm)
+      waypoint.name.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+    if (debounceId) {
+      window.clearTimeout(debounceId);
+    }
+
+    debounceId = window.setTimeout(() => {
+      void performSearch(searchTerm);
+    }, SEARCH_DEBOUNCE_MS);
 
     renderResults();
   });
@@ -383,26 +463,33 @@ function initializeSearch(): void {
     }
 
     const index = Number(target.dataset.index);
-    if (Number.isNaN(index) || !filteredWaypoints[index]) {
+    if (Number.isNaN(index)) {
       return;
     }
 
-    focusWaypoint(filteredWaypoints[index], searchInput, searchResults);
+    if (searchMatches[index]) {
+      focusSearchResult(searchMatches[index], searchInput, searchResults);
+      return;
+    }
+
+    if (filteredWaypoints[index]) {
+      focusWaypoint(filteredWaypoints[index], searchInput, searchResults);
+    }
   });
 
   searchInput.addEventListener('keydown', (event: KeyboardEvent) => {
-    if (filteredWaypoints.length === 0) {
+    if (searchMatches.length === 0 && filteredWaypoints.length === 0) {
       return;
     }
 
     switch (event.key) {
       case 'ArrowDown':
         event.preventDefault();
-        selectItem(selectedIndex < filteredWaypoints.length - 1 ? selectedIndex + 1 : 0);
+        selectItem(selectedIndex < Math.max(searchMatches.length, filteredWaypoints.length) - 1 ? selectedIndex + 1 : 0);
         break;
       case 'ArrowUp':
         event.preventDefault();
-        selectItem(selectedIndex > 0 ? selectedIndex - 1 : filteredWaypoints.length - 1);
+        selectItem(selectedIndex > 0 ? selectedIndex - 1 : Math.max(searchMatches.length, filteredWaypoints.length) - 1);
         break;
       case 'Enter':
         event.preventDefault();
