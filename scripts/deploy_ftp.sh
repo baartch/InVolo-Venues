@@ -24,6 +24,7 @@ popd >/dev/null
 
 EXCLUDES=(
   "*.md"
+  ".pi/"
   ".git/"
   ".gitignore"
   "node_modules/"
