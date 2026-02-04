@@ -1,5 +1,5 @@
 CREATE TABLE `venues` (
-  `id` int(11) NOT NULL,
+  `id` INT PRIMARY KEY AUTO_INCREMENT,
   `name` varchar(255) NOT NULL,
   `address` varchar(255) DEFAULT NULL,
   `postal_code` varchar(20) DEFAULT NULL,
@@ -29,12 +29,6 @@ CREATE TABLE users (
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP
 );
-
-ALTER TABLE users
-  ADD COLUMN ui_theme VARCHAR(20) NOT NULL DEFAULT 'forest';
-
-ALTER TABLE users
-  ADD COLUMN venues_page_size INT NOT NULL DEFAULT 25;
 
 CREATE TABLE sessions (
     id INT PRIMARY KEY AUTO_INCREMENT,
