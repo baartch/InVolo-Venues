@@ -45,7 +45,9 @@ const SEARCH_RESULTS_ID = 'search-results';
 const WAYPOINTS_URL = 'routes/waypoints/index.php';
 const SEARCH_RESULT_CLASS = 'search-result-item';
 const SELECTED_CLASS = 'selected';
-const DEFAULT_ZOOM = 8;
+const DEFAULT_LAT = 50.394512;
+const DEFAULT_LNG = 11.480713;
+const DEFAULT_ZOOM = 6;
 const FOCUS_ZOOM = 15;
 const MARKER_COLOR = 60;
 const MIN_FETCH_ZOOM = 9;
@@ -445,7 +447,7 @@ async function initializeMap(): Promise<void> {
   applyUrlView();
   applyStoredView();
   if (!hasUrlView) {
-    map.setView([0, 0], DEFAULT_ZOOM);
+    map.setView([DEFAULT_LAT, DEFAULT_LNG], DEFAULT_ZOOM);
   }
 
   map.on('load', () => {
