@@ -19,6 +19,23 @@ CREATE TABLE `venues` (
   `updated_at` timestamp NULL DEFAULT current_timestamp() ON UPDATE current_timestamp()
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb3 COLLATE=utf8mb3_general_ci;
 
+CREATE INDEX idx_venues_name ON venues(name(100));
+CREATE INDEX idx_venues_city ON venues(city(100));
+CREATE INDEX idx_venues_address ON venues(address(100));
+CREATE INDEX idx_venues_contact_person ON venues(contact_person(100));
+CREATE INDEX idx_venues_coordinates ON venues(latitude, longitude);
+CREATE FULLTEXT INDEX idx_venues_fulltext ON venues(
+    name,
+    address,
+    city,
+    state,
+    contact_email,
+    contact_phone,
+    contact_person,
+    website,
+    notes
+);
+
 CREATE TABLE users (
     id INT PRIMARY KEY AUTO_INCREMENT,
     username VARCHAR(50) UNIQUE NOT NULL,
