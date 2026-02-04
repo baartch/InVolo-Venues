@@ -332,7 +332,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                   <tr>
                     <td>
                       <?php if (!empty($venue['latitude']) && !empty($venue['longitude'])): ?>
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-compass.svg" alt="Has coordinates" class="table-icon">
+                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-mapmarker.svg" alt="Has coordinates" class="table-icon">
                       <?php endif; ?>
                     </td>
                     <td><?php echo htmlspecialchars($venue['name']); ?></td>

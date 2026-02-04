@@ -21,7 +21,7 @@ $isTeamAdmin = $currentUser['is_team_admin'] ?? false;
       <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-map.svg" alt="Map">
     </a>
     <a href="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="sidebar-link <?php echo $isVenues ? 'active' : ''; ?>" aria-label="Venues">
-      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-venues.svg" alt="Venues">
+      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-mapmarker.svg" alt="Venues">
     </a>
     <?php if ($isTeamAdmin): ?>
       <a href="<?php echo BASE_PATH; ?>/pages/team/index.php" class="sidebar-link <?php echo $isTeam ? 'active' : ''; ?>" aria-label="Team">

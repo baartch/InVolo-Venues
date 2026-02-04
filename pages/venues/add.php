@@ -414,7 +414,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
             <?php endforeach; ?>
           </select>
           <button type="submit" class="icon-button" aria-label="Search">
-            <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-compass.svg" alt="">
+            <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-search.svg" alt="">
           </button>
         </form>
 
