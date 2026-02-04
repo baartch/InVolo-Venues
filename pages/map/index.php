@@ -13,6 +13,9 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
         </div>
         <div id="search-results"></div>
       </div>
+      <div id="map-zoom-hint" class="map-zoom-hint" role="status" aria-live="polite" aria-hidden="true">
+        Zoom in to load venues.
+      </div>
       <div id="mapid"></div>
       <script type="module" src="<?php echo BASE_PATH; ?>/public/js/map.js" defer></script>
 <?php renderPageEnd(); ?>

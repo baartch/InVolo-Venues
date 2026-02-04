@@ -263,6 +263,25 @@ textarea:focus {
   box-sizing: border-box;
 }
 
+.map-zoom-hint {
+  position: absolute;
+  top: 70px;
+  left: 50%;
+  transform: translateX(-50%);
+  z-index: 1000;
+  background: var(--color-card);
+  color: var(--color-text);
+  padding: 8px 14px;
+  border-radius: 999px;
+  box-shadow: 0 2px 6px var(--color-shadow);
+  font-size: 13px;
+  display: none;
+}
+
+.map-zoom-hint.is-visible {
+  display: inline-flex;
+}
+
 .search-result-item {
   padding: 10px 20px;
   cursor: pointer;

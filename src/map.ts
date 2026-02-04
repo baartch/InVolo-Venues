@@ -48,11 +48,15 @@ const SELECTED_CLASS = 'selected';
 const DEFAULT_ZOOM = 8;
 const FOCUS_ZOOM = 15;
 const MARKER_COLOR = 60;
+const MIN_FETCH_ZOOM = 9;
 const URL_LAT_PARAM = 'lat';
 const URL_LNG_PARAM = 'lng';
 const URL_ZOOM_PARAM = 'zoom';
+const ZOOM_HINT_ID = 'map-zoom-hint';
+const MAP_VIEW_STORAGE_KEY = 'mapView';
 
 let map: any;
+let markerLayer: any;
 let hasUrlView = false;
 const allWaypoints: Waypoint[] = [];
 
@@ -98,7 +102,7 @@ const parseWaypointElement = (wpt: Element): Waypoint | null => {
 };
 
 const createWaypointMarker = (waypoint: Waypoint, icon: any): Waypoint => {
-  const marker = L.marker([waypoint.lat, waypoint.lon], { icon }).addTo(map);
+  const marker = L.marker([waypoint.lat, waypoint.lon], { icon }).addTo(markerLayer ?? map);
   const descriptionHtml = waypoint.description
     ? `<div class="venue-description">${waypoint.description
         .split('\n')
@@ -133,8 +137,56 @@ const focusWaypoint = (waypoint: Waypoint, searchInput?: HTMLInputElement, searc
   }
 };
 
+const clearWaypoints = (): void => {
+  allWaypoints.length = 0;
+  if (markerLayer) {
+    markerLayer.clearLayers();
+  }
+};
+
+const getZoomHint = (): HTMLElement | null =>
+  document.getElementById(ZOOM_HINT_ID) as HTMLElement | null;
+
+const setZoomHintVisible = (isVisible: boolean): void => {
+  const hint = getZoomHint();
+  if (!hint) {
+    return;
+  }
+  hint.classList.toggle('is-visible', isVisible);
+  hint.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
+};
+
+const buildWaypointsUrl = (): string | null => {
+  if (!map || !(map as { _loaded?: boolean })._loaded) {
+    return null;
+  }
+
+  const zoom = map.getZoom();
+  if (zoom < MIN_FETCH_ZOOM) {
+    setZoomHintVisible(true);
+    return null;
+  }
+
+  setZoomHintVisible(false);
+  const bounds = map.getBounds();
+  const params = new URLSearchParams({
+    minLat: bounds.getSouth().toFixed(6),
+    maxLat: bounds.getNorth().toFixed(6),
+    minLng: bounds.getWest().toFixed(6),
+    maxLng: bounds.getEast().toFixed(6)
+  });
+
+  return `${WAYPOINTS_URL}?${params.toString()}`;
+};
+
 async function parseWaypoints(): Promise<void> {
-  const response = await fetch(WAYPOINTS_URL);
+  const url = buildWaypointsUrl();
+  if (!url) {
+    clearWaypoints();
+    return;
+  }
+
+  const response = await fetch(url);
 
   if (!response.ok) {
     throw new Error('Failed to load waypoints');
@@ -144,8 +196,8 @@ async function parseWaypoints(): Promise<void> {
   const xmlDoc = parser.parseFromString(await response.text(), 'text/xml');
   const waypointNodes = Array.from(xmlDoc.getElementsByTagName('wpt'));
   const markerIcon = createMarkerIcon();
-  const bounds = L.latLngBounds([]);
 
+  clearWaypoints();
   waypointNodes.forEach((node) => {
     const parsed = parseWaypointElement(node);
     if (!parsed) {
@@ -154,22 +206,11 @@ async function parseWaypoints(): Promise<void> {
 
     const waypoint = createWaypointMarker(parsed, markerIcon);
     allWaypoints.push(waypoint);
-    bounds.extend([waypoint.lat, waypoint.lon]);
   });
-
-  if (allWaypoints.length > 0) {
-    if (!hasUrlView) {
-      map.fitBounds(bounds, { padding: [40, 40] });
-    }
-  } else {
-    if (!hasUrlView) {
-      map.setView([0, 0], DEFAULT_ZOOM);
-    }
-  }
 }
 
 const updateMapUrl = (): void => {
-  if (!map) {
+  if (!map || !(map as { _loaded?: boolean })._loaded) {
     return;
   }
 
@@ -183,6 +224,44 @@ const updateMapUrl = (): void => {
 
   const newUrl = `${window.location.pathname}?${params.toString()}`;
   window.history.replaceState({}, '', newUrl);
+};
+
+const getStoredView = (): { lat: number; lng: number; zoom: number } | null => {
+  try {
+    const raw = window.localStorage.getItem(MAP_VIEW_STORAGE_KEY);
+    if (!raw) {
+      return null;
+    }
+    const parsed = JSON.parse(raw) as { lat?: number; lng?: number; zoom?: number };
+    if (typeof parsed.lat !== 'number' || typeof parsed.lng !== 'number' || typeof parsed.zoom !== 'number') {
+      return null;
+    }
+    return { lat: parsed.lat, lng: parsed.lng, zoom: parsed.zoom };
+  } catch (error) {
+    console.warn('Failed to read stored map view', error);
+    return null;
+  }
+};
+
+const storeMapView = (): void => {
+  if (!map || !(map as { _loaded?: boolean })._loaded) {
+    return;
+  }
+  const center = map.getCenter();
+  const zoom = map.getZoom();
+
+  try {
+    window.localStorage.setItem(
+      MAP_VIEW_STORAGE_KEY,
+      JSON.stringify({
+        lat: Number(center.lat.toFixed(6)),
+        lng: Number(center.lng.toFixed(6)),
+        zoom
+      })
+    );
+  } catch (error) {
+    console.warn('Failed to store map view', error);
+  }
 };
 
 const applyUrlView = (): void => {
@@ -205,6 +284,20 @@ const applyUrlView = (): void => {
 
   hasUrlView = true;
   map.setView([lat, lng], zoom);
+};
+
+const applyStoredView = (): void => {
+  if (hasUrlView) {
+    return;
+  }
+
+  const storedView = getStoredView();
+  if (!storedView) {
+    return;
+  }
+
+  hasUrlView = true;
+  map.setView([storedView.lat, storedView.lng], storedView.zoom);
 };
 
 function initializeSearch(): void {
@@ -338,7 +431,7 @@ function initializeSearch(): void {
 async function initializeMap(): Promise<void> {
   await loadLeaflet();
   map = L.map(MAP_CONTAINER_ID);
-  applyUrlView();
+  markerLayer = L.layerGroup().addTo(map);
 
   L.tileLayer('https://api.mapbox.com/styles/v1/{id}/tiles/{z}/{x}/{y}?access_token={accessToken}', {
     attribution: 'Map data &copy; <a href="https://www.openstreetmap.org/copyright">OpenStreetMap</a> contributors, Imagery © <a href="https://www.mapbox.com/">Mapbox</a>',
@@ -349,14 +442,25 @@ async function initializeMap(): Promise<void> {
     accessToken: 'pk.eyJ1IjoibTByY2gzbCIsImEiOiJjbWtwbHA3ZzQwZjU1M2JyMnJyaDMzZW04In0.-w5O8qGkQj7YrxIFx-lunQ'
   }).addTo(map);
 
-  try {
-    await parseWaypoints();
-  } catch (error) {
-    console.error('Failed to initialize waypoints', error);
+  applyUrlView();
+  applyStoredView();
+  if (!hasUrlView) {
+    map.setView([0, 0], DEFAULT_ZOOM);
   }
 
-  map.on('moveend', updateMapUrl);
-  updateMapUrl();
+  map.on('load', () => {
+    map.invalidateSize();
+    updateMapUrl();
+    storeMapView();
+    void parseWaypoints();
+  });
+
+  map.on('moveend', () => {
+    updateMapUrl();
+    storeMapView();
+    void parseWaypoints();
+  });
+
   initializeSearch();
 }
 

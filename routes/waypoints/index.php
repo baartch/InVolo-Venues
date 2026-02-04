@@ -8,13 +8,30 @@ setApiSecurityHeaders();
 
 try {
     $pdo = getDatabaseConnection();
-    $stmt = $pdo->query(
-        'SELECT name, website, address, postal_code, city, state, country, type, contact_email,
-                contact_phone, contact_person, capacity, notes, latitude, longitude
-         FROM venues
-         WHERE latitude IS NOT NULL AND longitude IS NOT NULL'
-    );
-    $venues = $stmt->fetchAll();
+    $minLat = isset($_GET['minLat']) ? (float) $_GET['minLat'] : null;
+    $maxLat = isset($_GET['maxLat']) ? (float) $_GET['maxLat'] : null;
+    $minLng = isset($_GET['minLng']) ? (float) $_GET['minLng'] : null;
+    $maxLng = isset($_GET['maxLng']) ? (float) $_GET['maxLng'] : null;
+
+    if ($minLat === null || $maxLat === null || $minLng === null || $maxLng === null) {
+        $venues = [];
+    } else {
+        $stmt = $pdo->prepare(
+            'SELECT name, website, address, postal_code, city, state, country, type, contact_email,
+                    contact_phone, contact_person, capacity, notes, latitude, longitude
+             FROM venues
+             WHERE latitude IS NOT NULL AND longitude IS NOT NULL
+               AND latitude BETWEEN :minLat AND :maxLat
+               AND longitude BETWEEN :minLng AND :maxLng'
+        );
+        $stmt->execute([
+            ':minLat' => $minLat,
+            ':maxLat' => $maxLat,
+            ':minLng' => $minLng,
+            ':maxLng' => $maxLng
+        ]);
+        $venues = $stmt->fetchAll();
+    }
 
     $xml = new DOMDocument('1.0', 'UTF-8');
     $xml->formatOutput = true;
