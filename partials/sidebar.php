@@ -14,6 +14,7 @@ $isVenues = strpos($relativePath, '/pages/venues') === 0;
 $isTeam = strpos($relativePath, '/pages/team') === 0;
 $isAdmin = strpos($relativePath, '/pages/admin') === 0;
 $isProfile = strpos($relativePath, '/pages/profile') === 0;
+$isCommunication = strpos($relativePath, '/pages/communication') === 0;
 $isTeamAdmin = $currentUser['is_team_admin'] ?? false;
 ?>
 <aside class="sidebar">
@@ -26,6 +27,9 @@ $isTeamAdmin = $currentUser['is_team_admin'] ?? false;
     </a>
     <a href="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="sidebar-link <?php echo $isVenues ? 'active' : ''; ?>" aria-label="Venues">
       <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-mapmarker.svg" alt="Venues">
+    </a>
+    <a href="<?php echo BASE_PATH; ?>/pages/communication/index.php" class="sidebar-link <?php echo $isCommunication ? 'active' : ''; ?>" aria-label="Communication">
+      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-communication.svg" alt="Communication">
     </a>
     <?php if ($isTeamAdmin): ?>
       <a href="<?php echo BASE_PATH; ?>/pages/team/index.php" class="sidebar-link <?php echo $isTeam ? 'active' : ''; ?>" aria-label="Team">
