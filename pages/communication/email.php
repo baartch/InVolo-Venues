@@ -81,6 +81,14 @@ if ($pdo && $selectedMailbox) {
     }
 }
 
+$composeValues = [
+    'to_emails' => '',
+    'cc_emails' => '',
+    'bcc_emails' => '',
+    'subject' => '',
+    'body' => ''
+];
+
 $selectedMessageId = (int) ($_GET['message_id'] ?? 0);
 if ($pdo && $selectedMailbox && $selectedMessageId > 0) {
     try {
@@ -96,7 +104,14 @@ if ($pdo && $selectedMailbox && $selectedMessageId > 0) {
         ]);
         $message = $stmt->fetch();
 
-        if ($message && !(bool) $message['is_read']) {
+        if ($message && $message['folder'] === 'drafts') {
+            $composeValues['to_emails'] = (string) ($message['to_emails'] ?? '');
+            $composeValues['cc_emails'] = (string) ($message['cc_emails'] ?? '');
+            $composeValues['bcc_emails'] = (string) ($message['bcc_emails'] ?? '');
+            $composeValues['subject'] = (string) ($message['subject'] ?? '');
+            $composeValues['body'] = (string) ($message['body'] ?? '');
+            $composeMode = true;
+        } elseif ($message && !(bool) $message['is_read']) {
             $updateStmt = $pdo->prepare('UPDATE email_messages SET is_read = 1 WHERE id = :id');
             $updateStmt->execute([':id' => $selectedMessageId]);
         }
@@ -113,14 +128,6 @@ if ($pdo && $selectedMailbox && $selectedMessageId > 0) {
         logAction($userId, 'email_message_load_error', $error->getMessage());
     }
 }
-
-$composeValues = [
-    'to_emails' => '',
-    'cc_emails' => '',
-    'bcc_emails' => '',
-    'subject' => '',
-    'body' => ''
-];
 
 $prefillMessageId = $replyId > 0 ? $replyId : $forwardId;
 if ($pdo && $selectedMailbox && $prefillMessageId > 0) {

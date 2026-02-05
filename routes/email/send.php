@@ -15,6 +15,7 @@ verifyCsrfToken();
 $userId = (int) ($currentUser['user_id'] ?? 0);
 $mailboxId = (int) ($_POST['mailbox_id'] ?? 0);
 $action = (string) ($_POST['action'] ?? 'send_email');
+$draftId = (int) ($_POST['draft_id'] ?? 0);
 $toEmails = normalizeEmailList((string) ($_POST['to_emails'] ?? ''));
 $ccEmails = normalizeEmailList((string) ($_POST['cc_emails'] ?? ''));
 $bccEmails = normalizeEmailList((string) ($_POST['bcc_emails'] ?? ''));
@@ -46,23 +47,48 @@ try {
     }
 
     if ($action === 'save_draft') {
-        $stmt = $pdo->prepare(
-            'INSERT INTO email_messages
-             (mailbox_id, team_id, folder, subject, body, to_emails, cc_emails, bcc_emails, created_by, created_at)
-             VALUES
-             (:mailbox_id, :team_id, "drafts", :subject, :body, :to_emails, :cc_emails, :bcc_emails, :created_by, NOW())'
-        );
-        $stmt->execute([
-            ':mailbox_id' => $mailbox['id'],
-            ':team_id' => $mailbox['team_id'],
-            ':subject' => $subject !== '' ? $subject : null,
-            ':body' => $body !== '' ? $body : null,
-            ':to_emails' => $toEmails !== '' ? $toEmails : null,
-            ':cc_emails' => $ccEmails !== '' ? $ccEmails : null,
-            ':bcc_emails' => $bccEmails !== '' ? $bccEmails : null,
-            ':created_by' => $userId
-        ]);
-        logAction($userId, 'email_draft_saved', sprintf('Saved draft in mailbox %d', $mailboxId));
+        if ($draftId > 0) {
+            $stmt = $pdo->prepare(
+                'UPDATE email_messages
+                 SET subject = :subject,
+                     body = :body,
+                     to_emails = :to_emails,
+                     cc_emails = :cc_emails,
+                     bcc_emails = :bcc_emails,
+                     updated_at = NOW()
+                 WHERE id = :id
+                   AND mailbox_id = :mailbox_id
+                   AND folder = "drafts"'
+            );
+            $stmt->execute([
+                ':subject' => $subject !== '' ? $subject : null,
+                ':body' => $body !== '' ? $body : null,
+                ':to_emails' => $toEmails !== '' ? $toEmails : null,
+                ':cc_emails' => $ccEmails !== '' ? $ccEmails : null,
+                ':bcc_emails' => $bccEmails !== '' ? $bccEmails : null,
+                ':id' => $draftId,
+                ':mailbox_id' => $mailbox['id']
+            ]);
+            logAction($userId, 'email_draft_updated', sprintf('Updated draft %d in mailbox %d', $draftId, $mailboxId));
+        } else {
+            $stmt = $pdo->prepare(
+                'INSERT INTO email_messages
+                 (mailbox_id, team_id, folder, subject, body, to_emails, cc_emails, bcc_emails, created_by, created_at)
+                 VALUES
+                 (:mailbox_id, :team_id, "drafts", :subject, :body, :to_emails, :cc_emails, :bcc_emails, :created_by, NOW())'
+            );
+            $stmt->execute([
+                ':mailbox_id' => $mailbox['id'],
+                ':team_id' => $mailbox['team_id'],
+                ':subject' => $subject !== '' ? $subject : null,
+                ':body' => $body !== '' ? $body : null,
+                ':to_emails' => $toEmails !== '' ? $toEmails : null,
+                ':cc_emails' => $ccEmails !== '' ? $ccEmails : null,
+                ':bcc_emails' => $bccEmails !== '' ? $bccEmails : null,
+                ':created_by' => $userId
+            ]);
+            logAction($userId, 'email_draft_saved', sprintf('Saved draft in mailbox %d', $mailboxId));
+        }
         $redirectParams['notice'] = 'draft_saved';
         $redirectParams['folder'] = 'drafts';
         header('Location: ' . BASE_PATH . '/pages/communication/index.php?' . http_build_query($redirectParams));

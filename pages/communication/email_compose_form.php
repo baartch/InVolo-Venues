@@ -8,6 +8,7 @@
   <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
   <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
   <input type="hidden" name="tab" value="email">
+  <input type="hidden" name="draft_id" value="<?php echo $message && ($message['folder'] ?? '') === 'drafts' ? (int) $message['id'] : ''; ?>">
 
   <div class="form-group">
     <label for="email_to">To</label>
