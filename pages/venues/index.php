@@ -332,7 +332,18 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                   <tr>
                     <td>
                       <?php if (!empty($venue['latitude']) && !empty($venue['longitude'])): ?>
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-mapmarker.svg" alt="Has coordinates" class="table-icon">
+                        <?php
+                          $lat = number_format((float) $venue['latitude'], 6, '.', '');
+                          $lng = number_format((float) $venue['longitude'], 6, '.', '');
+                          $mapLink = BASE_PATH . '/pages/map/index.php?' . http_build_query([
+                              'lat' => $lat,
+                              'lng' => $lng,
+                              'zoom' => 13
+                          ]);
+                        ?>
+                        <a href="<?php echo htmlspecialchars($mapLink); ?>" class="table-icon" aria-label="Open map at venue" title="Open map">
+                          <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-mapmarker.svg" alt="Has coordinates" class="table-icon">
+                        </a>
                       <?php endif; ?>
                     </td>
                     <td><?php echo htmlspecialchars($venue['name']); ?></td>
