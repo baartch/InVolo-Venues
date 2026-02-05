@@ -356,7 +356,7 @@ if ($editVenue && !$mapboxSearchRequested) {
 
 logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprintf('Editing venue %d', $editId) : 'Opened add venue');
 ?>
-<?php renderPageStart(sprintf('Venue Database - %s', $editVenue ? 'Edit Venue' : 'Add Venue'), [
+<?php renderPageStart($editVenue ? 'Edit Venue' : 'Add Venue', [
     'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
     'extraScripts' => ['<script type="module" src="' . BASE_PATH . '/public/js/venue-form.js" defer></script>']
 ]); ?>

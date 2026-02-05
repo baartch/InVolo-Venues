@@ -241,7 +241,7 @@ if (!in_array($formValues['smtp_encryption'], $allowedEncryptions, true)) {
 
 logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbox ? 'User opened edit mailbox form' : 'User opened create mailbox form');
 ?>
-<?php renderPageStart('Venue Database - Mailbox', [
+<?php renderPageStart('Mailbox', [
     'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/mailboxes.js" defer></script>'

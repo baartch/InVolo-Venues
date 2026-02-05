@@ -12,7 +12,7 @@ if (!in_array($activeTab, $validTabs, true)) {
 
 logAction($currentUser['user_id'] ?? null, 'view_team', 'User opened team page');
 ?>
-<?php renderPageStart('Venue Database - Team', [
+<?php renderPageStart('Team', [
     'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>',

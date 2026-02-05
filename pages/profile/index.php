@@ -106,7 +106,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile');
 ?>
-<?php renderPageStart('Venue Database - Profile', [
+<?php renderPageStart('Profile', [
     'theme' => $currentTheme,
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'

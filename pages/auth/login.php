@@ -85,7 +85,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<?php renderPageStart('Venue Database - Login', ['includeSidebar' => false, 'bodyClass' => 'login-body', 'theme' => getCurrentTheme()]); ?>
+<?php renderPageStart('Login', ['includeSidebar' => false, 'bodyClass' => 'login-body', 'theme' => getCurrentTheme()]); ?>
     <div class="login-container card">
         <h1 class="login-title">🎵 Venue Database</h1>
         <p class="login-subtitle">Please login to access the venue map</p>

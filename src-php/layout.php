@@ -23,8 +23,11 @@ function renderPageStart(string $title, array $options = []): void
     echo "<head>\n";
     echo "  <meta charset=\"UTF-8\">\n";
     echo "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
+    $appName = 'Venue Database';
+    $pageTitle = $title === '' ? $appName : $appName . ' - ' . $title;
+
     echo "  <base href=\"" . BASE_PATH . "/\">\n";
-    echo "  <title>{$title}</title>\n";
+    echo "  <title>{$pageTitle}</title>\n";
 
     if ($leaflet) {
         echo "  <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.7.1/dist/leaflet.css\" integrity=\"sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==\" crossorigin=\"\" />\n";

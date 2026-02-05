@@ -252,7 +252,7 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue management');
 ?>
-<?php renderPageStart('Venue Database - Venues', ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
+<?php renderPageStart('Venues', ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
       <div class="content-wrapper">
         <div class="page-header">
           <h1>Venue Management</h1>

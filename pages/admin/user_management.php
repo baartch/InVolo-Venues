@@ -425,7 +425,7 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened admin panel');
 ?>
-<?php renderPageStart('Venue Database - Admin', [
+<?php renderPageStart('Admin', [
     'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'
