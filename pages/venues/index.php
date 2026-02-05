@@ -427,7 +427,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
             <?php for ($pageIndex = $startPage; $pageIndex <= $endPage; $pageIndex++): ?>
               <?php
                 $query['page'] = $pageIndex;
-                $pageLink = '?' . http_build_query($query);
+                $pageLink = $baseUrl . '?' . http_build_query($query);
               ?>
               <a class="pagination-page<?php echo $pageIndex === $page ? ' is-active' : ''; ?>" href="<?php echo htmlspecialchars($pageLink); ?>">
                 <?php echo (int) $pageIndex; ?>
