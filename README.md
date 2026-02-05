@@ -211,13 +211,16 @@ npm run build
 npm run watch
 ```
 
-### Maintenance
+### Scheduled Tasks
 
-Add a cron job to remove old logs and sessions (older than 180 days):
+Add cron jobs to handle housekeeping and email ingestion:
 
 ```bash
 # Run nightly at 2:30 (keep 180 days)
 30 2 * * * /usr/bin/php /path/to/venues/scripts/cleanup.php 180
+
+# Fetch mailboxes every 1 minute
+*/1 * * * * /usr/bin/php /path/to/venues/scripts/fetch_emails.php
 ```
 
 ### Theme

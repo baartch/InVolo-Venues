@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
+require_once __DIR__ . '/../../src-php/defaults.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/rate_limit.php';
 require_once __DIR__ . '/../../src-php/cookie_helpers.php';

@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
+require_once __DIR__ . '/../src-php/defaults.php';
 require_once __DIR__ . '/../src-php/database.php';
 require_once __DIR__ . '/../src-php/email_helpers.php';
 
@@ -9,11 +10,13 @@ if (PHP_SAPI !== 'cli') {
     exit(1);
 }
 
-$attachmentBase = defined('MAIL_ATTACHMENTS_PATH') ? MAIL_ATTACHMENTS_PATH : '';
-if ($attachmentBase === '') {
+$attachmentRoot = defined('MAIL_ATTACHMENTS_PATH') ? MAIL_ATTACHMENTS_PATH : '';
+if ($attachmentRoot === '') {
     echo "MAIL_ATTACHMENTS_PATH not configured.\n";
     exit(1);
 }
+
+$attachmentBase = rtrim($attachmentRoot, '/\\') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'email' . DIRECTORY_SEPARATOR . 'attachments';
 
 function decodeHeaderValue(?string $value): string
 {
@@ -211,22 +214,70 @@ foreach ($mailboxes as $mailbox) {
 
     $imap = @imap_open($mailboxString, $mailbox['imap_username'], $imapPassword);
     if (!$imap) {
-        echo "  Failed to connect to IMAP: " . imap_last_error() . "\n";
+        $fallbackString = sprintf('{%s:%d%s/novalidate-cert}INBOX', $mailbox['imap_host'], (int) $mailbox['imap_port'], $imapFlags);
+        $imap = @imap_open($fallbackString, $mailbox['imap_username'], $imapPassword);
+    }
+
+    if (!$imap) {
+        $lastError = imap_last_error();
+        $allErrors = imap_errors();
+        $errorDetails = trim(implode(' | ', array_filter([
+            $lastError,
+            $allErrors ? implode(', ', $allErrors) : ''
+        ])));
+        $logMessage = sprintf(
+            'IMAP connect failed mailbox=%d host=%s port=%d encryption=%s user=%s error=%s',
+            $mailboxId,
+            $mailbox['imap_host'] ?? '',
+            (int) $mailbox['imap_port'],
+            $encryption,
+            $mailbox['imap_username'] ?? '',
+            $errorDetails
+        );
+        logAction(null, 'email_imap_connect_error', $logMessage);
+        echo "  Failed to connect to IMAP: " . ($errorDetails !== '' ? $errorDetails : 'Unknown error') . "\n";
         continue;
     }
 
     $lastUid = (int) ($mailbox['last_uid'] ?? 0);
-    $uidSearch = $lastUid > 0 ? sprintf('%d:*', $lastUid + 1) : '1:*';
+    $uidSearch = 'ALL';
     $uids = imap_search($imap, $uidSearch, SE_UID) ?: [];
+    if ($lastUid > 0) {
+        $uids = array_values(array_filter($uids, static fn($uid) => (int) $uid > $lastUid));
+    }
     if (!$uids) {
+        $check = imap_check($imap);
+        $totalMessages = $check ? (int) ($check->Nmsgs ?? 0) : 0;
+        $highestUid = $totalMessages > 0 ? imap_uid($imap, $totalMessages) : 0;
+        $errorDetails = imap_last_error();
+        $logMessage = sprintf(
+            'IMAP no new messages mailbox=%d uid_search=%s last_uid=%d total=%d highest_uid=%d error=%s',
+            $mailboxId,
+            $uidSearch,
+            $lastUid,
+            $totalMessages,
+            $highestUid,
+            $errorDetails !== false ? $errorDetails : ''
+        );
+        logAction(null, 'email_imap_no_new', $logMessage);
         echo "  No new messages.\n";
         imap_close($imap);
         continue;
     }
 
-    $mailboxDir = rtrim($attachmentBase, '/\\') . DIRECTORY_SEPARATOR . 'mailbox_' . $mailboxId;
+    $mailboxDir = $attachmentBase . DIRECTORY_SEPARATOR . $mailboxId;
     if (!is_dir($mailboxDir)) {
-        mkdir($mailboxDir, 0770, true);
+        if (!mkdir($mailboxDir, 0770, true) && !is_dir($mailboxDir)) {
+            $logMessage = sprintf(
+                'Attachment directory create failed mailbox=%d path=%s',
+                $mailboxId,
+                $mailboxDir
+            );
+            logAction(null, 'email_attachment_dir_error', $logMessage);
+            echo "  Failed to create attachment directory: {$mailboxDir}\n";
+            imap_close($imap);
+            continue;
+        }
     }
 
     foreach ($uids as $uid) {
@@ -290,6 +341,20 @@ foreach ($mailboxes as $mailbox) {
             ]);
             $emailId = (int) $pdo->lastInsertId();
 
+            $messageDir = $mailboxDir . DIRECTORY_SEPARATOR . $emailId;
+            if (!is_dir($messageDir)) {
+                if (!mkdir($messageDir, 0770, true) && !is_dir($messageDir)) {
+                    $logMessage = sprintf(
+                        'Attachment message directory create failed mailbox=%d email=%d path=%s',
+                        $mailboxId,
+                        $emailId,
+                        $messageDir
+                    );
+                    logAction(null, 'email_attachment_dir_error', $logMessage);
+                    $messageDir = $mailboxDir;
+                }
+            }
+
             foreach ($attachments as $attachment) {
                 $fileSize = (int) ($attachment['size'] ?? 0);
                 $quotaLimit = (int) ($mailbox['attachment_quota_bytes'] ?? EMAIL_ATTACHMENT_QUOTA_DEFAULT);
@@ -300,8 +365,15 @@ foreach ($mailboxes as $mailbox) {
                 }
 
                 $safeName = preg_replace('/[^A-Za-z0-9_.-]/', '_', (string) $attachment['filename']);
-                $filePath = $mailboxDir . DIRECTORY_SEPARATOR . uniqid('att_', true) . '_' . $safeName;
-                file_put_contents($filePath, $attachment['data']);
+                $filePath = $messageDir . DIRECTORY_SEPARATOR . uniqid('att_', true) . '_' . $safeName;
+                if (file_put_contents($filePath, $attachment['data']) === false) {
+                    $logMessage = sprintf(
+                        'Attachment write failed mailbox=%d path=%s',
+                        $mailboxId,
+                        $filePath
+                    );
+                    logAction(null, 'email_attachment_write_error', $logMessage);
+                }
 
                 $stmt = $pdo->prepare(
                     'INSERT INTO email_attachments
@@ -323,11 +395,26 @@ foreach ($mailboxes as $mailbox) {
             $stmt->execute([':last_uid' => $uid, ':id' => $mailboxId]);
             $pdo->commit();
 
+            if (!empty($mailbox['delete_after_retrieve'])) {
+                if (!imap_delete($imap, (string) $uid, FT_UID)) {
+                    $deleteError = imap_last_error();
+                    logAction(
+                        null,
+                        'email_imap_delete_error',
+                        sprintf('Failed deleting UID %d for mailbox %d: %s', $uid, $mailboxId, $deleteError !== false ? $deleteError : 'Unknown error')
+                    );
+                }
+            }
+
             logAction(null, 'email_fetch', sprintf('Fetched email %s for mailbox %d', $messageId, $mailboxId));
         } catch (Throwable $error) {
             $pdo->rollBack();
             echo "  Failed to save email: " . $error->getMessage() . "\n";
         }
+    }
+
+    if (!empty($mailbox['delete_after_retrieve'])) {
+        imap_expunge($imap);
     }
 
     imap_close($imap);

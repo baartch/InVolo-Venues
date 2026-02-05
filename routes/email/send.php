@@ -111,25 +111,27 @@ try {
     ]);
 
     if ($sent) {
-        $stmt = $pdo->prepare(
-            'INSERT INTO email_messages
-             (mailbox_id, team_id, folder, subject, body, to_emails, cc_emails, bcc_emails, created_by, sent_at, created_at)
-             VALUES
-             (:mailbox_id, :team_id, "sent", :subject, :body, :to_emails, :cc_emails, :bcc_emails, :created_by, NOW(), NOW())'
-        );
-        $stmt->execute([
-            ':mailbox_id' => $mailbox['id'],
-            ':team_id' => $mailbox['team_id'],
-            ':subject' => $subject !== '' ? $subject : null,
-            ':body' => $body !== '' ? $body : null,
-            ':to_emails' => $toEmails,
-            ':cc_emails' => $ccEmails !== '' ? $ccEmails : null,
-            ':bcc_emails' => $bccEmails !== '' ? $bccEmails : null,
-            ':created_by' => $userId
-        ]);
+        if (!empty($mailbox['store_sent_on_server'])) {
+            $stmt = $pdo->prepare(
+                'INSERT INTO email_messages
+                 (mailbox_id, team_id, folder, subject, body, to_emails, cc_emails, bcc_emails, created_by, sent_at, created_at)
+                 VALUES
+                 (:mailbox_id, :team_id, "sent", :subject, :body, :to_emails, :cc_emails, :bcc_emails, :created_by, NOW(), NOW())'
+            );
+            $stmt->execute([
+                ':mailbox_id' => $mailbox['id'],
+                ':team_id' => $mailbox['team_id'],
+                ':subject' => $subject !== '' ? $subject : null,
+                ':body' => $body !== '' ? $body : null,
+                ':to_emails' => $toEmails,
+                ':cc_emails' => $ccEmails !== '' ? $ccEmails : null,
+                ':bcc_emails' => $bccEmails !== '' ? $bccEmails : null,
+                ':created_by' => $userId
+            ]);
+            $redirectParams['folder'] = 'sent';
+        }
         logAction($userId, 'email_sent', sprintf('Sent email via mailbox %d', $mailboxId));
         $redirectParams['notice'] = 'sent';
-        $redirectParams['folder'] = 'sent';
         header('Location: ' . BASE_PATH . '/pages/communication/index.php?' . http_build_query($redirectParams));
         exit;
     }

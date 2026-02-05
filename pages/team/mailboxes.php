@@ -109,6 +109,8 @@ if ($pdo && $teamIds) {
               <th>SMTP Port</th>
               <th>SMTP User</th>
               <th>SMTP Encryption</th>
+              <th>Delete After Retrieve</th>
+              <th>Store Sent on Server</th>
               <th>Actions</th>
             </tr>
           </thead>
@@ -125,6 +127,8 @@ if ($pdo && $teamIds) {
                 <td><?php echo htmlspecialchars($mailbox['smtp_port'] ?? ''); ?></td>
                 <td><?php echo htmlspecialchars($mailbox['smtp_username'] ?? ''); ?></td>
                 <td><?php echo htmlspecialchars(strtoupper($mailbox['smtp_encryption'] ?? '')); ?></td>
+                <td><?php echo !empty($mailbox['delete_after_retrieve']) ? 'Yes' : 'No'; ?></td>
+                <td><?php echo !empty($mailbox['store_sent_on_server']) ? 'Yes' : 'No'; ?></td>
                 <td>
                   <div class="venue-actions-buttons">
                     <a href="<?php echo BASE_PATH; ?>/pages/team/mailbox_form.php?edit_mailbox_id=<?php echo (int) $mailbox['id']; ?>" class="icon-button secondary" aria-label="Edit mailbox" title="Edit mailbox">

@@ -13,6 +13,7 @@ if (!file_exists($configPath)) {
 } else {
     require_once $configPath;
 }
+require_once __DIR__ . '/../../src-php/defaults.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/csrf.php';
 require_once __DIR__ . '/../../src-php/cookie_helpers.php';

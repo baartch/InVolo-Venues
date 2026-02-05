@@ -26,7 +26,9 @@ $formValues = [
     'smtp_host' => '',
     'smtp_port' => $defaultSmtpPort,
     'smtp_username' => '',
-    'smtp_encryption' => 'tls'
+    'smtp_encryption' => 'tls',
+    'delete_after_retrieve' => false,
+    'store_sent_on_server' => false
 ];
 
 try {
@@ -57,7 +59,9 @@ if ($editMailboxId > 0 && $pdo) {
                 'smtp_host' => (string) ($editMailbox['smtp_host'] ?? ''),
                 'smtp_port' => (int) ($editMailbox['smtp_port'] ?? $defaultSmtpPort),
                 'smtp_username' => (string) ($editMailbox['smtp_username'] ?? ''),
-                'smtp_encryption' => (string) ($editMailbox['smtp_encryption'] ?? 'tls')
+                'smtp_encryption' => (string) ($editMailbox['smtp_encryption'] ?? 'tls'),
+                'delete_after_retrieve' => (bool) ($editMailbox['delete_after_retrieve'] ?? false),
+                'store_sent_on_server' => (bool) ($editMailbox['store_sent_on_server'] ?? false)
             ];
         }
     } catch (Throwable $error) {
@@ -86,6 +90,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         $imapUsername = trim((string) ($_POST['imap_username'] ?? ''));
         $imapPassword = trim((string) ($_POST['imap_password'] ?? ''));
         $imapEncryption = (string) ($_POST['imap_encryption'] ?? 'ssl');
+        $deleteAfterRetrieve = ($_POST['delete_after_retrieve'] ?? '') === '1';
+        $storeSentOnServer = ($_POST['store_sent_on_server'] ?? '') === '1';
         $smtpHost = trim((string) ($_POST['smtp_host'] ?? ''));
         $smtpPort = (int) ($_POST['smtp_port'] ?? $defaultSmtpPort);
         $smtpUsername = trim((string) ($_POST['smtp_username'] ?? ''));
@@ -108,6 +114,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
             'imap_port' => $imapPort,
             'imap_username' => $imapUsername,
             'imap_encryption' => $imapEncryption,
+            'delete_after_retrieve' => $deleteAfterRetrieve,
+            'store_sent_on_server' => $storeSentOnServer,
             'smtp_host' => $smtpHost,
             'smtp_port' => $smtpPort,
             'smtp_username' => $smtpUsername,
@@ -160,9 +168,11 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                     $stmt = $pdo->prepare(
                         'INSERT INTO mailboxes
                          (team_id, name, imap_host, imap_port, imap_username, imap_password, imap_encryption,
+                          delete_after_retrieve, store_sent_on_server,
                           smtp_host, smtp_port, smtp_username, smtp_password, smtp_encryption)
                          VALUES
                          (:team_id, :name, :imap_host, :imap_port, :imap_username, :imap_password, :imap_encryption,
+                          :delete_after_retrieve, :store_sent_on_server,
                           :smtp_host, :smtp_port, :smtp_username, :smtp_password, :smtp_encryption)'
                     );
                     $stmt->execute([
@@ -173,6 +183,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':imap_username' => $imapUsername,
                         ':imap_password' => encryptSettingValue($imapPassword),
                         ':imap_encryption' => $imapEncryption,
+                        ':delete_after_retrieve' => $deleteAfterRetrieve ? 1 : 0,
+                        ':store_sent_on_server' => $storeSentOnServer ? 1 : 0,
                         ':smtp_host' => $smtpHost,
                         ':smtp_port' => $smtpPort,
                         ':smtp_username' => $smtpUsername,
@@ -198,6 +210,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                              imap_username = :imap_username,
                              imap_password = :imap_password,
                              imap_encryption = :imap_encryption,
+                             delete_after_retrieve = :delete_after_retrieve,
+                             store_sent_on_server = :store_sent_on_server,
                              smtp_host = :smtp_host,
                              smtp_port = :smtp_port,
                              smtp_username = :smtp_username,
@@ -212,6 +226,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
                         ':imap_username' => $imapUsername,
                         ':imap_password' => $imapPasswordValue,
                         ':imap_encryption' => $imapEncryption,
+                        ':delete_after_retrieve' => $deleteAfterRetrieve ? 1 : 0,
+                        ':store_sent_on_server' => $storeSentOnServer ? 1 : 0,
                         ':smtp_host' => $smtpHost,
                         ':smtp_port' => $smtpPort,
                         ':smtp_username' => $smtpUsername,
@@ -336,7 +352,21 @@ logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbo
 
             <div class="form-group mailbox-checkbox">
               <label class="checkbox-label">
-                <input type="checkbox" name="use_same_credentials" value="1" data-mailbox-same-credentials checked>
+                <input type="checkbox" name="delete_after_retrieve" value="1" <?php echo $formValues['delete_after_retrieve'] ? 'checked' : ''; ?>>
+                Delete messages on server after retrieving
+              </label>
+            </div>
+
+            <div class="form-group mailbox-checkbox">
+              <label class="checkbox-label">
+                <input type="checkbox" name="store_sent_on_server" value="1" <?php echo $formValues['store_sent_on_server'] ? 'checked' : ''; ?>>
+                Store sent mail on server in Sent
+              </label>
+            </div>
+
+            <div class="form-group mailbox-checkbox">
+              <label class="checkbox-label">
+                <input type="checkbox" name="use_same_credentials" value="1" data-mailbox-same-credentials <?php echo $editMailbox || $formValues['imap_username'] === '' || $formValues['smtp_username'] === $formValues['imap_username'] ? 'checked' : ''; ?>>
                 Use the same username and password for SMTP and IMAP
               </label>
             </div>

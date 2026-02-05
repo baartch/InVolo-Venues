@@ -106,6 +106,8 @@ CREATE TABLE mailboxes (
     smtp_encryption ENUM('ssl', 'tls', 'none') NOT NULL DEFAULT 'tls',
     attachment_quota_bytes INT NOT NULL DEFAULT 104857600,
     last_uid INT NOT NULL DEFAULT 0,
+    delete_after_retrieve TINYINT(1) NOT NULL DEFAULT 0,
+    store_sent_on_server TINYINT(1) NOT NULL DEFAULT 0,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
