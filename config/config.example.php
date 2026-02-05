@@ -11,6 +11,12 @@ define('DB_PASSWORD', 'change-this-password'); // CHANGE THIS!
 // Encryption key for settings values (32+ chars recommended)
 define('ENCRYPTION_KEY', 'change-this-encryption-key');
 
+// Mail storage
+// Base directory for stored email attachments (separate per mailbox)
+// Example: '/var/www/venues_mail_attachments'
+// Ensure the web server user can read/write this directory.
+define('MAIL_ATTACHMENTS_PATH', '/var/www/venues_mail_attachments');
+
 // Base path - auto-detect or set manually
 // For example: '' for root, '/venues' for subdirectory
 // Auto-detect from current script location

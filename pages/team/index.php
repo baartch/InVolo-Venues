@@ -5,7 +5,7 @@ require_once __DIR__ . '/../../src-php/layout.php';
 require_once __DIR__ . '/../../src-php/theme.php';
 
 $activeTab = $_GET['tab'] ?? 'members';
-$validTabs = ['members', 'mailboxes'];
+$validTabs = ['members', 'mailboxes', 'templates'];
 if (!in_array($activeTab, $validTabs, true)) {
     $activeTab = 'members';
 }
@@ -27,6 +27,7 @@ logAction($currentUser['user_id'] ?? null, 'view_team', 'User opened team page')
         <div class="tabs" role="tablist">
           <button type="button" class="tab-button <?php echo $activeTab === 'members' ? 'active' : ''; ?>" data-tab="members" role="tab" aria-selected="<?php echo $activeTab === 'members' ? 'true' : 'false'; ?>">Members</button>
           <button type="button" class="tab-button <?php echo $activeTab === 'mailboxes' ? 'active' : ''; ?>" data-tab="mailboxes" role="tab" aria-selected="<?php echo $activeTab === 'mailboxes' ? 'true' : 'false'; ?>">Mailboxes</button>
+          <button type="button" class="tab-button <?php echo $activeTab === 'templates' ? 'active' : ''; ?>" data-tab="templates" role="tab" aria-selected="<?php echo $activeTab === 'templates' ? 'true' : 'false'; ?>">Templates</button>
         </div>
 
         <div class="tab-panel <?php echo $activeTab === 'members' ? 'active' : ''; ?>" data-tab-panel="members" role="tabpanel">
@@ -37,5 +38,6 @@ logAction($currentUser['user_id'] ?? null, 'view_team', 'User opened team page')
         </div>
 
         <?php require __DIR__ . '/mailboxes.php'; ?>
+        <?php require __DIR__ . '/templates.php'; ?>
       </div>
 <?php renderPageEnd(); ?>
