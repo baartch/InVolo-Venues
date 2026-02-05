@@ -537,7 +537,7 @@ async function initializeMap(): Promise<void> {
     map.setView([DEFAULT_LAT, DEFAULT_LNG], DEFAULT_ZOOM);
   }
 
-  map.on('load', () => {
+  map.whenReady(() => {
     map.invalidateSize();
     updateMapUrl();
     storeMapView();
