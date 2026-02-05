@@ -23,7 +23,7 @@ function renderPageStart(string $title, array $options = []): void
     echo "<head>\n";
     echo "  <meta charset=\"UTF-8\">\n";
     echo "  <meta name=\"viewport\" content=\"width=device-width, initial-scale=1.0\">\n";
-    $appName = 'Venue Database';
+    $appName = 'BooKing';
     $pageTitle = $title === '' ? $appName : $appName . ' - ' . $title;
 
     echo "  <base href=\"" . BASE_PATH . "/\">\n";

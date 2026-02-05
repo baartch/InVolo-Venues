@@ -87,8 +87,8 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 ?>
 <?php renderPageStart('Login', ['includeSidebar' => false, 'bodyClass' => 'login-body', 'theme' => getCurrentTheme()]); ?>
     <div class="login-container card">
-        <h1 class="login-title">🎵 Venue Database</h1>
-        <p class="login-subtitle">Please login to access the venue map</p>
+        <h1 class="login-title">🎵 BooKing</h1>
+        <p class="login-subtitle">Please login to access the app.</p>
 
         <?php if ($error): ?>
             <div class="error"><?php echo htmlspecialchars($error); ?></div>
@@ -109,7 +109,7 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         </form>
 
         <div class="login-footer">
-            Booking Agency for Singer-Songwriters
+            Keep your Booking organized.
         </div>
     </div>
 <?php renderPageEnd(['includeSidebar' => false]); ?>

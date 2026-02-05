@@ -1,4 +1,4 @@
-# Venue Database - AI Agent Guide
+# BooKing - AI Agent Guide
 
 ## Overview
 

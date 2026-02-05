@@ -1,6 +1,6 @@
 #!/bin/bash
 
-echo "🎵 Venue Database Frontend Setup"
+echo "🎵 BooKing Frontend Setup"
 echo "================================"
 echo ""
 

@@ -1,4 +1,4 @@
-# 🎵 Venue Database
+# 🎵 BooKing
 
 A secure web application for booking agents to manage and visualize venue locations on an interactive map.
 
