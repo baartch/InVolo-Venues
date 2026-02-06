@@ -276,6 +276,7 @@ $baseQuery = [
     'page' => $page
 ];
 $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $value !== '');
+$mailboxCount = count($teamMailboxes);
 ?>
 <div class="columns is-variable is-3">
   <aside class="column is-3">
@@ -283,7 +284,7 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
       <h3 class="title is-6">Mailbox</h3>
       <?php if (!$teamMailboxes): ?>
         <p>No mailboxes assigned.</p>
-      <?php else: ?>
+      <?php elseif ($mailboxCount > 1): ?>
         <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons">
           <input type="hidden" name="tab" value="email">
           <div class="control is-expanded">
@@ -301,6 +302,8 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
             <button type="submit" class="button">Go</button>
           </div>
         </form>
+      <?php else: ?>
+        <p><?php echo htmlspecialchars($teamMailboxes[0]['team_name'] . ' · ' . $teamMailboxes[0]['name']); ?></p>
       <?php endif; ?>
 
       <div class="block">
