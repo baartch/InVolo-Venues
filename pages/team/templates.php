@@ -79,7 +79,7 @@ if ($pdo) {
       <h2 class="title is-4">Templates</h2>
     </div>
     <div class="level-right">
-      <a href="<?php echo BASE_PATH; ?>/pages/team/template_form.php" class="button">Add Template</a>
+      <a href="<?php echo BASE_PATH; ?>/pages/team/template_form.php" class="button is-primary">Add Template</a>
     </div>
   </div>
 

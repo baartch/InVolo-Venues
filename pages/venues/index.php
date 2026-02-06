@@ -263,7 +263,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
             </div>
             <div class="level-right">
               <div class="buttons">
-                <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php" class="button">Add Venue</a>
+                <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php" class="button is-primary">Add Venue</a>
                 <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
                   <button type="button" class="button" data-import-toggle>Import</button>
                 <?php endif; ?>

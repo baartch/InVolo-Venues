@@ -60,7 +60,7 @@ if (!isset($users, $teamsByUser)):
       </div>
     </div>
     <div class="column is-1 is-flex is-align-items-flex-end">
-      <button type="submit" class="button is-fullwidth"><?php echo $isEditing ? 'Save' : 'Create'; ?></button>
+      <button type="submit" class="button is-primary is-fullwidth"><?php echo $isEditing ? 'Save' : 'Create'; ?></button>
     </div>
     <?php if ($isEditing): ?>
       <div class="column is-12">

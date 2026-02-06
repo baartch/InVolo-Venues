@@ -88,7 +88,7 @@ if ($pdo && $teamIds) {
       <h2 class="title is-4">Mailboxes</h2>
     </div>
     <div class="level-right">
-      <a href="<?php echo BASE_PATH; ?>/pages/team/mailbox_form.php" class="button">Add Mailbox</a>
+      <a href="<?php echo BASE_PATH; ?>/pages/team/mailbox_form.php" class="button is-primary">Add Mailbox</a>
     </div>
   </div>
 

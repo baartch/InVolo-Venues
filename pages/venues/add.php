@@ -430,7 +430,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
               <div class="column is-2">
                 <label class="label">&nbsp;</label>
                 <div class="control">
-                  <button type="submit" class="button is-fullwidth">
+                  <button type="submit" class="button is-primary is-fullwidth">
                     <span class="icon"><i class="fa-solid fa-magnifying-glass"></i></span>
                     <span>Search</span>
                   </button>
@@ -595,7 +595,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venue_form', $editVenue ? sprin
 
               <div class="column is-12">
                 <div class="buttons">
-                  <button type="submit" class="button"><?php echo $editVenue ? 'Update Venue' : 'Add Venue'; ?></button>
+                  <button type="submit" class="button is-primary"><?php echo $editVenue ? 'Update Venue' : 'Add Venue'; ?></button>
                   <a href="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="button">Cancel</a>
                 </div>
               </div>

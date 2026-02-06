@@ -127,7 +127,7 @@ logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile'
                     </div>
                   </div>
                   <div class="column is-12">
-                    <button type="submit" class="button">Update Password</button>
+                    <button type="submit" class="button is-primary">Update Password</button>
                   </div>
                 </form>
               </div>
@@ -156,7 +156,7 @@ logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile'
                     </div>
                   </div>
                   <div class="column is-12">
-                    <button type="submit" class="button">Update Page Size</button>
+                    <button type="submit" class="button is-primary">Update Page Size</button>
                   </div>
                 </form>
               </div>

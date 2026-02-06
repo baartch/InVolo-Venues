@@ -280,7 +280,7 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
 <div class="columns is-variable is-3">
   <aside class="column is-3">
     <div class="box">
-      <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1]))); ?>" class="button is-fullwidth">New eMail</a>
+      <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1]))); ?>" class="button is-primary is-fullwidth">New eMail</a>
     </div>
 
     <?php if ($notice): ?>

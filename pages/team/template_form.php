@@ -212,7 +212,7 @@ logAction($currentUser['user_id'] ?? null, 'view_team_template_form', $editTempl
 
               <div class="column is-12">
                 <div class="buttons">
-                  <button type="submit" class="button"><?php echo $editTemplate ? 'Update Template' : 'Create Template'; ?></button>
+                  <button type="submit" class="button is-primary"><?php echo $editTemplate ? 'Update Template' : 'Create Template'; ?></button>
                   <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="button">Cancel</a>
                 </div>
               </div>

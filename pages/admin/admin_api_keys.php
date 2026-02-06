@@ -52,6 +52,6 @@ if (!isset($settingsStatus)):
         >
       </div>
     </div>
-    <button type="submit" class="button">Save API Keys</button>
+    <button type="submit" class="button is-primary">Save API Keys</button>
   </form>
 </div>

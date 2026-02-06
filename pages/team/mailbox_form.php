@@ -464,7 +464,7 @@ logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbo
 
               <div class="column is-12">
                 <div class="buttons">
-                  <button type="submit" class="button"><?php echo $editMailbox ? 'Update Mailbox' : 'Create Mailbox'; ?></button>
+                  <button type="submit" class="button is-primary"><?php echo $editMailbox ? 'Update Mailbox' : 'Create Mailbox'; ?></button>
                   <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=mailboxes" class="button">Cancel</a>
                 </div>
               </div>

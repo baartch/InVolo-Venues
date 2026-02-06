@@ -29,7 +29,7 @@ if (!isset($teams, $users, $memberIdsByTeam, $adminIdsByTeam)):
       </div>
     </div>
     <div class="column is-3 is-flex is-align-items-flex-end">
-      <button type="submit" class="button is-fullwidth">Create Team</button>
+      <button type="submit" class="button is-primary is-fullwidth">Create Team</button>
     </div>
     <div class="column is-12">
       <p class="help">Assign team members and admins after creation.</p>

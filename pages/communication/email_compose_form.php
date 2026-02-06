@@ -41,7 +41,7 @@
     </div>
   </div>
   <div class="buttons">
-    <button type="submit" class="button" name="action" value="send_email">Send</button>
+    <button type="submit" class="button is-primary" name="action" value="send_email">Send</button>
     <button type="submit" class="button" name="action" value="save_draft">Save Draft</button>
   </div>
 </form>
