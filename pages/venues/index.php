@@ -357,11 +357,6 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
               <div class="level-left">
                 <span class="tag"><?php echo (int) $totalVenues; ?> venues</span>
                 <span class="tag">Page <?php echo (int) $page; ?> of <?php echo (int) $totalPages; ?></span>
-                <span class="tag">Page size <?php echo (int) $pageSize; ?></span>
-              </div>
-              <div class="level-right">
-                <a class="button is-small" href="<?php echo htmlspecialchars($firstLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>First</a>
-                <a class="button is-small" href="<?php echo htmlspecialchars($lastLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Last</a>
               </div>
             </div>
             <div class="table-container">
@@ -371,14 +366,11 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                     <th></th>
                     <th data-sort>Name</th>
                     <th data-sort>Address</th>
-                    <th data-sort>State</th>
                     <th data-sort>Country</th>
                     <th data-sort>Type</th>
-                    <th data-sort>Contact Email</th>
-                    <th data-sort>Contact Phone</th>
+                    <th>Contact</th>
                     <th data-sort>Contact Person</th>
                     <th data-sort data-sort-type="number">Capacity</th>
-                    <th data-sort>Website</th>
                     <th>Actions</th>
                   </tr>
                 </thead>
@@ -411,23 +403,36 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                                   $venue['city'] ?? ''
                               ]))
                           ]);
+                          $state = trim((string) ($venue['state'] ?? ''));
                           echo nl2br(htmlspecialchars(implode("\n", $addressParts)));
+                          if ($state !== '') {
+                            echo '<br><span class="is-size-7">' . htmlspecialchars($state) . '</span>';
+                          }
                         ?>
                       </td>
-                      <td><?php echo htmlspecialchars($venue['state'] ?? ''); ?></td>
                       <td><?php echo htmlspecialchars($venue['country'] ?? ''); ?></td>
                       <td><?php echo htmlspecialchars($venue['type'] ?? ''); ?></td>
-                      <td><?php echo htmlspecialchars($venue['contact_email'] ?? ''); ?></td>
-                      <td><?php echo htmlspecialchars($venue['contact_phone'] ?? ''); ?></td>
+                      <td>
+                        <div class="buttons are-small">
+                          <?php if (!empty($venue['website'])): ?>
+                            <a href="<?php echo htmlspecialchars($venue['website']); ?>" target="_blank" rel="noopener noreferrer" class="button" aria-label="Website" title="Website">
+                              <span class="icon"><i class="fa-solid fa-globe"></i></span>
+                            </a>
+                          <?php endif; ?>
+                          <?php if (!empty($venue['contact_email'])): ?>
+                            <a href="mailto:<?php echo htmlspecialchars($venue['contact_email']); ?>" class="button" aria-label="Email" title="Email">
+                              <span class="icon"><i class="fa-solid fa-envelope"></i></span>
+                            </a>
+                          <?php endif; ?>
+                          <?php if (!empty($venue['contact_phone'])): ?>
+                            <a href="tel:<?php echo htmlspecialchars($venue['contact_phone']); ?>" class="button" aria-label="Phone" title="Phone">
+                              <span class="icon"><i class="fa-solid fa-phone"></i></span>
+                            </a>
+                          <?php endif; ?>
+                        </div>
+                      </td>
                       <td><?php echo htmlspecialchars($venue['contact_person'] ?? ''); ?></td>
                       <td><?php echo htmlspecialchars($venue['capacity'] ?? ''); ?></td>
-                      <td>
-                        <?php if (!empty($venue['website'])): ?>
-                          <a href="<?php echo htmlspecialchars($venue['website']); ?>" target="_blank" rel="noopener noreferrer" class="is-underlined">
-                            <?php echo htmlspecialchars($venue['website']); ?>
-                          </a>
-                        <?php endif; ?>
-                      </td>
                       <td>
                         <div class="buttons are-small">
                           <button type="button" class="button" data-venue-info-toggle aria-label="Show venue details" title="Show venue details">
@@ -448,7 +453,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                       </td>
                     </tr>
                     <tr class="is-hidden" data-venue-details>
-                      <td colspan="12">
+                      <td colspan="9">
                         <article class="message">
                           <div class="message-body">
                             <?php if (!empty($venue['notes'])): ?>
@@ -472,21 +477,50 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                 </tbody>
               </table>
             </div>
-            <nav class="pagination is-centered" role="navigation" aria-label="pagination">
-              <a class="pagination-previous" href="<?php echo htmlspecialchars($prevLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>Previous</a>
-              <a class="pagination-next" href="<?php echo htmlspecialchars($nextLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Next</a>
+            <nav class="pagination is-small" role="navigation" aria-label="pagination">
               <ul class="pagination-list">
+                <?php if ($startPage > 1): ?>
+                  <?php
+                    $query['page'] = 1;
+                    $firstPageLink = $baseUrl . '?' . http_build_query($query);
+                  ?>
+                  <li>
+                    <a href="<?php echo htmlspecialchars($firstPageLink); ?>" class="pagination-link" aria-label="Goto page 1">1</a>
+                  </li>
+                  <?php if ($startPage > 2): ?>
+                    <li><span class="pagination-ellipsis">&hellip;</span></li>
+                  <?php endif; ?>
+                <?php endif; ?>
                 <?php for ($pageIndex = $startPage; $pageIndex <= $endPage; $pageIndex++): ?>
                   <?php
                     $query['page'] = $pageIndex;
                     $pageLink = $baseUrl . '?' . http_build_query($query);
                   ?>
                   <li>
-                    <a class="pagination-link<?php echo $pageIndex === $page ? ' is-current' : ''; ?>" href="<?php echo htmlspecialchars($pageLink); ?>">
+                    <a
+                      class="pagination-link<?php echo $pageIndex === $page ? ' is-current' : ''; ?>"
+                      href="<?php echo htmlspecialchars($pageLink); ?>"
+                      aria-label="Goto page <?php echo (int) $pageIndex; ?>"
+                      <?php echo $pageIndex === $page ? 'aria-current="page"' : ''; ?>
+                    >
                       <?php echo (int) $pageIndex; ?>
                     </a>
                   </li>
                 <?php endfor; ?>
+                <?php if ($endPage < $totalPages): ?>
+                  <?php if ($endPage < $totalPages - 1): ?>
+                    <li><span class="pagination-ellipsis">&hellip;</span></li>
+                  <?php endif; ?>
+                  <?php
+                    $query['page'] = $totalPages;
+                    $lastPageLink = $baseUrl . '?' . http_build_query($query);
+                  ?>
+                  <li>
+                    <a href="<?php echo htmlspecialchars($lastPageLink); ?>" class="pagination-link" aria-label="Goto page <?php echo (int) $totalPages; ?>">
+                      <?php echo (int) $totalPages; ?>
+                    </a>
+                  </li>
+                <?php endif; ?>
               </ul>
             </nav>
           </div>
