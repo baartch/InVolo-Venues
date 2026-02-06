@@ -279,22 +279,22 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
 ?>
 <div class="columns is-variable is-3">
   <aside class="column is-3">
-    <div class="box has-background-dark has-text-light">
-      <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1]))); ?>" class="button is-link is-fullwidth">New eMail</a>
+    <div class="box">
+      <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1]))); ?>" class="button is-fullwidth">New eMail</a>
     </div>
 
     <?php if ($notice): ?>
-      <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+      <div class="notification"><?php echo htmlspecialchars($notice); ?></div>
     <?php endif; ?>
 
     <?php foreach ($errors as $error): ?>
-      <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+      <div class="notification"><?php echo htmlspecialchars($error); ?></div>
     <?php endforeach; ?>
 
-    <div class="box has-background-dark has-text-light">
-      <h3 class="title is-6 has-text-light">Mailbox</h3>
+    <div class="box">
+      <h3 class="title is-6">Mailbox</h3>
       <?php if (!$teamMailboxes): ?>
-        <p class="has-text-grey-light">No mailboxes assigned.</p>
+        <p>No mailboxes assigned.</p>
       <?php else: ?>
         <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons">
           <input type="hidden" name="tab" value="email">
@@ -310,15 +310,15 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
             </div>
           </div>
           <div class="control">
-            <button type="submit" class="button is-link">Go</button>
+            <button type="submit" class="button">Go</button>
           </div>
         </form>
       <?php endif; ?>
     </div>
 
     <?php if ($selectedMailbox): ?>
-      <div class="box has-background-dark has-text-light">
-        <h3 class="title is-6 has-text-light">Folders</h3>
+      <div class="box">
+        <h3 class="title is-6">Folders</h3>
         <aside class="menu">
           <ul class="menu-list">
             <?php foreach ($folderOptions as $folderKey => $folderLabel): ?>
@@ -331,9 +331,9 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
                 $folderCount = $folderCounts[$folderKey] ?? 0;
               ?>
               <li>
-                <a href="<?php echo htmlspecialchars($folderLink); ?>" class="<?php echo $folder === $folderKey ? 'is-active' : ''; ?> has-text-light">
+                <a href="<?php echo htmlspecialchars($folderLink); ?>" class="<?php echo $folder === $folderKey ? 'is-active' : ''; ?>">
                   <span><?php echo htmlspecialchars($folderLabel); ?></span>
-                  <span class="tag is-dark is-pulled-right"><?php echo (int) $folderCount; ?></span>
+                  <span class="tag is-pulled-right"><?php echo (int) $folderCount; ?></span>
                 </a>
               </li>
             <?php endforeach; ?>
@@ -341,19 +341,19 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
         </aside>
       </div>
 
-      <div class="box has-background-dark has-text-light">
-        <h3 class="title is-6 has-text-light">Attachment quota</h3>
-        <progress class="progress is-info" value="<?php echo (int) $quotaUsed; ?>" max="<?php echo (int) $quotaTotal; ?>"></progress>
-        <p class="has-text-grey-light"><?php echo htmlspecialchars(formatBytes($quotaUsed)); ?> / <?php echo htmlspecialchars(formatBytes($quotaTotal)); ?></p>
+      <div class="box">
+        <h3 class="title is-6">Attachment quota</h3>
+        <progress class="progress" value="<?php echo (int) $quotaUsed; ?>" max="<?php echo (int) $quotaTotal; ?>"></progress>
+        <p><?php echo htmlspecialchars(formatBytes($quotaUsed)); ?> / <?php echo htmlspecialchars(formatBytes($quotaTotal)); ?></p>
       </div>
     <?php endif; ?>
   </aside>
 
   <section class="column is-4">
-    <div class="box has-background-dark has-text-light">
+    <div class="box">
       <div class="level mb-3">
         <div class="level-left">
-          <h2 class="title is-5 has-text-light"><?php echo htmlspecialchars($folderOptions[$folder] ?? 'Inbox'); ?></h2>
+          <h2 class="title is-5"><?php echo htmlspecialchars($folderOptions[$folder] ?? 'Inbox'); ?></h2>
         </div>
         <?php if ($selectedMailbox): ?>
           <div class="level-right">
@@ -364,10 +364,10 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
               <input type="hidden" name="page" value="1">
               <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sortKey); ?>">
               <div class="control">
-                <input type="text" name="filter" value="<?php echo htmlspecialchars($filter); ?>" placeholder="Search" class="input has-background-grey-darker has-text-light">
+                <input type="text" name="filter" value="<?php echo htmlspecialchars($filter); ?>" placeholder="Search" class="input">
               </div>
               <div class="control">
-                <button type="submit" class="button is-link">Filter</button>
+                <button type="submit" class="button">Filter</button>
               </div>
             </form>
           </div>
@@ -377,7 +377,7 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
       <?php if ($selectedMailbox): ?>
         <div class="level mb-2">
           <div class="level-left">
-            <span class="tag is-dark"><?php echo (int) $totalMessages; ?> emails</span>
+            <span class="tag"><?php echo (int) $totalMessages; ?> emails</span>
           </div>
           <div class="level-right">
             <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons">
@@ -398,7 +398,7 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
                 </div>
               </div>
               <div class="control">
-                <button type="submit" class="button is-light">Sort</button>
+                <button type="submit" class="button">Sort</button>
               </div>
             </form>
           </div>
@@ -407,7 +407,7 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
         <div class="menu">
           <ul class="menu-list">
             <?php if (!$messages): ?>
-              <li><span class="has-text-grey-light">No emails found.</span></li>
+              <li><span>No emails found.</span></li>
             <?php else: ?>
               <?php foreach ($messages as $row): ?>
                 <?php
@@ -421,16 +421,16 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
                   $dateLabel = $dateValue ? date('Y-m-d H:i', strtotime((string) $dateValue)) : '';
                 ?>
                 <li>
-                  <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?> has-text-light">
+                  <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?>">
                     <div class="is-flex is-justify-content-space-between">
                       <div>
                         <div class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></div>
-                        <div class="has-text-grey-light is-size-7"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
+                        <div class="is-size-7"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
                         <?php if (!$row['is_read'] && $folder === 'inbox'): ?>
-                          <span class="tag is-warning is-light is-small">Unread</span>
+                          <span class="tag is-small">Unread</span>
                         <?php endif; ?>
                       </div>
-                      <div class="has-text-grey-light is-size-7"><?php echo htmlspecialchars($dateLabel); ?></div>
+                      <div class="is-size-7"><?php echo htmlspecialchars($dateLabel); ?></div>
                     </div>
                   </a>
                 </li>
@@ -458,22 +458,22 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
           </nav>
         <?php endif; ?>
       <?php else: ?>
-        <p class="has-text-grey-light">Select a mailbox to view emails.</p>
+        <p>Select a mailbox to view emails.</p>
       <?php endif; ?>
     </div>
   </section>
 
   <section class="column">
-    <div class="box has-background-dark has-text-light">
+    <div class="box">
       <?php if (!$selectedMailbox): ?>
-        <p class="has-text-grey-light">Pick a mailbox to view details.</p>
+        <p>Pick a mailbox to view details.</p>
       <?php elseif ($composeMode): ?>
         <div class="level mb-3">
           <div class="level-left">
-            <h2 class="title is-5 has-text-light">Compose</h2>
+            <h2 class="title is-5">Compose</h2>
           </div>
           <div class="level-right">
-            <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query($baseQuery)); ?>" class="button is-light">Cancel</a>
+            <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query($baseQuery)); ?>" class="button">Cancel</a>
           </div>
         </div>
 
@@ -497,7 +497,7 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
               </div>
             </div>
             <div class="control">
-              <button type="submit" class="button is-link">Use Template</button>
+              <button type="submit" class="button">Use Template</button>
             </div>
           </form>
         <?php endif; ?>
@@ -507,8 +507,8 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
         <div class="level mb-3">
           <div class="level-left">
             <div>
-              <h2 class="title is-5 has-text-light"><?php echo htmlspecialchars($message['subject'] ?? '(No subject)'); ?></h2>
-              <p class="has-text-grey-light is-size-7">
+              <h2 class="title is-5"><?php echo htmlspecialchars($message['subject'] ?? '(No subject)'); ?></h2>
+              <p class="is-size-7">
                 <?php if ($folder === 'inbox'): ?>
                   From: <?php echo htmlspecialchars($message['from_name'] ?? $message['from_email'] ?? ''); ?>
                 <?php else: ?>
@@ -520,8 +520,8 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
           </div>
           <div class="level-right">
             <div class="buttons are-small">
-              <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'reply' => $message['id']]))); ?>" class="button is-link">Reply</a>
-              <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'forward' => $message['id']]))); ?>" class="button is-link">Forward</a>
+              <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'reply' => $message['id']]))); ?>" class="button">Reply</a>
+              <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'forward' => $message['id']]))); ?>" class="button">Forward</a>
               <form method="POST" action="<?php echo BASE_PATH; ?>/routes/email/delete.php" onsubmit="return confirm('Delete this email?');">
                 <?php renderCsrfField(); ?>
                 <input type="hidden" name="email_id" value="<?php echo (int) $message['id']; ?>">
@@ -531,19 +531,19 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
                 <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
                 <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
                 <input type="hidden" name="tab" value="email">
-                <button type="submit" class="button is-danger is-light">Delete</button>
+                <button type="submit" class="button">Delete</button>
               </form>
             </div>
           </div>
         </div>
 
-        <div class="content has-text-light">
+        <div class="content">
           <?php echo nl2br(htmlspecialchars($message['body'] ?? '')); ?>
         </div>
 
         <?php if ($attachments): ?>
-          <div class="content has-text-light">
-            <h3 class="title is-6 has-text-light">Attachments</h3>
+          <div class="content">
+            <h3 class="title is-6">Attachments</h3>
             <ul>
               <?php foreach ($attachments as $attachment): ?>
                 <li>
@@ -556,7 +556,7 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
           </div>
         <?php endif; ?>
       <?php else: ?>
-        <p class="has-text-grey-light">Select an email to view its details.</p>
+        <p>Select an email to view its details.</p>
       <?php endif; ?>
     </div>
   </section>

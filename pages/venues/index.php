@@ -251,32 +251,32 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue management');
 ?>
-<?php renderPageStart('Venues', ['bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight']); ?>
+<?php renderPageStart('Venues', ['bodyClass' => 'is-flex is-flex-direction-column is-fullheight']); ?>
       <section class="section">
         <div class="container is-fluid">
           <div class="level mb-4">
             <div class="level-left">
               <div>
-                <h1 class="title is-3 has-text-light">Venue Management</h1>
-                <p class="subtitle is-6 has-text-grey-light">Manage the venues stored in the database.</p>
+                <h1 class="title is-3">Venue Management</h1>
+                <p class="subtitle is-6">Manage the venues stored in the database.</p>
               </div>
             </div>
             <div class="level-right">
               <div class="buttons">
-                <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php" class="button is-link">Add Venue</a>
+                <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php" class="button">Add Venue</a>
                 <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
-                  <button type="button" class="button is-light" data-import-toggle>Import</button>
+                  <button type="button" class="button" data-import-toggle>Import</button>
                 <?php endif; ?>
               </div>
             </div>
           </div>
 
           <?php if ($notice): ?>
-            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($notice); ?></div>
           <?php endif; ?>
 
           <?php foreach ($errors as $error): ?>
-            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($error); ?></div>
           <?php endforeach; ?>
 
           <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
@@ -300,13 +300,13 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                 </section>
                 <footer class="modal-card-foot">
                   <button type="button" class="button" data-import-close>Close</button>
-                  <button type="submit" class="button is-link" form="import_form">Import</button>
+                  <button type="submit" class="button" form="import_form">Import</button>
                 </footer>
               </div>
             </div>
           <?php endif; ?>
 
-          <div class="box has-background-dark has-text-light">
+          <div class="box">
             <?php
               $query = $_GET;
               $query['page'] = max(1, $page - 1);
@@ -328,14 +328,14 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
             ?>
             <div class="level mb-3">
               <div class="level-left">
-                <h2 class="title is-5 has-text-light">All Venues</h2>
+                <h2 class="title is-5">All Venues</h2>
               </div>
               <div class="level-right">
                 <form method="GET" action="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="field has-addons" data-filter-form>
                   <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
                   <div class="control has-icons-left">
                     <input
-                      class="input has-background-grey-darker has-text-light"
+                      class="input"
                       type="text"
                       name="filter"
                       value="<?php echo htmlspecialchars($filter); ?>"
@@ -345,44 +345,44 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                     <span class="icon is-left"><i class="fa-solid fa-magnifying-glass"></i></span>
                   </div>
                   <div class="control">
-                    <button class="button is-link" type="submit">Filter</button>
+                    <button class="button" type="submit">Filter</button>
                   </div>
                   <div class="control">
-                    <button type="button" class="button is-light" data-filter-clear aria-label="Clear filter">Clear</button>
+                    <button type="button" class="button" data-filter-clear aria-label="Clear filter">Clear</button>
                   </div>
                 </form>
               </div>
             </div>
             <div class="level mb-3">
               <div class="level-left">
-                <span class="tag is-dark"><?php echo (int) $totalVenues; ?> venues</span>
-                <span class="tag is-dark">Page <?php echo (int) $page; ?> of <?php echo (int) $totalPages; ?></span>
-                <span class="tag is-dark">Page size <?php echo (int) $pageSize; ?></span>
+                <span class="tag"><?php echo (int) $totalVenues; ?> venues</span>
+                <span class="tag">Page <?php echo (int) $page; ?> of <?php echo (int) $totalPages; ?></span>
+                <span class="tag">Page size <?php echo (int) $pageSize; ?></span>
               </div>
               <div class="level-right">
-                <a class="button is-light is-small" href="<?php echo htmlspecialchars($firstLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>First</a>
-                <a class="button is-light is-small" href="<?php echo htmlspecialchars($lastLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Last</a>
+                <a class="button is-small" href="<?php echo htmlspecialchars($firstLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>First</a>
+                <a class="button is-small" href="<?php echo htmlspecialchars($lastLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Last</a>
               </div>
             </div>
             <div class="table-container">
-              <table class="table is-striped is-hoverable is-fullwidth is-dark" data-venues-table>
+              <table class="table is-striped is-hoverable is-fullwidth" data-venues-table>
                 <thead>
                   <tr>
                     <th></th>
-                    <th class="has-text-light" data-sort>Name</th>
-                    <th class="has-text-light" data-sort>Address</th>
-                    <th class="has-text-light" data-sort>State</th>
-                    <th class="has-text-light" data-sort>Country</th>
-                    <th class="has-text-light" data-sort>Type</th>
-                    <th class="has-text-light" data-sort>Contact Email</th>
-                    <th class="has-text-light" data-sort>Contact Phone</th>
-                    <th class="has-text-light" data-sort>Contact Person</th>
-                    <th class="has-text-light" data-sort data-sort-type="number">Capacity</th>
-                    <th class="has-text-light" data-sort>Website</th>
-                    <th class="has-text-light">Actions</th>
+                    <th data-sort>Name</th>
+                    <th data-sort>Address</th>
+                    <th data-sort>State</th>
+                    <th data-sort>Country</th>
+                    <th data-sort>Type</th>
+                    <th data-sort>Contact Email</th>
+                    <th data-sort>Contact Phone</th>
+                    <th data-sort>Contact Person</th>
+                    <th data-sort data-sort-type="number">Capacity</th>
+                    <th data-sort>Website</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
-                <tbody class="has-text-light">
+                <tbody>
                   <?php foreach ($venues as $venue): ?>
                     <tr>
                       <td>
@@ -396,7 +396,7 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                                 'zoom' => 13
                             ]);
                           ?>
-                          <a href="<?php echo htmlspecialchars($mapLink); ?>" class="icon has-text-link" aria-label="Open map at venue" title="Open map">
+                          <a href="<?php echo htmlspecialchars($mapLink); ?>" class="icon" aria-label="Open map at venue" title="Open map">
                             <i class="fa-solid fa-location-dot"></i>
                           </a>
                         <?php endif; ?>
@@ -423,24 +423,24 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                       <td><?php echo htmlspecialchars($venue['capacity'] ?? ''); ?></td>
                       <td>
                         <?php if (!empty($venue['website'])): ?>
-                          <a href="<?php echo htmlspecialchars($venue['website']); ?>" target="_blank" rel="noopener noreferrer" class="has-text-link-light">
+                          <a href="<?php echo htmlspecialchars($venue['website']); ?>" target="_blank" rel="noopener noreferrer" class="is-underlined">
                             <?php echo htmlspecialchars($venue['website']); ?>
                           </a>
                         <?php endif; ?>
                       </td>
                       <td>
                         <div class="buttons are-small">
-                          <button type="button" class="button is-light" data-venue-info-toggle aria-label="Show venue details" title="Show venue details">
+                          <button type="button" class="button" data-venue-info-toggle aria-label="Show venue details" title="Show venue details">
                             <span class="icon"><i class="fa-solid fa-circle-info"></i></span>
                           </button>
-                          <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="button is-light" aria-label="Edit venue" title="Edit venue">
+                          <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="button" aria-label="Edit venue" title="Edit venue">
                             <span class="icon"><i class="fa-solid fa-pen"></i></span>
                           </a>
                           <form method="POST" action="" onsubmit="return confirm('Delete this venue?');">
                             <?php renderCsrfField(); ?>
                             <input type="hidden" name="action" value="delete">
                             <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
-                            <button type="submit" class="button is-danger is-light" aria-label="Delete venue" title="Delete venue">
+                            <button type="submit" class="button" aria-label="Delete venue" title="Delete venue">
                               <span class="icon"><i class="fa-solid fa-trash"></i></span>
                             </button>
                           </form>
@@ -449,19 +449,19 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                     </tr>
                     <tr class="is-hidden" data-venue-details>
                       <td colspan="12">
-                        <article class="message is-dark">
+                        <article class="message">
                           <div class="message-body">
                             <?php if (!empty($venue['notes'])): ?>
-                              <div class="content has-text-light">
+                              <div class="content">
                                 <?php echo nl2br(htmlspecialchars($venue['notes'] ?? '')); ?>
                               </div>
                             <?php else: ?>
-                              <p class="has-text-grey-light">No notes.</p>
+                              <p>No notes.</p>
                             <?php endif; ?>
                             <div class="level is-mobile mt-3">
                               <div class="level-left">
-                                <span class="tag is-dark">Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
-                                <span class="tag is-dark">Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
+                                <span class="tag">Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
+                                <span class="tag">Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
                               </div>
                             </div>
                           </div>

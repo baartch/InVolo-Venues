@@ -85,42 +85,42 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     }
 }
 ?>
-<?php renderPageStart('Login', ['includeSidebar' => false, 'bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight']); ?>
+<?php renderPageStart('Login', ['includeSidebar' => false, 'bodyClass' => 'is-flex is-flex-direction-column is-fullheight']); ?>
   <section class="section is-flex is-flex-grow-1 is-align-items-center">
     <div class="container">
       <div class="columns is-centered">
         <div class="column is-4">
-          <div class="box has-background-dark has-text-light">
-            <h1 class="title is-3 has-text-light">BooKing</h1>
-            <p class="subtitle is-6 has-text-grey-light">Please login to access the app.</p>
+          <div class="box">
+            <h1 class="title is-3">BooKing</h1>
+            <p class="subtitle is-6">Please login to access the app.</p>
 
             <?php if ($error): ?>
-              <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+              <div class="notification"><?php echo htmlspecialchars($error); ?></div>
             <?php endif; ?>
 
             <form method="POST" action="">
               <div class="field">
-                <label for="username" class="label has-text-light">Username</label>
+                <label for="username" class="label">Username</label>
                 <div class="control">
-                  <input type="text" id="username" name="username" class="input has-background-grey-darker has-text-light" required autofocus>
+                  <input type="text" id="username" name="username" class="input" required autofocus>
                 </div>
               </div>
 
               <div class="field">
-                <label for="password" class="label has-text-light">Password</label>
+                <label for="password" class="label">Password</label>
                 <div class="control">
-                  <input type="password" id="password" name="password" class="input has-background-grey-darker has-text-light" required>
+                  <input type="password" id="password" name="password" class="input" required>
                 </div>
               </div>
 
               <div class="field">
                 <div class="control">
-                  <button type="submit" class="button is-link is-fullwidth">Login</button>
+                  <button type="submit" class="button is-fullwidth">Login</button>
                 </div>
               </div>
             </form>
 
-            <p class="has-text-grey-light">Keep your Booking organized.</p>
+            <p>Keep your Booking organized.</p>
           </div>
         </div>
       </div>

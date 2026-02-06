@@ -257,7 +257,7 @@ if (!in_array($formValues['smtp_encryption'], $allowedEncryptions, true)) {
 logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbox ? 'User opened edit mailbox form' : 'User opened create mailbox form');
 ?>
 <?php renderPageStart('Mailbox', [
-    'bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight',
+    'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/mailboxes.js" defer></script>'
     ]
@@ -266,22 +266,22 @@ logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbo
         <div class="container is-fluid">
           <div class="level mb-4">
             <div class="level-left">
-              <h1 class="title is-3 has-text-light"><?php echo $editMailbox ? 'Edit Mailbox' : 'Add Mailbox'; ?></h1>
+              <h1 class="title is-3"><?php echo $editMailbox ? 'Edit Mailbox' : 'Add Mailbox'; ?></h1>
             </div>
             <div class="level-right">
-              <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=mailboxes" class="button is-light">Back to Mailboxes</a>
+              <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=mailboxes" class="button">Back to Mailboxes</a>
             </div>
           </div>
 
           <?php if ($notice): ?>
-            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($notice); ?></div>
           <?php endif; ?>
 
           <?php foreach ($errors as $error): ?>
-            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($error); ?></div>
           <?php endforeach; ?>
 
-          <div class="box has-background-dark has-text-light">
+          <div class="box">
             <form method="POST" action="" class="columns is-multiline">
               <?php renderCsrfField(); ?>
               <input type="hidden" name="action" value="<?php echo $editMailbox ? 'update_mailbox' : 'create_mailbox'; ?>">
@@ -295,10 +295,10 @@ logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbo
               <?php if (count($teams) > 1 && !$editMailbox): ?>
                 <div class="column is-4">
                   <div class="field">
-                    <label for="team_id" class="label has-text-light">Team</label>
+                    <label for="team_id" class="label">Team</label>
                     <div class="control">
                       <div class="select is-fullwidth">
-                        <select id="team_id" name="team_id" required class="has-background-grey-darker has-text-light">
+                        <select id="team_id" name="team_id" required>
                           <option value="">Select a team</option>
                           <?php foreach ($teams as $team): ?>
                             <option value="<?php echo (int) $team['id']; ?>" <?php echo (int) $formValues['team_id'] === (int) $team['id'] ? 'selected' : ''; ?>>
@@ -314,62 +314,62 @@ logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbo
 
               <div class="column is-4">
                 <div class="field">
-                  <label for="mailbox_name" class="label has-text-light">Mailbox Name</label>
+                  <label for="mailbox_name" class="label">Mailbox Name</label>
                   <div class="control">
-                    <input type="text" id="mailbox_name" name="name" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['name']); ?>" required>
+                    <input type="text" id="mailbox_name" name="name" class="input" value="<?php echo htmlspecialchars($formValues['name']); ?>" required>
                   </div>
                 </div>
               </div>
 
               <div class="column is-12">
-                <h3 class="title is-5 has-text-light">IMAP Settings</h3>
+                <h3 class="title is-5">IMAP Settings</h3>
               </div>
 
               <div class="column is-4">
                 <div class="field">
-                  <label for="imap_host" class="label has-text-light">IMAP Host</label>
+                  <label for="imap_host" class="label">IMAP Host</label>
                   <div class="control">
-                    <input type="text" id="imap_host" name="imap_host" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['imap_host']); ?>" required>
+                    <input type="text" id="imap_host" name="imap_host" class="input" value="<?php echo htmlspecialchars($formValues['imap_host']); ?>" required>
                   </div>
                 </div>
               </div>
 
               <div class="column is-2">
                 <div class="field">
-                  <label for="imap_port" class="label has-text-light">IMAP Port</label>
+                  <label for="imap_port" class="label">IMAP Port</label>
                   <div class="control">
-                    <input type="number" id="imap_port" name="imap_port" class="input has-background-grey-darker has-text-light" value="<?php echo (int) $formValues['imap_port']; ?>" min="1" max="65535" required>
+                    <input type="number" id="imap_port" name="imap_port" class="input" value="<?php echo (int) $formValues['imap_port']; ?>" min="1" max="65535" required>
                   </div>
                 </div>
               </div>
 
               <div class="column is-3">
                 <div class="field">
-                  <label for="imap_username" class="label has-text-light">IMAP Username</label>
+                  <label for="imap_username" class="label">IMAP Username</label>
                   <div class="control">
-                    <input type="text" id="imap_username" name="imap_username" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['imap_username']); ?>" data-imap-username required>
+                    <input type="text" id="imap_username" name="imap_username" class="input" value="<?php echo htmlspecialchars($formValues['imap_username']); ?>" data-imap-username required>
                   </div>
                 </div>
               </div>
 
               <div class="column is-3">
                 <div class="field">
-                  <label for="imap_password" class="label has-text-light">IMAP Password</label>
+                  <label for="imap_password" class="label">IMAP Password</label>
                   <div class="control">
-                    <input type="password" id="imap_password" name="imap_password" class="input has-background-grey-darker has-text-light" autocomplete="new-password" data-imap-password <?php echo $editMailbox ? '' : 'required'; ?>>
+                    <input type="password" id="imap_password" name="imap_password" class="input" autocomplete="new-password" data-imap-password <?php echo $editMailbox ? '' : 'required'; ?>>
                   </div>
                   <?php if ($editMailbox): ?>
-                    <p class="help has-text-grey-light">Leave blank to keep the current password.</p>
+                    <p class="help">Leave blank to keep the current password.</p>
                   <?php endif; ?>
                 </div>
               </div>
 
               <div class="column is-3">
                 <div class="field">
-                  <label for="imap_encryption" class="label has-text-light">IMAP Encryption</label>
+                  <label for="imap_encryption" class="label">IMAP Encryption</label>
                   <div class="control">
                     <div class="select is-fullwidth">
-                      <select id="imap_encryption" name="imap_encryption" required class="has-background-grey-darker has-text-light">
+                      <select id="imap_encryption" name="imap_encryption" required>
                         <?php foreach ($allowedEncryptions as $option): ?>
                           <option value="<?php echo htmlspecialchars($option); ?>" <?php echo $formValues['imap_encryption'] === $option ? 'selected' : ''; ?>>
                             <?php echo strtoupper($option); ?>
@@ -383,19 +383,19 @@ logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbo
 
               <div class="column is-12">
                 <div class="field">
-                  <label class="checkbox has-text-light">
+                  <label class="checkbox">
                     <input type="checkbox" name="delete_after_retrieve" value="1" <?php echo $formValues['delete_after_retrieve'] ? 'checked' : ''; ?>>
                     Delete messages on server after retrieving
                   </label>
                 </div>
                 <div class="field">
-                  <label class="checkbox has-text-light">
+                  <label class="checkbox">
                     <input type="checkbox" name="store_sent_on_server" value="1" <?php echo $formValues['store_sent_on_server'] ? 'checked' : ''; ?>>
                     Store sent mail on server in Sent
                   </label>
                 </div>
                 <div class="field">
-                  <label class="checkbox has-text-light">
+                  <label class="checkbox">
                     <input type="checkbox" name="use_same_credentials" value="1" data-mailbox-same-credentials <?php echo $editMailbox || $formValues['imap_username'] === '' || $formValues['smtp_username'] === $formValues['imap_username'] ? 'checked' : ''; ?>>
                     Use the same username and password for SMTP and IMAP
                   </label>
@@ -403,54 +403,54 @@ logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbo
               </div>
 
               <div class="column is-12">
-                <h3 class="title is-5 has-text-light">SMTP Settings</h3>
+                <h3 class="title is-5">SMTP Settings</h3>
               </div>
 
               <div class="column is-4">
                 <div class="field">
-                  <label for="smtp_host" class="label has-text-light">SMTP Host</label>
+                  <label for="smtp_host" class="label">SMTP Host</label>
                   <div class="control">
-                    <input type="text" id="smtp_host" name="smtp_host" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['smtp_host']); ?>" required>
+                    <input type="text" id="smtp_host" name="smtp_host" class="input" value="<?php echo htmlspecialchars($formValues['smtp_host']); ?>" required>
                   </div>
                 </div>
               </div>
 
               <div class="column is-2">
                 <div class="field">
-                  <label for="smtp_port" class="label has-text-light">SMTP Port</label>
+                  <label for="smtp_port" class="label">SMTP Port</label>
                   <div class="control">
-                    <input type="number" id="smtp_port" name="smtp_port" class="input has-background-grey-darker has-text-light" value="<?php echo (int) $formValues['smtp_port']; ?>" min="1" max="65535" required>
+                    <input type="number" id="smtp_port" name="smtp_port" class="input" value="<?php echo (int) $formValues['smtp_port']; ?>" min="1" max="65535" required>
                   </div>
                 </div>
               </div>
 
               <div class="column is-3" data-smtp-credentials>
                 <div class="field">
-                  <label for="smtp_username" class="label has-text-light">SMTP Username</label>
+                  <label for="smtp_username" class="label">SMTP Username</label>
                   <div class="control">
-                    <input type="text" id="smtp_username" name="smtp_username" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['smtp_username']); ?>" data-smtp-username required>
+                    <input type="text" id="smtp_username" name="smtp_username" class="input" value="<?php echo htmlspecialchars($formValues['smtp_username']); ?>" data-smtp-username required>
                   </div>
                 </div>
               </div>
 
               <div class="column is-3" data-smtp-credentials>
                 <div class="field">
-                  <label for="smtp_password" class="label has-text-light">SMTP Password</label>
+                  <label for="smtp_password" class="label">SMTP Password</label>
                   <div class="control">
-                    <input type="password" id="smtp_password" name="smtp_password" class="input has-background-grey-darker has-text-light" autocomplete="new-password" data-smtp-password <?php echo $editMailbox ? '' : 'required'; ?>>
+                    <input type="password" id="smtp_password" name="smtp_password" class="input" autocomplete="new-password" data-smtp-password <?php echo $editMailbox ? '' : 'required'; ?>>
                   </div>
                   <?php if ($editMailbox): ?>
-                    <p class="help has-text-grey-light">Leave blank to keep the current password.</p>
+                    <p class="help">Leave blank to keep the current password.</p>
                   <?php endif; ?>
                 </div>
               </div>
 
               <div class="column is-3">
                 <div class="field">
-                  <label for="smtp_encryption" class="label has-text-light">SMTP Encryption</label>
+                  <label for="smtp_encryption" class="label">SMTP Encryption</label>
                   <div class="control">
                     <div class="select is-fullwidth">
-                      <select id="smtp_encryption" name="smtp_encryption" required class="has-background-grey-darker has-text-light">
+                      <select id="smtp_encryption" name="smtp_encryption" required>
                         <?php foreach ($allowedEncryptions as $option): ?>
                           <option value="<?php echo htmlspecialchars($option); ?>" <?php echo $formValues['smtp_encryption'] === $option ? 'selected' : ''; ?>>
                             <?php echo strtoupper($option); ?>
@@ -464,8 +464,8 @@ logAction($currentUser['user_id'] ?? null, 'view_team_mailbox_form', $editMailbo
 
               <div class="column is-12">
                 <div class="buttons">
-                  <button type="submit" class="button is-link"><?php echo $editMailbox ? 'Update Mailbox' : 'Create Mailbox'; ?></button>
-                  <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=mailboxes" class="button is-light">Cancel</a>
+                  <button type="submit" class="button"><?php echo $editMailbox ? 'Update Mailbox' : 'Create Mailbox'; ?></button>
+                  <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=mailboxes" class="button">Cancel</a>
                 </div>
               </div>
             </form>

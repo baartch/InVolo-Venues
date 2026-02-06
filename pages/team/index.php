@@ -12,7 +12,7 @@ if (!in_array($activeTab, $validTabs, true)) {
 logAction($currentUser['user_id'] ?? null, 'view_team', 'User opened team page');
 ?>
 <?php renderPageStart('Team', [
-    'bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight',
+    'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>',
         '<script type="module" src="' . BASE_PATH . '/public/js/mailboxes.js" defer></script>'
@@ -22,11 +22,11 @@ logAction($currentUser['user_id'] ?? null, 'view_team', 'User opened team page')
         <div class="container is-fluid">
           <div class="level mb-4">
             <div class="level-left">
-              <h1 class="title is-3 has-text-light">Team</h1>
+              <h1 class="title is-3">Team</h1>
             </div>
           </div>
 
-          <div class="tabs is-boxed is-dark" role="tablist">
+          <div class="tabs is-boxed" role="tablist">
             <ul>
               <li class="<?php echo $activeTab === 'members' ? 'is-active' : ''; ?>">
                 <a href="#" data-tab="members" role="tab" aria-selected="<?php echo $activeTab === 'members' ? 'true' : 'false'; ?>">Members</a>
@@ -41,9 +41,9 @@ logAction($currentUser['user_id'] ?? null, 'view_team', 'User opened team page')
           </div>
 
           <div class="tab-panel <?php echo $activeTab === 'members' ? '' : 'is-hidden'; ?>" data-tab-panel="members" role="tabpanel">
-            <div class="box has-background-dark has-text-light">
-              <h2 class="title is-5 has-text-light">Team Members</h2>
-              <p class="has-text-grey-light">Team management will be available here soon.</p>
+            <div class="box">
+              <h2 class="title is-5">Team Members</h2>
+              <p>Team management will be available here soon.</p>
             </div>
           </div>
 

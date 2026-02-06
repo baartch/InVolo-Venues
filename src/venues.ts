@@ -74,7 +74,6 @@ const initFilterForm = (): void => {
     }
     filterClear.toggleAttribute('disabled', !visible);
     filterClear.classList.toggle('is-static', !visible);
-    filterClear.classList.toggle('is-light', !visible);
     filterClear.setAttribute('aria-hidden', visible ? 'false' : 'true');
   };
 

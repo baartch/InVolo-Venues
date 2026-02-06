@@ -78,75 +78,75 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile');
 ?>
-<?php renderPageStart('Profile', ['bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight']); ?>
+<?php renderPageStart('Profile', ['bodyClass' => 'is-flex is-flex-direction-column is-fullheight']); ?>
       <section class="section">
         <div class="container is-fluid">
           <div class="level mb-4">
             <div class="level-left">
-              <h1 class="title is-3 has-text-light">Profile</h1>
+              <h1 class="title is-3">Profile</h1>
             </div>
           </div>
 
           <?php if ($notice): ?>
-            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($notice); ?></div>
           <?php endif; ?>
 
           <?php foreach ($errors as $error): ?>
-            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($error); ?></div>
           <?php endforeach; ?>
 
           <div class="columns is-multiline">
             <div class="column is-12">
-              <div class="box has-background-dark has-text-light">
-                <h2 class="title is-5 has-text-light">Reset Password</h2>
+              <div class="box">
+                <h2 class="title is-5">Reset Password</h2>
                 <form method="POST" action="" class="columns is-multiline">
                   <?php renderCsrfField(); ?>
                   <input type="hidden" name="action" value="update_password">
                   <div class="column is-4">
                     <div class="field">
-                      <label for="current_password" class="label has-text-light">Current Password</label>
+                      <label for="current_password" class="label">Current Password</label>
                       <div class="control">
-                        <input type="password" id="current_password" name="current_password" class="input has-background-grey-darker has-text-light" required>
+                        <input type="password" id="current_password" name="current_password" class="input" required>
                       </div>
                     </div>
                   </div>
                   <div class="column is-4">
                     <div class="field">
-                      <label for="new_password" class="label has-text-light">New Password</label>
+                      <label for="new_password" class="label">New Password</label>
                       <div class="control">
-                        <input type="password" id="new_password" name="new_password" class="input has-background-grey-darker has-text-light" required>
+                        <input type="password" id="new_password" name="new_password" class="input" required>
                       </div>
                     </div>
                   </div>
                   <div class="column is-4">
                     <div class="field">
-                      <label for="confirm_password" class="label has-text-light">Confirm New Password</label>
+                      <label for="confirm_password" class="label">Confirm New Password</label>
                       <div class="control">
-                        <input type="password" id="confirm_password" name="confirm_password" class="input has-background-grey-darker has-text-light" required>
+                        <input type="password" id="confirm_password" name="confirm_password" class="input" required>
                       </div>
                     </div>
                   </div>
                   <div class="column is-12">
-                    <button type="submit" class="button is-link">Update Password</button>
+                    <button type="submit" class="button">Update Password</button>
                   </div>
                 </form>
               </div>
             </div>
             <div class="column is-12">
-              <div class="box has-background-dark has-text-light">
-                <h2 class="title is-5 has-text-light">Venues List</h2>
+              <div class="box">
+                <h2 class="title is-5">Venues List</h2>
                 <form method="POST" action="" class="columns is-multiline">
                   <?php renderCsrfField(); ?>
                   <input type="hidden" name="action" value="update_page_size">
                   <div class="column is-4">
                     <div class="field">
-                      <label for="venues_page_size" class="label has-text-light">Venues per page (25-500)</label>
+                      <label for="venues_page_size" class="label">Venues per page (25-500)</label>
                       <div class="control">
                         <input
                           type="number"
                           id="venues_page_size"
                           name="venues_page_size"
-                          class="input has-background-grey-darker has-text-light"
+                          class="input"
                           min="<?php echo (int) $minPageSize; ?>"
                           max="<?php echo (int) $maxPageSize; ?>"
                           value="<?php echo (int) $currentPageSize; ?>"
@@ -156,7 +156,7 @@ logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile'
                     </div>
                   </div>
                   <div class="column is-12">
-                    <button type="submit" class="button is-link">Update Page Size</button>
+                    <button type="submit" class="button">Update Page Size</button>
                   </div>
                 </form>
               </div>

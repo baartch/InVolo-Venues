@@ -132,27 +132,27 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 logAction($currentUser['user_id'] ?? null, 'view_team_template_form', $editTemplate ? 'User opened edit template form' : 'User opened create template form');
 ?>
-<?php renderPageStart('Template', ['bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight']); ?>
+<?php renderPageStart('Template', ['bodyClass' => 'is-flex is-flex-direction-column is-fullheight']); ?>
       <section class="section">
         <div class="container is-fluid">
           <div class="level mb-4">
             <div class="level-left">
-              <h1 class="title is-3 has-text-light"><?php echo $editTemplate ? 'Edit Template' : 'Add Template'; ?></h1>
+              <h1 class="title is-3"><?php echo $editTemplate ? 'Edit Template' : 'Add Template'; ?></h1>
             </div>
             <div class="level-right">
-              <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="button is-light">Back to Templates</a>
+              <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="button">Back to Templates</a>
             </div>
           </div>
 
           <?php if ($notice): ?>
-            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($notice); ?></div>
           <?php endif; ?>
 
           <?php foreach ($errors as $error): ?>
-            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($error); ?></div>
           <?php endforeach; ?>
 
-          <div class="box has-background-dark has-text-light">
+          <div class="box">
             <form method="POST" action="" class="columns is-multiline">
               <?php renderCsrfField(); ?>
               <input type="hidden" name="action" value="<?php echo $editTemplate ? 'update_template' : 'create_template'; ?>">
@@ -166,7 +166,7 @@ logAction($currentUser['user_id'] ?? null, 'view_team_template_form', $editTempl
               <?php if (count($teams) > 1 && !$editTemplate): ?>
                 <div class="column is-4">
                   <div class="field">
-                    <label for="team_id" class="label has-text-light">Team</label>
+                    <label for="team_id" class="label">Team</label>
                     <div class="control">
                       <div class="select is-fullwidth">
                         <select id="team_id" name="team_id" required>
@@ -185,35 +185,35 @@ logAction($currentUser['user_id'] ?? null, 'view_team_template_form', $editTempl
 
               <div class="column is-6">
                 <div class="field">
-                  <label for="template_name" class="label has-text-light">Template Name</label>
+                  <label for="template_name" class="label">Template Name</label>
                   <div class="control">
-                    <input type="text" id="template_name" name="name" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['name']); ?>" required>
+                    <input type="text" id="template_name" name="name" class="input" value="<?php echo htmlspecialchars($formValues['name']); ?>" required>
                   </div>
                 </div>
               </div>
 
               <div class="column is-6">
                 <div class="field">
-                  <label for="template_subject" class="label has-text-light">Subject</label>
+                  <label for="template_subject" class="label">Subject</label>
                   <div class="control">
-                    <input type="text" id="template_subject" name="subject" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['subject']); ?>">
+                    <input type="text" id="template_subject" name="subject" class="input" value="<?php echo htmlspecialchars($formValues['subject']); ?>">
                   </div>
                 </div>
               </div>
 
               <div class="column is-12">
                 <div class="field">
-                  <label for="template_body" class="label has-text-light">Body</label>
+                  <label for="template_body" class="label">Body</label>
                   <div class="control">
-                    <textarea id="template_body" name="body" class="textarea has-background-grey-darker has-text-light" rows="8"><?php echo htmlspecialchars($formValues['body']); ?></textarea>
+                    <textarea id="template_body" name="body" class="textarea" rows="8"><?php echo htmlspecialchars($formValues['body']); ?></textarea>
                   </div>
                 </div>
               </div>
 
               <div class="column is-12">
                 <div class="buttons">
-                  <button type="submit" class="button is-link"><?php echo $editTemplate ? 'Update Template' : 'Create Template'; ?></button>
-                  <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="button is-light">Cancel</a>
+                  <button type="submit" class="button"><?php echo $editTemplate ? 'Update Template' : 'Create Template'; ?></button>
+                  <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="button">Cancel</a>
                 </div>
               </div>
             </form>

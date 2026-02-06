@@ -6,10 +6,10 @@ if (!isset($settingsStatus)):
   <?php return; ?>
 <?php endif; ?>
 
-<div class="box has-background-dark has-text-light">
+<div class="box">
   <div class="content">
-    <h2 class="title is-5 has-text-light">API Keys</h2>
-    <p class="has-text-grey-light">Store tokens used for map tiles and integrations.</p>
+    <h2 class="title is-5">API Keys</h2>
+    <p>Store tokens used for map tiles and integrations.</p>
   </div>
 
   <form method="POST" action="">
@@ -17,41 +17,41 @@ if (!isset($settingsStatus)):
     <input type="hidden" name="action" value="save_api_keys">
     <input type="hidden" name="tab" value="api-keys">
     <div class="field">
-      <label for="brave_search_api_key" class="label has-text-light">Brave Search</label>
+      <label for="brave_search_api_key" class="label">Brave Search</label>
       <div class="control">
         <input
           type="password"
           id="brave_search_api_key"
           name="brave_search_api_key"
-          class="input has-background-grey-darker has-text-light"
+          class="input"
           placeholder="<?php echo $settingsStatus['brave_search_api_key'] ? 'Saved' : 'Not set'; ?>"
         >
       </div>
     </div>
     <div class="field">
-      <label for="brave_spellcheck_api_key" class="label has-text-light">Brave Spellcheck</label>
+      <label for="brave_spellcheck_api_key" class="label">Brave Spellcheck</label>
       <div class="control">
         <input
           type="password"
           id="brave_spellcheck_api_key"
           name="brave_spellcheck_api_key"
-          class="input has-background-grey-darker has-text-light"
+          class="input"
           placeholder="<?php echo $settingsStatus['brave_spellcheck_api_key'] ? 'Saved' : 'Not set'; ?>"
         >
       </div>
     </div>
     <div class="field">
-      <label for="mapbox_api_key" class="label has-text-light">Mapbox</label>
+      <label for="mapbox_api_key" class="label">Mapbox</label>
       <div class="control">
         <input
           type="password"
           id="mapbox_api_key"
           name="mapbox_api_key"
-          class="input has-background-grey-darker has-text-light"
+          class="input"
           placeholder="<?php echo $settingsStatus['mapbox_api_key'] ? 'Saved' : 'Not set'; ?>"
         >
       </div>
     </div>
-    <button type="submit" class="button is-link">Save API Keys</button>
+    <button type="submit" class="button">Save API Keys</button>
   </form>
 </div>

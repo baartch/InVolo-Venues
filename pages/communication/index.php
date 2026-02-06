@@ -8,7 +8,7 @@ $activeTab = $_GET['tab'] ?? 'conversations';
 logAction($currentUser['user_id'] ?? null, 'view_communication', 'User opened communication page');
 ?>
 <?php renderPageStart('Communication', [
-    'bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight',
+    'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'
     ]
@@ -17,11 +17,11 @@ logAction($currentUser['user_id'] ?? null, 'view_communication', 'User opened co
         <div class="container is-fluid">
           <div class="level mb-4">
             <div class="level-left">
-              <h1 class="title is-3 has-text-light">Communication</h1>
+              <h1 class="title is-3">Communication</h1>
             </div>
           </div>
 
-          <div class="tabs is-boxed is-dark" role="tablist">
+          <div class="tabs is-boxed" role="tablist">
             <ul>
               <li class="<?php echo $activeTab === 'conversations' ? 'is-active' : ''; ?>">
                 <a href="#" data-tab="conversations" role="tab" aria-selected="<?php echo $activeTab === 'conversations' ? 'true' : 'false'; ?>">Conversations</a>

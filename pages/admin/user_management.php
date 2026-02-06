@@ -425,7 +425,7 @@ try {
 logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened admin panel');
 ?>
 <?php renderPageStart('Admin', [
-    'bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight',
+    'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'
     ]
@@ -434,19 +434,19 @@ logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened 
         <div class="container is-fluid">
           <div class="level mb-4">
             <div class="level-left">
-              <h1 class="title is-3 has-text-light">Admin</h1>
+              <h1 class="title is-3">Admin</h1>
             </div>
           </div>
 
           <?php if ($notice): ?>
-            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($notice); ?></div>
           <?php endif; ?>
 
           <?php foreach ($errors as $error): ?>
-            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+            <div class="notification"><?php echo htmlspecialchars($error); ?></div>
           <?php endforeach; ?>
 
-          <div class="tabs is-boxed is-dark" role="tablist">
+          <div class="tabs is-boxed" role="tablist">
             <ul>
               <li class="<?php echo $activeTab === 'users' ? 'is-active' : ''; ?>">
                 <a href="#" data-tab="users" role="tab" aria-selected="<?php echo $activeTab === 'users' ? 'true' : 'false'; ?>">Users</a>
