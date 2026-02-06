@@ -280,18 +280,6 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
 <div class="columns is-variable is-3">
   <aside class="column is-3">
     <div class="box">
-      <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1]))); ?>" class="button is-primary is-fullwidth">New eMail</a>
-    </div>
-
-    <?php if ($notice): ?>
-      <div class="notification"><?php echo htmlspecialchars($notice); ?></div>
-    <?php endif; ?>
-
-    <?php foreach ($errors as $error): ?>
-      <div class="notification"><?php echo htmlspecialchars($error); ?></div>
-    <?php endforeach; ?>
-
-    <div class="box">
       <h3 class="title is-6">Mailbox</h3>
       <?php if (!$teamMailboxes): ?>
         <p>No mailboxes assigned.</p>
@@ -314,39 +302,51 @@ $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $v
           </div>
         </form>
       <?php endif; ?>
+
+      <div class="block">
+        <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1]))); ?>" class="button is-primary is-fullwidth">New eMail</a>
+      </div>
+
+      <?php if ($notice): ?>
+        <div class="notification"><?php echo htmlspecialchars($notice); ?></div>
+      <?php endif; ?>
+
+      <?php foreach ($errors as $error): ?>
+        <div class="notification"><?php echo htmlspecialchars($error); ?></div>
+      <?php endforeach; ?>
+
+      <?php if ($selectedMailbox): ?>
+        <div class="block">
+          <h3 class="title is-6">Folders</h3>
+          <aside class="menu">
+            <ul class="menu-list">
+              <?php foreach ($folderOptions as $folderKey => $folderLabel): ?>
+                <?php
+                  $folderLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
+                      'folder' => $folderKey,
+                      'page' => 1,
+                      'message_id' => null
+                  ]));
+                  $folderCount = $folderCounts[$folderKey] ?? 0;
+                ?>
+                <li>
+                  <a href="<?php echo htmlspecialchars($folderLink); ?>" class="<?php echo $folder === $folderKey ? 'is-active' : ''; ?>">
+                    <span><?php echo htmlspecialchars($folderLabel); ?></span>
+                    <span class="tag is-pulled-right"><?php echo (int) $folderCount; ?></span>
+                  </a>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          </aside>
+        </div>
+
+        <div class="block">
+          <h3 class="title is-6">Attachment quota</h3>
+          <progress class="progress" value="<?php echo (int) $quotaUsed; ?>" max="<?php echo (int) $quotaTotal; ?>"></progress>
+          <p><?php echo htmlspecialchars(formatBytes($quotaUsed)); ?> / <?php echo htmlspecialchars(formatBytes($quotaTotal)); ?></p>
+        </div>
+      <?php endif; ?>
     </div>
-
-    <?php if ($selectedMailbox): ?>
-      <div class="box">
-        <h3 class="title is-6">Folders</h3>
-        <aside class="menu">
-          <ul class="menu-list">
-            <?php foreach ($folderOptions as $folderKey => $folderLabel): ?>
-              <?php
-                $folderLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
-                    'folder' => $folderKey,
-                    'page' => 1,
-                    'message_id' => null
-                ]));
-                $folderCount = $folderCounts[$folderKey] ?? 0;
-              ?>
-              <li>
-                <a href="<?php echo htmlspecialchars($folderLink); ?>" class="<?php echo $folder === $folderKey ? 'is-active' : ''; ?>">
-                  <span><?php echo htmlspecialchars($folderLabel); ?></span>
-                  <span class="tag is-pulled-right"><?php echo (int) $folderCount; ?></span>
-                </a>
-              </li>
-            <?php endforeach; ?>
-          </ul>
-        </aside>
-      </div>
-
-      <div class="box">
-        <h3 class="title is-6">Attachment quota</h3>
-        <progress class="progress" value="<?php echo (int) $quotaUsed; ?>" max="<?php echo (int) $quotaTotal; ?>"></progress>
-        <p><?php echo htmlspecialchars(formatBytes($quotaUsed)); ?> / <?php echo htmlspecialchars(formatBytes($quotaTotal)); ?></p>
-      </div>
-    <?php endif; ?>
   </aside>
 
   <section class="column is-4">
