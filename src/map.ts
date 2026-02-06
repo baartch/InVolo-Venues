@@ -51,8 +51,9 @@ const MAP_CONTAINER_ID = 'mapid';
 const SEARCH_INPUT_ID = 'waypoint-search';
 const SEARCH_RESULTS_ID = 'search-results';
 const WAYPOINTS_URL = 'routes/waypoints/index.php';
-const SEARCH_RESULT_CLASS = 'panel-block';
+const SEARCH_RESULT_CLASS = 'dropdown-item';
 const SELECTED_CLASS = 'is-active';
+const DROPDOWN_ACTIVE_CLASS = 'is-active';
 const SEARCH_API_URL = 'routes/venues/search.php';
 const SEARCH_MIN_LENGTH = 2;
 const SEARCH_DEBOUNCE_MS = 500;
@@ -137,7 +138,12 @@ const createWaypointMarker = (waypoint: Waypoint, icon: any): Waypoint => {
   };
 };
 
-const focusWaypoint = (waypoint: Waypoint, searchInput?: HTMLInputElement, searchResults?: HTMLDivElement): void => {
+const focusWaypoint = (
+  waypoint: Waypoint,
+  searchInput?: HTMLInputElement,
+  searchMenu?: HTMLDivElement,
+  searchDropdown?: HTMLElement | null
+): void => {
   map.setView([waypoint.lat, waypoint.lon], FOCUS_ZOOM);
   waypoint.popup.openPopup();
 
@@ -145,21 +151,28 @@ const focusWaypoint = (waypoint: Waypoint, searchInput?: HTMLInputElement, searc
     searchInput.value = waypoint.name;
   }
 
-  if (searchResults) {
-    searchResults.style.display = 'none';
+  if (searchMenu) {
+    searchMenu.classList.add('is-hidden');
   }
+  searchDropdown?.classList.remove(DROPDOWN_ACTIVE_CLASS);
 };
 
-const focusSearchResult = (result: SearchResult, searchInput?: HTMLInputElement, searchResults?: HTMLDivElement): void => {
+const focusSearchResult = (
+  result: SearchResult,
+  searchInput?: HTMLInputElement,
+  searchMenu?: HTMLDivElement,
+  searchDropdown?: HTMLElement | null
+): void => {
   map.setView([result.lat, result.lng], FOCUS_ZOOM);
 
   if (searchInput) {
     searchInput.value = result.name;
   }
 
-  if (searchResults) {
-    searchResults.style.display = 'none';
+  if (searchMenu) {
+    searchMenu.classList.add('is-hidden');
   }
+  searchDropdown?.classList.remove(DROPDOWN_ACTIVE_CLASS);
 };
 
 const clearWaypoints = (): void => {
@@ -327,9 +340,11 @@ const applyStoredView = (): void => {
 
 function initializeSearch(): void {
   const searchInput = document.getElementById(SEARCH_INPUT_ID) as HTMLInputElement | null;
-  const searchResults = document.getElementById(SEARCH_RESULTS_ID) as HTMLDivElement | null;
+  const searchMenu = document.getElementById(SEARCH_RESULTS_ID) as HTMLDivElement | null;
+  const searchResults = searchMenu?.querySelector<HTMLDivElement>('.dropdown-content') ?? null;
+  const searchDropdown = searchMenu?.closest<HTMLElement>('.dropdown') ?? null;
 
-  if (!searchInput || !searchResults) {
+  if (!searchInput || !searchMenu || !searchResults || !searchDropdown) {
     console.error('Search elements not found');
     return;
   }
@@ -341,7 +356,8 @@ function initializeSearch(): void {
   let debounceId: number | null = null;
 
   const clearSearchResults = (): void => {
-    searchResults.classList.add('is-hidden');
+    searchMenu.classList.add('is-hidden');
+    searchDropdown.classList.remove(DROPDOWN_ACTIVE_CLASS);
     searchResults.innerHTML = '';
     selectedIndex = -1;
   };
@@ -368,21 +384,22 @@ function initializeSearch(): void {
     }
 
     if (searchMatches[selectedIndex]) {
-      focusSearchResult(searchMatches[selectedIndex], searchInput, searchResults);
+      focusSearchResult(searchMatches[selectedIndex], searchInput, searchMenu, searchDropdown);
       selectedIndex = -1;
       return;
     }
 
     if (filteredWaypoints[selectedIndex]) {
-      focusWaypoint(filteredWaypoints[selectedIndex], searchInput, searchResults);
+      focusWaypoint(filteredWaypoints[selectedIndex], searchInput, searchMenu, searchDropdown);
       selectedIndex = -1;
     }
   };
 
   const renderResults = (): void => {
     if (searchMatches.length === 0 && filteredWaypoints.length === 0) {
-      searchResults.innerHTML = `<div class="panel-block">No venues found</div>`;
-      searchResults.classList.remove('is-hidden');
+      searchResults.innerHTML = `<div class="dropdown-item">No venues found</div>`;
+      searchMenu.classList.remove('is-hidden');
+      searchDropdown.classList.add(DROPDOWN_ACTIVE_CLASS);
       return;
     }
 
@@ -392,7 +409,8 @@ function initializeSearch(): void {
           ${result.name}
         </a>
       `).join('');
-      searchResults.classList.remove('is-hidden');
+      searchMenu.classList.remove('is-hidden');
+      searchDropdown.classList.add(DROPDOWN_ACTIVE_CLASS);
       return;
     }
 
@@ -402,7 +420,8 @@ function initializeSearch(): void {
       </a>
     `).join('');
 
-    searchResults.classList.remove('is-hidden');
+    searchMenu.classList.remove('is-hidden');
+    searchDropdown.classList.add(DROPDOWN_ACTIVE_CLASS);
   };
 
   const performSearch = async (query: string): Promise<void> => {
@@ -468,12 +487,12 @@ function initializeSearch(): void {
     }
 
     if (searchMatches[index]) {
-      focusSearchResult(searchMatches[index], searchInput, searchResults);
+      focusSearchResult(searchMatches[index], searchInput, searchMenu, searchDropdown);
       return;
     }
 
     if (filteredWaypoints[index]) {
-      focusWaypoint(filteredWaypoints[index], searchInput, searchResults);
+      focusWaypoint(filteredWaypoints[index], searchInput, searchMenu, searchDropdown);
     }
   });
 
@@ -503,7 +522,7 @@ function initializeSearch(): void {
 
   document.addEventListener('click', (event: Event) => {
     const target = event.target as HTMLElement;
-    if (!searchInput.contains(target) && !searchResults.contains(target)) {
+    if (!searchInput.contains(target) && !searchMenu.contains(target)) {
       clearSearchResults();
     }
   });

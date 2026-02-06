@@ -4,7 +4,11 @@ require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
 logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
 ?>
-<?php renderPageStart('Map', ['leaflet' => true, 'bodyClass' => 'is-flex is-flex-direction-column is-fullheight']); ?>
+<?php renderPageStart('Map', [
+    'leaflet' => true,
+    'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
+    'extraStyles' => [BASE_PATH . '/public/css/map.css']
+]); ?>
       <section class="hero is-fullheight">
         <div class="hero-body is-flex is-flex-direction-column">
           <div class="container is-fluid is-flex is-flex-direction-column is-flex-grow-1">
@@ -14,9 +18,16 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
               </div>
               <div class="level-right">
                 <div class="field has-addons">
-                  <div class="control has-icons-left">
-                    <input class="input" type="text" id="waypoint-search" placeholder="Search for venues...">
-                    <span class="icon is-left"><i class="fa-solid fa-magnifying-glass"></i></span>
+                  <div class="control has-icons-left is-expanded">
+                    <div class="dropdown is-fullwidth map-search-dropdown" data-search-dropdown>
+                      <div class="dropdown-trigger">
+                        <input class="input" type="text" id="waypoint-search" placeholder="Search for venues...">
+                        <span class="icon is-left"><i class="fa-solid fa-magnifying-glass"></i></span>
+                      </div>
+                      <div id="search-results" class="dropdown-menu is-hidden" role="menu">
+                        <div class="dropdown-content"></div>
+                      </div>
+                    </div>
                   </div>
                   <p class="control">
                     <span class="button is-static">Ctrl+K</span>
@@ -24,7 +35,6 @@ logAction($currentUser['user_id'] ?? null, 'view_map', 'User opened map');
                 </div>
               </div>
             </div>
-            <div id="search-results" class="panel is-hidden"></div>
             <div id="map-zoom-hint" class="notification is-hidden" role="status" aria-live="polite" aria-hidden="true">
               Zoom in to load venues.
             </div>

@@ -1,0 +1,26 @@
+.map-search-dropdown {
+  position: relative;
+}
+
+.map-search-dropdown .dropdown-menu {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  display: block;
+  padding-top: 5px;
+  z-index: 1000;
+  width: 100%;
+}
+
+.map-search-dropdown .dropdown-content {
+  max-height: 16rem;
+  overflow-y: auto;
+  width: 100%;
+  background-color: inherit;
+  box-shadow: none;
+}
+
+.map-search-dropdown .dropdown-item {
+  white-space: normal;
+}
