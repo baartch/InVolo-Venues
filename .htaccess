@@ -39,7 +39,7 @@ Header always set Permissions-Policy "geolocation=(), microphone=(), camera=(), 
 # Note: Adjust if you add external scripts/styles
 # OpenStreetMap wildcard covers all tile server subdomains
 
-Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com; img-src 'self' data: https://*.openstreetmap.org https://api.mapbox.com; font-src 'self' data:; connect-src 'self' https://unpkg.com https://api.mapbox.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
+Header always set Content-Security-Policy "default-src 'self'; script-src 'self' 'unsafe-inline' https://unpkg.com; style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com; img-src 'self' data: https://*.openstreetmap.org https://api.mapbox.com; font-src 'self' data: https://cdnjs.cloudflare.com; connect-src 'self' https://unpkg.com https://api.mapbox.com; frame-ancestors 'self'; base-uri 'self'; form-action 'self'"
 
 # HSTS - Force HTTPS (only enable if you have SSL/TLS configured)
 

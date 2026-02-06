@@ -116,27 +116,31 @@ function verifyCsrfToken(): void
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Security Error</title>
-    <style>
-        body { font-family: system-ui, sans-serif; max-width: 600px; margin: 100px auto; padding: 20px; text-align: center; }
-        .error-box { background: #fee; border: 2px solid #c33; border-radius: 8px; padding: 30px; }
-        h1 { color: #c33; margin: 0 0 10px 0; }
-        p { margin: 15px 0; line-height: 1.6; }
-        a { color: #0066cc; text-decoration: none; }
-        a:hover { text-decoration: underline; }
-    </style>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css">
 </head>
-<body>
-    <div class="error-box">
-        <h1>🛡️ Security Error</h1>
-        <p><strong>CSRF token validation failed.</strong></p>
-        <p>This request appears to be invalid or has expired. This could happen if:</p>
-        <ul style="text-align: left; display: inline-block;">
-            <li>Your session expired (tokens are valid for 2 hours)</li>
-            <li>You submitted a form from an old page</li>
-            <li>Your browser blocked cookies</li>
-        </ul>
-        <p><a href="javascript:history.back()">← Go Back</a> or <a href="' . (defined('BASE_PATH') ? BASE_PATH : '') . '/index.php">Go to Home</a></p>
-    </div>
+<body class="has-background-light">
+    <section class="section">
+        <div class="container">
+            <div class="columns is-centered">
+                <div class="column is-half">
+                    <div class="notification is-danger has-text-centered">
+                        <h1 class="title is-4">🛡️ Security Error</h1>
+                        <p><strong>CSRF token validation failed.</strong></p>
+                        <p>This request appears to be invalid or has expired. This could happen if:</p>
+                        <ul class="content">
+                            <li>Your session expired (tokens are valid for 2 hours)</li>
+                            <li>You submitted a form from an old page</li>
+                            <li>Your browser blocked cookies</li>
+                        </ul>
+                        <p>
+                            <a class="button is-light" href="javascript:history.back()">Go Back</a>
+                            <a class="button is-link" href="' . (defined('BASE_PATH') ? BASE_PATH : '') . '/index.php">Go to Home</a>
+                        </p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
 </body>
 </html>';
         exit;

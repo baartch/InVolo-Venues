@@ -3,7 +3,6 @@ require_once __DIR__ . '/../../routes/auth/check.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/form_helpers.php';
 require_once __DIR__ . '/../../src-php/layout.php';
-require_once __DIR__ . '/../../src-php/theme.php';
 
 $errors = [];
 $notice = '';
@@ -252,168 +251,62 @@ try {
 
 logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue management');
 ?>
-<?php renderPageStart('Venues', ['theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)]); ?>
-      <div class="content-wrapper">
-        <div class="page-header">
-          <h1>Venue Management</h1>
-          <div class="page-header-actions">
-            <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php" class="btn">Add Venue</a>
-            <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
-              <button type="button" class="btn" data-import-toggle>Import</button>
-            <?php endif; ?>
-          </div>
-        </div>
-
-        <?php if ($notice): ?>
-          <div class="notice"><?php echo htmlspecialchars($notice); ?></div>
-        <?php endif; ?>
-
-        <?php foreach ($errors as $error): ?>
-          <div class="error"><?php echo htmlspecialchars($error); ?></div>
-        <?php endforeach; ?>
-
-        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
-          <div class="modal-backdrop" data-import-modal data-initial-open="<?php echo $showImportModal ? 'true' : 'false'; ?>">
-            <div class="modal-card">
-              <h3>Import Venues (JSON)</h3>
-              <form method="POST" action="">
-                <?php renderCsrfField(); ?>
-                <input type="hidden" name="action" value="import">
-                <textarea class="input" name="import_json" placeholder="Paste JSON here"><?php echo htmlspecialchars($importPayload); ?></textarea>
-                <div class="modal-actions">
-                  <button type="button" class="btn modal-close" data-import-close>Close</button>
-                  <button type="submit" class="btn">Import</button>
-                </div>
-              </form>
+<?php renderPageStart('Venues', ['bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight']); ?>
+      <section class="section">
+        <div class="container is-fluid">
+          <div class="level mb-4">
+            <div class="level-left">
+              <div>
+                <h1 class="title is-3 has-text-light">Venue Management</h1>
+                <p class="subtitle is-6 has-text-grey-light">Manage the venues stored in the database.</p>
+              </div>
+            </div>
+            <div class="level-right">
+              <div class="buttons">
+                <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php" class="button is-link">Add Venue</a>
+                <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+                  <button type="button" class="button is-light" data-import-toggle>Import</button>
+                <?php endif; ?>
+              </div>
             </div>
           </div>
-        <?php endif; ?>
 
-        <div class="card card-section">
-          <h2>All Venues</h2>
-          <form method="GET" action="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="table-filter" data-filter-form>
-            <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
-            <div class="table-filter-field">
-              <input
-                class="input"
-                type="text"
-                name="filter"
-                value="<?php echo htmlspecialchars($filter); ?>"
-                placeholder="Filter venues"
-                autocomplete="off"
-              >
-              <span class="table-filter-clear" data-filter-clear role="button" tabindex="0" aria-label="Clear filter">❌</span>
+          <?php if ($notice): ?>
+            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+          <?php endif; ?>
+
+          <?php foreach ($errors as $error): ?>
+            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+          <?php endforeach; ?>
+
+          <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+            <div class="modal" data-import-modal data-initial-open="<?php echo $showImportModal ? 'true' : 'false'; ?>">
+              <div class="modal-background" data-import-close></div>
+              <div class="modal-card">
+                <header class="modal-card-head">
+                  <p class="modal-card-title">Import Venues (JSON)</p>
+                  <button class="delete" aria-label="close" data-import-close></button>
+                </header>
+                <section class="modal-card-body">
+                  <form method="POST" action="" id="import_form">
+                    <?php renderCsrfField(); ?>
+                    <input type="hidden" name="action" value="import">
+                    <div class="field">
+                      <div class="control">
+                        <textarea class="textarea" name="import_json" placeholder="Paste JSON here" rows="8"><?php echo htmlspecialchars($importPayload); ?></textarea>
+                      </div>
+                    </div>
+                  </form>
+                </section>
+                <footer class="modal-card-foot">
+                  <button type="button" class="button" data-import-close>Close</button>
+                  <button type="submit" class="button is-link" form="import_form">Import</button>
+                </footer>
+              </div>
             </div>
-          </form>
-          <div class="table-meta">
-            <span><?php echo (int) $totalVenues; ?> venues</span>
-            <span>Page <?php echo (int) $page; ?> of <?php echo (int) $totalPages; ?></span>
-          </div>
-          <div class="table-wrapper">
-            <table class="table">
-              <thead>
-                <tr>
-                  <th></th>
-                  <th data-sort>Name</th>
-                  <th data-sort>Address</th>
-                  <th data-sort>State</th>
-                  <th data-sort>Country</th>
-                  <th data-sort>Type</th>
-                  <th data-sort>Contact Email</th>
-                  <th data-sort>Contact Phone</th>
-                  <th data-sort>Contact Person</th>
-                  <th data-sort data-sort-type="number">Capacity</th>
-                  <th data-sort>Website</th>
-                  <th>Actions</th>
-                </tr>
-              </thead>
-              <tbody>
-                <?php foreach ($venues as $venue): ?>
-                  <tr>
-                    <td>
-                      <?php if (!empty($venue['latitude']) && !empty($venue['longitude'])): ?>
-                        <?php
-                          $lat = number_format((float) $venue['latitude'], 6, '.', '');
-                          $lng = number_format((float) $venue['longitude'], 6, '.', '');
-                          $mapLink = BASE_PATH . '/pages/map/index.php?' . http_build_query([
-                              'lat' => $lat,
-                              'lng' => $lng,
-                              'zoom' => 13
-                          ]);
-                        ?>
-                        <a href="<?php echo htmlspecialchars($mapLink); ?>" class="table-icon" aria-label="Open map at venue" title="Open map">
-                          <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-mapmarker.svg" alt="Has coordinates" class="table-icon">
-                        </a>
-                      <?php endif; ?>
-                    </td>
-                    <td><?php echo htmlspecialchars($venue['name']); ?></td>
-                    <td>
-                      <?php
-                        $addressParts = array_filter([
-                            $venue['address'] ?? '',
-                            implode(' ', array_filter([
-                                $venue['postal_code'] ?? '',
-                                $venue['city'] ?? ''
-                            ]))
-                        ]);
-                        echo nl2br(htmlspecialchars(implode("\n", $addressParts)));
-                      ?>
-                    </td>
-                    <td><?php echo htmlspecialchars($venue['state'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['country'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['type'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['contact_email'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['contact_phone'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['contact_person'] ?? ''); ?></td>
-                    <td><?php echo htmlspecialchars($venue['capacity'] ?? ''); ?></td>
-                    <td>
-                      <?php if (!empty($venue['website'])): ?>
-                        <a href="<?php echo htmlspecialchars($venue['website']); ?>" target="_blank" rel="noopener noreferrer">
-                          <?php echo htmlspecialchars($venue['website']); ?>
-                        </a>
-                      <?php endif; ?>
-                    </td>
-                    <td>
-                      <div class="table-actions">
-                        <button type="button" class="icon-button secondary" data-venue-info-toggle aria-label="Show venue details" title="Show venue details">
-                          <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-info.svg" alt="Info">
-                        </button>
-                        <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="icon-button secondary" aria-label="Edit venue" title="Edit venue">
-                          <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
-                        </a>
-                        <form method="POST" action="" onsubmit="return confirm('Delete this venue?');">
-                          <?php renderCsrfField(); ?>
-                          <input type="hidden" name="action" value="delete">
-                          <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
-                          <button type="submit" class="icon-button" aria-label="Delete venue" title="Delete venue">
-                            <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
-                          </button>
-                        </form>
-                      </div>
-                    </td>
-                  </tr>
-                  <tr class="venue-details-row" data-venue-details>
-                    <td colspan="12">
-                      <div class="venue-details">
-                        <?php if (!empty($venue['notes'])): ?>
-                          <div class="venue-details-notes">
-                            <?php echo nl2br(htmlspecialchars($venue['notes'] ?? '')); ?>
-                          </div>
-                        <?php else: ?>
-                          <div class="venue-details-notes text-muted">No notes.</div>
-                        <?php endif; ?>
-                        <div class="venue-details-meta">
-                          <span>Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
-                          <span>Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
-                        </div>
-                      </div>
-                    </td>
-                  </tr>
-                <?php endforeach; ?>
-              </tbody>
-            </table>
-          </div>
-          <div class="table-pagination" aria-label="Venues pagination">
+          <?php endif; ?>
+
+          <div class="box has-background-dark has-text-light">
             <?php
               $query = $_GET;
               $query['page'] = max(1, $page - 1);
@@ -433,22 +326,171 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                 $startPage = max(1, min($startPage, $endPage - $range * 2));
               }
             ?>
-            <a class="btn" href="<?php echo htmlspecialchars($firstLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>First</a>
-            <a class="btn" href="<?php echo htmlspecialchars($prevLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>Previous</a>
-            <?php for ($pageIndex = $startPage; $pageIndex <= $endPage; $pageIndex++): ?>
-              <?php
-                $query['page'] = $pageIndex;
-                $pageLink = $baseUrl . '?' . http_build_query($query);
-              ?>
-              <a class="pagination-page<?php echo $pageIndex === $page ? ' is-active' : ''; ?>" href="<?php echo htmlspecialchars($pageLink); ?>">
-                <?php echo (int) $pageIndex; ?>
-              </a>
-            <?php endfor; ?>
-            <span class="pagination-status">Page <?php echo (int) $page; ?> of <?php echo (int) $totalPages; ?></span>
-            <a class="btn" href="<?php echo htmlspecialchars($nextLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Next</a>
-            <a class="btn" href="<?php echo htmlspecialchars($lastLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Last</a>
+            <div class="level mb-3">
+              <div class="level-left">
+                <h2 class="title is-5 has-text-light">All Venues</h2>
+              </div>
+              <div class="level-right">
+                <form method="GET" action="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="field has-addons" data-filter-form>
+                  <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
+                  <div class="control has-icons-left">
+                    <input
+                      class="input has-background-grey-darker has-text-light"
+                      type="text"
+                      name="filter"
+                      value="<?php echo htmlspecialchars($filter); ?>"
+                      placeholder="Filter venues"
+                      autocomplete="off"
+                    >
+                    <span class="icon is-left"><i class="fa-solid fa-magnifying-glass"></i></span>
+                  </div>
+                  <div class="control">
+                    <button class="button is-link" type="submit">Filter</button>
+                  </div>
+                  <div class="control">
+                    <button type="button" class="button is-light" data-filter-clear aria-label="Clear filter">Clear</button>
+                  </div>
+                </form>
+              </div>
+            </div>
+            <div class="level mb-3">
+              <div class="level-left">
+                <span class="tag is-dark"><?php echo (int) $totalVenues; ?> venues</span>
+                <span class="tag is-dark">Page <?php echo (int) $page; ?> of <?php echo (int) $totalPages; ?></span>
+                <span class="tag is-dark">Page size <?php echo (int) $pageSize; ?></span>
+              </div>
+              <div class="level-right">
+                <a class="button is-light is-small" href="<?php echo htmlspecialchars($firstLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>First</a>
+                <a class="button is-light is-small" href="<?php echo htmlspecialchars($lastLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Last</a>
+              </div>
+            </div>
+            <div class="table-container">
+              <table class="table is-striped is-hoverable is-fullwidth is-dark" data-venues-table>
+                <thead>
+                  <tr>
+                    <th></th>
+                    <th class="has-text-light" data-sort>Name</th>
+                    <th class="has-text-light" data-sort>Address</th>
+                    <th class="has-text-light" data-sort>State</th>
+                    <th class="has-text-light" data-sort>Country</th>
+                    <th class="has-text-light" data-sort>Type</th>
+                    <th class="has-text-light" data-sort>Contact Email</th>
+                    <th class="has-text-light" data-sort>Contact Phone</th>
+                    <th class="has-text-light" data-sort>Contact Person</th>
+                    <th class="has-text-light" data-sort data-sort-type="number">Capacity</th>
+                    <th class="has-text-light" data-sort>Website</th>
+                    <th class="has-text-light">Actions</th>
+                  </tr>
+                </thead>
+                <tbody class="has-text-light">
+                  <?php foreach ($venues as $venue): ?>
+                    <tr>
+                      <td>
+                        <?php if (!empty($venue['latitude']) && !empty($venue['longitude'])): ?>
+                          <?php
+                            $lat = number_format((float) $venue['latitude'], 6, '.', '');
+                            $lng = number_format((float) $venue['longitude'], 6, '.', '');
+                            $mapLink = BASE_PATH . '/pages/map/index.php?' . http_build_query([
+                                'lat' => $lat,
+                                'lng' => $lng,
+                                'zoom' => 13
+                            ]);
+                          ?>
+                          <a href="<?php echo htmlspecialchars($mapLink); ?>" class="icon has-text-link" aria-label="Open map at venue" title="Open map">
+                            <i class="fa-solid fa-location-dot"></i>
+                          </a>
+                        <?php endif; ?>
+                      </td>
+                      <td><?php echo htmlspecialchars($venue['name']); ?></td>
+                      <td>
+                        <?php
+                          $addressParts = array_filter([
+                              $venue['address'] ?? '',
+                              implode(' ', array_filter([
+                                  $venue['postal_code'] ?? '',
+                                  $venue['city'] ?? ''
+                              ]))
+                          ]);
+                          echo nl2br(htmlspecialchars(implode("\n", $addressParts)));
+                        ?>
+                      </td>
+                      <td><?php echo htmlspecialchars($venue['state'] ?? ''); ?></td>
+                      <td><?php echo htmlspecialchars($venue['country'] ?? ''); ?></td>
+                      <td><?php echo htmlspecialchars($venue['type'] ?? ''); ?></td>
+                      <td><?php echo htmlspecialchars($venue['contact_email'] ?? ''); ?></td>
+                      <td><?php echo htmlspecialchars($venue['contact_phone'] ?? ''); ?></td>
+                      <td><?php echo htmlspecialchars($venue['contact_person'] ?? ''); ?></td>
+                      <td><?php echo htmlspecialchars($venue['capacity'] ?? ''); ?></td>
+                      <td>
+                        <?php if (!empty($venue['website'])): ?>
+                          <a href="<?php echo htmlspecialchars($venue['website']); ?>" target="_blank" rel="noopener noreferrer" class="has-text-link-light">
+                            <?php echo htmlspecialchars($venue['website']); ?>
+                          </a>
+                        <?php endif; ?>
+                      </td>
+                      <td>
+                        <div class="buttons are-small">
+                          <button type="button" class="button is-light" data-venue-info-toggle aria-label="Show venue details" title="Show venue details">
+                            <span class="icon"><i class="fa-solid fa-circle-info"></i></span>
+                          </button>
+                          <a href="<?php echo BASE_PATH; ?>/pages/venues/add.php?edit=<?php echo (int) $venue['id']; ?>" class="button is-light" aria-label="Edit venue" title="Edit venue">
+                            <span class="icon"><i class="fa-solid fa-pen"></i></span>
+                          </a>
+                          <form method="POST" action="" onsubmit="return confirm('Delete this venue?');">
+                            <?php renderCsrfField(); ?>
+                            <input type="hidden" name="action" value="delete">
+                            <input type="hidden" name="venue_id" value="<?php echo (int) $venue['id']; ?>">
+                            <button type="submit" class="button is-danger is-light" aria-label="Delete venue" title="Delete venue">
+                              <span class="icon"><i class="fa-solid fa-trash"></i></span>
+                            </button>
+                          </form>
+                        </div>
+                      </td>
+                    </tr>
+                    <tr class="is-hidden" data-venue-details>
+                      <td colspan="12">
+                        <article class="message is-dark">
+                          <div class="message-body">
+                            <?php if (!empty($venue['notes'])): ?>
+                              <div class="content has-text-light">
+                                <?php echo nl2br(htmlspecialchars($venue['notes'] ?? '')); ?>
+                              </div>
+                            <?php else: ?>
+                              <p class="has-text-grey-light">No notes.</p>
+                            <?php endif; ?>
+                            <div class="level is-mobile mt-3">
+                              <div class="level-left">
+                                <span class="tag is-dark">Created: <?php echo htmlspecialchars($venue['created_at'] ?? ''); ?></span>
+                                <span class="tag is-dark">Updated: <?php echo htmlspecialchars($venue['updated_at'] ?? ''); ?></span>
+                              </div>
+                            </div>
+                          </div>
+                        </article>
+                      </td>
+                    </tr>
+                  <?php endforeach; ?>
+                </tbody>
+              </table>
+            </div>
+            <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+              <a class="pagination-previous" href="<?php echo htmlspecialchars($prevLink); ?>" <?php echo $page <= 1 ? 'aria-disabled="true"' : ''; ?>>Previous</a>
+              <a class="pagination-next" href="<?php echo htmlspecialchars($nextLink); ?>" <?php echo $page >= $totalPages ? 'aria-disabled="true"' : ''; ?>>Next</a>
+              <ul class="pagination-list">
+                <?php for ($pageIndex = $startPage; $pageIndex <= $endPage; $pageIndex++): ?>
+                  <?php
+                    $query['page'] = $pageIndex;
+                    $pageLink = $baseUrl . '?' . http_build_query($query);
+                  ?>
+                  <li>
+                    <a class="pagination-link<?php echo $pageIndex === $page ? ' is-current' : ''; ?>" href="<?php echo htmlspecialchars($pageLink); ?>">
+                      <?php echo (int) $pageIndex; ?>
+                    </a>
+                  </li>
+                <?php endfor; ?>
+              </ul>
+            </nav>
           </div>
         </div>
-      </div>
+      </section>
       <script type="module" src="<?php echo BASE_PATH; ?>/public/js/venues.js" defer></script>
 <?php renderPageEnd(); ?>

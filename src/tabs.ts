@@ -7,14 +7,15 @@ const initTabs = (): void => {
   }
 
   tabs.forEach((tab) => {
-    tab.addEventListener('click', () => {
+    tab.addEventListener('click', (event) => {
+      event.preventDefault();
       const target = tab.getAttribute('data-tab');
       tabs.forEach((button) => {
-        button.classList.toggle('active', button === tab);
+        button.classList.toggle('is-active', button === tab);
         button.setAttribute('aria-selected', button === tab ? 'true' : 'false');
       });
       panels.forEach((panel) => {
-        panel.classList.toggle('active', panel.getAttribute('data-tab-panel') === target);
+        panel.classList.toggle('is-hidden', panel.getAttribute('data-tab-panel') !== target);
       });
     });
   });

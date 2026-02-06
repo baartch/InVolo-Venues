@@ -74,47 +74,49 @@ if ($pdo && $teamIds) {
     }
 }
 ?>
-<div class="tab-panel <?php echo $activeTab === 'mailboxes' ? 'active' : ''; ?>" data-tab-panel="mailboxes" role="tabpanel">
+<div class="tab-panel <?php echo $activeTab === 'mailboxes' ? '' : 'is-hidden'; ?>" data-tab-panel="mailboxes" role="tabpanel">
   <?php if ($notice): ?>
-    <div class="notice"><?php echo htmlspecialchars($notice); ?></div>
+    <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
   <?php endif; ?>
 
   <?php foreach ($errors as $error): ?>
-    <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
   <?php endforeach; ?>
 
-  <div class="page-header mailbox-header">
-    <h2>Mailboxes</h2>
-    <div class="page-header-actions">
-      <a href="<?php echo BASE_PATH; ?>/pages/team/mailbox_form.php" class="btn">Add Mailbox</a>
+  <div class="level mb-4">
+    <div class="level-left">
+      <h2 class="title is-4 has-text-light">Mailboxes</h2>
+    </div>
+    <div class="level-right">
+      <a href="<?php echo BASE_PATH; ?>/pages/team/mailbox_form.php" class="button is-link">Add Mailbox</a>
     </div>
   </div>
 
-  <div class="card card-section">
-    <h2>Configured Mailboxes</h2>
+  <div class="box has-background-dark has-text-light">
+    <h3 class="title is-5 has-text-light">Configured Mailboxes</h3>
     <?php if (!$mailboxes): ?>
-      <p class="text-muted">No mailboxes configured yet.</p>
+      <p class="has-text-grey-light">No mailboxes configured yet.</p>
     <?php else: ?>
-      <div class="table-wrapper">
-        <table class="table">
+      <div class="table-container">
+        <table class="table is-fullwidth is-striped is-hoverable is-dark" data-mailboxes-table>
           <thead>
             <tr>
-              <th>Team</th>
-              <th>Name</th>
-              <th>IMAP Host</th>
-              <th>IMAP Port</th>
-              <th>IMAP User</th>
-              <th>IMAP Encryption</th>
-              <th>SMTP Host</th>
-              <th>SMTP Port</th>
-              <th>SMTP User</th>
-              <th>SMTP Encryption</th>
-              <th>Delete After Retrieve</th>
-              <th>Store Sent on Server</th>
-              <th>Actions</th>
+              <th class="has-text-light">Team</th>
+              <th class="has-text-light">Name</th>
+              <th class="has-text-light">IMAP Host</th>
+              <th class="has-text-light">IMAP Port</th>
+              <th class="has-text-light">IMAP User</th>
+              <th class="has-text-light">IMAP Encryption</th>
+              <th class="has-text-light">SMTP Host</th>
+              <th class="has-text-light">SMTP Port</th>
+              <th class="has-text-light">SMTP User</th>
+              <th class="has-text-light">SMTP Encryption</th>
+              <th class="has-text-light">Delete After Retrieve</th>
+              <th class="has-text-light">Store Sent on Server</th>
+              <th class="has-text-light">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="has-text-light">
             <?php foreach ($mailboxes as $mailbox): ?>
               <tr>
                 <td><?php echo htmlspecialchars($mailbox['team_name'] ?? ''); ?></td>
@@ -130,16 +132,16 @@ if ($pdo && $teamIds) {
                 <td><?php echo !empty($mailbox['delete_after_retrieve']) ? 'Yes' : 'No'; ?></td>
                 <td><?php echo !empty($mailbox['store_sent_on_server']) ? 'Yes' : 'No'; ?></td>
                 <td>
-                  <div class="venue-actions-buttons">
-                    <a href="<?php echo BASE_PATH; ?>/pages/team/mailbox_form.php?edit_mailbox_id=<?php echo (int) $mailbox['id']; ?>" class="icon-button secondary" aria-label="Edit mailbox" title="Edit mailbox">
-                      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
+                  <div class="buttons are-small">
+                    <a href="<?php echo BASE_PATH; ?>/pages/team/mailbox_form.php?edit_mailbox_id=<?php echo (int) $mailbox['id']; ?>" class="button is-light" aria-label="Edit mailbox" title="Edit mailbox">
+                      <span class="icon"><i class="fa-solid fa-pen"></i></span>
                     </a>
                     <form method="POST" action="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=mailboxes" onsubmit="return confirm('Delete this mailbox?');">
                       <?php renderCsrfField(); ?>
                       <input type="hidden" name="action" value="delete_mailbox">
                       <input type="hidden" name="mailbox_id" value="<?php echo (int) $mailbox['id']; ?>">
-                      <button type="submit" class="icon-button" aria-label="Delete mailbox" title="Delete mailbox">
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
+                      <button type="submit" class="button is-danger is-light" aria-label="Delete mailbox" title="Delete mailbox">
+                        <span class="icon"><i class="fa-solid fa-trash"></i></span>
                       </button>
                     </form>
                   </div>

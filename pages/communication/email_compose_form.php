@@ -1,6 +1,6 @@
 <?php
 ?>
-<form method="POST" action="<?php echo BASE_PATH; ?>/routes/email/send.php" class="email-compose-form">
+<form method="POST" action="<?php echo BASE_PATH; ?>/routes/email/send.php">
   <?php renderCsrfField(); ?>
   <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
   <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
@@ -10,28 +10,38 @@
   <input type="hidden" name="tab" value="email">
   <input type="hidden" name="draft_id" value="<?php echo $message && ($message['folder'] ?? '') === 'drafts' ? (int) $message['id'] : ''; ?>">
 
-  <div class="form-group">
-    <label for="email_to">To</label>
-    <input type="text" id="email_to" name="to_emails" class="input" value="<?php echo htmlspecialchars($composeValues['to_emails']); ?>" required>
+  <div class="field">
+    <label for="email_to" class="label has-text-light">To</label>
+    <div class="control">
+      <input type="text" id="email_to" name="to_emails" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($composeValues['to_emails']); ?>" required>
+    </div>
   </div>
-  <div class="form-group">
-    <label for="email_cc">Cc</label>
-    <input type="text" id="email_cc" name="cc_emails" class="input" value="<?php echo htmlspecialchars($composeValues['cc_emails']); ?>">
+  <div class="field">
+    <label for="email_cc" class="label has-text-light">Cc</label>
+    <div class="control">
+      <input type="text" id="email_cc" name="cc_emails" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($composeValues['cc_emails']); ?>">
+    </div>
   </div>
-  <div class="form-group">
-    <label for="email_bcc">Bcc</label>
-    <input type="text" id="email_bcc" name="bcc_emails" class="input" value="<?php echo htmlspecialchars($composeValues['bcc_emails']); ?>">
+  <div class="field">
+    <label for="email_bcc" class="label has-text-light">Bcc</label>
+    <div class="control">
+      <input type="text" id="email_bcc" name="bcc_emails" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($composeValues['bcc_emails']); ?>">
+    </div>
   </div>
-  <div class="form-group">
-    <label for="email_subject">Subject</label>
-    <input type="text" id="email_subject" name="subject" class="input" value="<?php echo htmlspecialchars($composeValues['subject']); ?>">
+  <div class="field">
+    <label for="email_subject" class="label has-text-light">Subject</label>
+    <div class="control">
+      <input type="text" id="email_subject" name="subject" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($composeValues['subject']); ?>">
+    </div>
   </div>
-  <div class="form-group">
-    <label for="email_body">Body</label>
-    <textarea id="email_body" name="body" class="input" rows="10"><?php echo htmlspecialchars($composeValues['body']); ?></textarea>
+  <div class="field">
+    <label for="email_body" class="label has-text-light">Body</label>
+    <div class="control">
+      <textarea id="email_body" name="body" class="textarea has-background-grey-darker has-text-light" rows="10"><?php echo htmlspecialchars($composeValues['body']); ?></textarea>
+    </div>
   </div>
-  <div class="page-header-actions">
-    <button type="submit" class="btn" name="action" value="send_email">Send</button>
-    <button type="submit" class="btn" name="action" value="save_draft">Save Draft</button>
+  <div class="buttons">
+    <button type="submit" class="button is-link" name="action" value="send_email">Send</button>
+    <button type="submit" class="button is-light" name="action" value="save_draft">Save Draft</button>
   </div>
 </form>

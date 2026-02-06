@@ -2,34 +2,43 @@
 require_once __DIR__ . '/../../routes/auth/check.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
-require_once __DIR__ . '/../../src-php/theme.php';
 
 $activeTab = $_GET['tab'] ?? 'conversations';
 
 logAction($currentUser['user_id'] ?? null, 'view_communication', 'User opened communication page');
 ?>
 <?php renderPageStart('Communication', [
-    'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
+    'bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight',
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'
     ]
 ]); ?>
-      <div class="content-wrapper">
-        <div class="page-header">
-          <h1>Communication</h1>
-        </div>
+      <section class="section">
+        <div class="container is-fluid">
+          <div class="level mb-4">
+            <div class="level-left">
+              <h1 class="title is-3 has-text-light">Communication</h1>
+            </div>
+          </div>
 
-        <div class="tabs" role="tablist">
-          <button type="button" class="tab-button <?php echo $activeTab === 'conversations' ? 'active' : ''; ?>" data-tab="conversations" role="tab" aria-selected="<?php echo $activeTab === 'conversations' ? 'true' : 'false'; ?>">Conversations</button>
-          <button type="button" class="tab-button <?php echo $activeTab === 'email' ? 'active' : ''; ?>" data-tab="email" role="tab" aria-selected="<?php echo $activeTab === 'email' ? 'true' : 'false'; ?>">eMail</button>
-        </div>
+          <div class="tabs is-boxed is-dark" role="tablist">
+            <ul>
+              <li class="<?php echo $activeTab === 'conversations' ? 'is-active' : ''; ?>">
+                <a href="#" data-tab="conversations" role="tab" aria-selected="<?php echo $activeTab === 'conversations' ? 'true' : 'false'; ?>">Conversations</a>
+              </li>
+              <li class="<?php echo $activeTab === 'email' ? 'is-active' : ''; ?>">
+                <a href="#" data-tab="email" role="tab" aria-selected="<?php echo $activeTab === 'email' ? 'true' : 'false'; ?>">eMail</a>
+              </li>
+            </ul>
+          </div>
 
-        <div class="tab-panel <?php echo $activeTab === 'conversations' ? 'active' : ''; ?>" data-tab-panel="conversations" role="tabpanel">
-          <?php require __DIR__ . '/conversations.php'; ?>
-        </div>
+          <div class="tab-panel <?php echo $activeTab === 'conversations' ? '' : 'is-hidden'; ?>" data-tab-panel="conversations" role="tabpanel">
+            <?php require __DIR__ . '/conversations.php'; ?>
+          </div>
 
-        <div class="tab-panel <?php echo $activeTab === 'email' ? 'active' : ''; ?>" data-tab-panel="email" role="tabpanel">
-          <?php require __DIR__ . '/email.php'; ?>
+          <div class="tab-panel <?php echo $activeTab === 'email' ? '' : 'is-hidden'; ?>" data-tab-panel="email" role="tabpanel">
+            <?php require __DIR__ . '/email.php'; ?>
+          </div>
         </div>
-      </div>
+      </section>
 <?php renderPageEnd(); ?>

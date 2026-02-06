@@ -23,13 +23,13 @@ function setSecurityHeaders(): void
         header('Permissions-Policy: geolocation=(), microphone=(), camera=(), payment=(), usb=(), magnetometer=(), gyroscope=(), accelerometer=()');
         
         // Content Security Policy
-        // Allows: self, Leaflet CDN, OpenStreetMap tiles (wildcard covers all subdomains), Mapbox API
+        // Allows: self, Leaflet CDN, Bulma CDN, OpenStreetMap tiles (wildcard covers all subdomains), Mapbox API, Font Awesome
         $csp = implode('; ', [
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline' https://unpkg.com",
-            "style-src 'self' 'unsafe-inline' https://unpkg.com",
+            "style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
             "img-src 'self' data: https://*.openstreetmap.org https://api.mapbox.com",
-            "font-src 'self' data:",
+            "font-src 'self' data: https://cdnjs.cloudflare.com",
             "connect-src 'self' https://unpkg.com https://api.mapbox.com",
             "frame-ancestors 'self'",
             "base-uri 'self'",

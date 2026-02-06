@@ -225,7 +225,7 @@ Add cron jobs to handle housekeeping and email ingestion:
 
 ### Theme
 
-The UI uses a central theme file. Update `public/css/themes/forest.css` to adjust the forest palette. Users can switch themes in Profile; the default is "forest" and is stored per user (requires `users.ui_theme`).
+The UI uses Bulma via CDN and no longer uses local theme CSS.
 
 ### Navigation
 
@@ -258,7 +258,7 @@ frontend/
 │   ├── layout.php             # Page layout
 │   ├── search_helpers.php     # Web search API
 │   ├── settings.php           # Settings management
-│   └── theme.php              # Theme selection
+│   └── theme.php              # Theme selection (legacy)
 ├── public/                    # Public assets
     ├── css/                   # Styles
     ├── js/                    # Compiled JavaScript

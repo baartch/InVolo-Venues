@@ -11,12 +11,10 @@ function renderPageStart(string $title, array $options = []): void
     
     global $currentUser;
     $includeSidebar = $options['includeSidebar'] ?? true;
-    $bodyClass = $options['bodyClass'] ?? 'map-page';
+    $bodyClass = $options['bodyClass'] ?? 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight';
     $extraStyles = $options['extraStyles'] ?? [];
     $extraScripts = $options['extraScripts'] ?? [];
     $leaflet = $options['leaflet'] ?? false;
-    $theme = $options['theme'] ?? 'forest';
-    $themeHref = BASE_PATH . '/public/css/themes/' . $theme . '.css';
 
     echo "<!DOCTYPE html>\n";
     echo "<html lang=\"en\">\n";
@@ -33,8 +31,8 @@ function renderPageStart(string $title, array $options = []): void
         echo "  <link rel=\"stylesheet\" href=\"https://unpkg.com/leaflet@1.7.1/dist/leaflet.css\" integrity=\"sha512-xodZBNTC5n17Xt2atTPuE1HxjVMSvLVW9ocqUKLsCC5CXdbqCmblAshOMAS6/keqq/sMZMZ19scR4PsZChSR7A==\" crossorigin=\"\" />\n";
     }
 
-    echo "  <link rel=\"stylesheet\" href=\"" . BASE_PATH . "/public/css/styles.css\">\n";
-    echo "  <link rel=\"stylesheet\" href=\"{$themeHref}\">\n";
+    echo "  <link rel=\"stylesheet\" href=\"https://cdn.jsdelivr.net/npm/bulma@1.0.4/css/bulma.min.css\">\n";
+    echo "  <link rel=\"stylesheet\" href=\"https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css\" integrity=\"sha512-DTOQO9RWCH3ppGqcWaEA1BIZOC6xxalwEsw9c2QQeAIftl+Vegovlnee1c9QX4TctnWMn13TZye+giMm8e2LwA==\" crossorigin=\"anonymous\" referrerpolicy=\"no-referrer\">\n";
 
     foreach ($extraStyles as $styleUrl) {
         echo "  <link rel=\"stylesheet\" href=\"{$styleUrl}\">\n";
@@ -49,10 +47,12 @@ function renderPageStart(string $title, array $options = []): void
     echo "<body class=\"{$bodyClass}\">\n";
 
     if ($includeSidebar) {
-        echo "  <div class=\"app-layout\">\n";
+        echo "  <div class=\"columns is-gapless app-layout is-flex-grow-1\">\n";
         require __DIR__ . '/../partials/sidebar.php';
         echo "\n";
-        echo "    <main class=\"main-content\">\n";
+        echo "    <main class=\"column main-content is-flex is-flex-direction-column\">\n";
+    } else {
+        echo "  <main class=\"is-flex-grow-1\">\n";
     }
 }
 
@@ -67,6 +67,8 @@ function renderPageEnd(array $options = []): void
             echo $afterMain . "\n";
         }
         echo "  </div>\n";
+    } else {
+        echo "  </main>\n";
     }
 
     echo "</body>\n";

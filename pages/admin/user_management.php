@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../../src-php/admin_check.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
-require_once __DIR__ . '/../../src-php/theme.php';
 require_once __DIR__ . '/../../src-php/settings.php';
 
 $errors = [];
@@ -426,40 +425,52 @@ try {
 logAction($currentUser['user_id'] ?? null, 'view_user_management', 'User opened admin panel');
 ?>
 <?php renderPageStart('Admin', [
-    'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null),
+    'bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight',
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'
     ]
 ]); ?>
-      <div class="content-wrapper">
-        <div class="page-header">
-          <h1>Admin</h1>
+      <section class="section">
+        <div class="container is-fluid">
+          <div class="level mb-4">
+            <div class="level-left">
+              <h1 class="title is-3 has-text-light">Admin</h1>
+            </div>
+          </div>
+
+          <?php if ($notice): ?>
+            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+          <?php endif; ?>
+
+          <?php foreach ($errors as $error): ?>
+            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+          <?php endforeach; ?>
+
+          <div class="tabs is-boxed is-dark" role="tablist">
+            <ul>
+              <li class="<?php echo $activeTab === 'users' ? 'is-active' : ''; ?>">
+                <a href="#" data-tab="users" role="tab" aria-selected="<?php echo $activeTab === 'users' ? 'true' : 'false'; ?>">Users</a>
+              </li>
+              <li class="<?php echo $activeTab === 'teams' ? 'is-active' : ''; ?>">
+                <a href="#" data-tab="teams" role="tab" aria-selected="<?php echo $activeTab === 'teams' ? 'true' : 'false'; ?>">Teams</a>
+              </li>
+              <li class="<?php echo $activeTab === 'api-keys' ? 'is-active' : ''; ?>">
+                <a href="#" data-tab="api-keys" role="tab" aria-selected="<?php echo $activeTab === 'api-keys' ? 'true' : 'false'; ?>">API Keys</a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="tab-panel <?php echo $activeTab === 'users' ? '' : 'is-hidden'; ?>" data-tab-panel="users" role="tabpanel">
+            <?php require __DIR__ . '/admin_users.php'; ?>
+          </div>
+
+          <div class="tab-panel <?php echo $activeTab === 'teams' ? '' : 'is-hidden'; ?>" data-tab-panel="teams" role="tabpanel">
+            <?php require __DIR__ . '/admin_teams.php'; ?>
+          </div>
+
+          <div class="tab-panel <?php echo $activeTab === 'api-keys' ? '' : 'is-hidden'; ?>" data-tab-panel="api-keys" role="tabpanel">
+            <?php require __DIR__ . '/admin_api_keys.php'; ?>
+          </div>
         </div>
-
-        <?php if ($notice): ?>
-          <div class="notice"><?php echo htmlspecialchars($notice); ?></div>
-        <?php endif; ?>
-
-        <?php foreach ($errors as $error): ?>
-          <div class="error"><?php echo htmlspecialchars($error); ?></div>
-        <?php endforeach; ?>
-
-        <div class="tabs" role="tablist">
-          <button type="button" class="tab-button <?php echo $activeTab === 'users' ? 'active' : ''; ?>" data-tab="users" role="tab" aria-selected="<?php echo $activeTab === 'users' ? 'true' : 'false'; ?>">Users</button>
-          <button type="button" class="tab-button <?php echo $activeTab === 'teams' ? 'active' : ''; ?>" data-tab="teams" role="tab" aria-selected="<?php echo $activeTab === 'teams' ? 'true' : 'false'; ?>">Teams</button>
-          <button type="button" class="tab-button <?php echo $activeTab === 'api-keys' ? 'active' : ''; ?>" data-tab="api-keys" role="tab" aria-selected="<?php echo $activeTab === 'api-keys' ? 'true' : 'false'; ?>">API Keys</button>
-        </div>
-
-        <div class="tab-panel <?php echo $activeTab === 'users' ? 'active' : ''; ?>" data-tab-panel="users" role="tabpanel">
-          <?php require __DIR__ . '/admin_users.php'; ?>
-        </div>
-
-        <div class="tab-panel <?php echo $activeTab === 'teams' ? 'active' : ''; ?>" data-tab-panel="teams" role="tabpanel">
-          <?php require __DIR__ . '/admin_teams.php'; ?>
-        </div>
-
-        <div class="tab-panel <?php echo $activeTab === 'api-keys' ? 'active' : ''; ?>" data-tab-panel="api-keys" role="tabpanel">
-          <?php require __DIR__ . '/admin_api_keys.php'; ?>
-        </div>
-      </div>
+      </section>
 <?php renderPageEnd(); ?>

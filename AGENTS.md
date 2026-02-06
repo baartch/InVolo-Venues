@@ -34,10 +34,8 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 │   ├── layout.php            # Page layout rendering
 │   ├── search_helpers.php    # Web search API helpers
 │   ├── settings.php          # Settings management
-│   └── theme.php             # Theme selection
+│   └── theme.php             # Theme selection (legacy)
 ├── public/                   # Static assets
-│   ├── css/styles.css        # Global UI styles
-│   ├── css/themes/forest.css # Theme palette
 │   ├── js/map.js             # Map client
 │   └── assets/               # Icons
 ├── scripts/cleanup.php       # Log/session/rate limit retention
@@ -69,7 +67,7 @@ The database schema is in `sql/schema.sql` and includes the following tables:
 ## Notes
 
 - `config/` directory is for configuration files ONLY (config.php)
-- Don't write any inline CSS or JS in PHP files. CSS goes in `public/css/` and JS gets compiled from TypeScript in `src/` to `public/js/`.
+- Don't write any inline CSS or JS in PHP files. CSS is provided via Bulma CDN, and JS gets compiled from TypeScript in `src/` to `public/js/`.
 - All PHP helper functions belong in `src-php/` directory
 - **Security headers** automatically loaded via `src-php/layout.php` on every page
 - **Cookies** must be set via `src-php/cookie_helpers.php` functions (setSessionCookie, clearSessionCookie)

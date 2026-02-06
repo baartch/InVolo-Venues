@@ -2,13 +2,9 @@
 require_once __DIR__ . '/../../routes/auth/check.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
-require_once __DIR__ . '/../../src-php/theme.php';
 
 $errors = [];
 $notice = '';
-$activeTab = $_GET['tab'] ?? 'account';
-$themeOptions = ['forest' => 'Forest', 'dracula' => 'Dracula'];
-$currentTheme = getCurrentTheme($currentUser['ui_theme'] ?? null, array_keys($themeOptions));
 $defaultPageSize = 25;
 $minPageSize = 25;
 $maxPageSize = 500;
@@ -19,7 +15,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrfToken();
     
     $action = $_POST['action'] ?? '';
-    $activeTab = $_POST['tab'] ?? $activeTab;
 
     if ($action === 'update_password') {
         $currentPassword = (string) ($_POST['current_password'] ?? '');
@@ -59,29 +54,6 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
         }
     }
 
-    if ($action === 'update_theme') {
-        $selectedTheme = (string) ($_POST['theme'] ?? 'forest');
-        if (!array_key_exists($selectedTheme, $themeOptions)) {
-            $errors[] = 'Invalid theme selected.';
-        } else {
-            try {
-                $pdo = getDatabaseConnection();
-                $stmt = $pdo->prepare('UPDATE users SET ui_theme = :ui_theme WHERE id = :id');
-                $stmt->execute([
-                    ':ui_theme' => $selectedTheme,
-                    ':id' => $currentUser['user_id']
-                ]);
-                $currentTheme = $selectedTheme;
-                $currentUser['ui_theme'] = $selectedTheme;
-                logAction($currentUser['user_id'] ?? null, 'profile_theme_updated', sprintf('Theme set to %s', $selectedTheme));
-                $notice = 'Theme updated successfully.';
-            } catch (Throwable $error) {
-                $errors[] = 'Failed to update theme.';
-                logAction($currentUser['user_id'] ?? null, 'profile_theme_error', $error->getMessage());
-            }
-        }
-    }
-
     if ($action === 'update_page_size') {
         $requestedPageSize = (int) ($_POST['venues_page_size'] ?? $defaultPageSize);
         $requestedPageSize = max($minPageSize, min($maxPageSize, $requestedPageSize));
@@ -106,97 +78,91 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 logAction($currentUser['user_id'] ?? null, 'view_profile', 'User opened profile');
 ?>
-<?php renderPageStart('Profile', [
-    'theme' => $currentTheme,
-    'extraScripts' => [
-        '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'
-    ]
-]); ?>
-      <div class="content-wrapper">
-        <div class="page-header">
-          <h1>Profile</h1>
-        </div>
-
-        <?php if ($notice): ?>
-          <div class="notice"><?php echo htmlspecialchars($notice); ?></div>
-        <?php endif; ?>
-
-        <?php foreach ($errors as $error): ?>
-          <div class="error"><?php echo htmlspecialchars($error); ?></div>
-        <?php endforeach; ?>
-
-        <div class="tabs" role="tablist">
-          <button type="button" class="tab-button <?php echo $activeTab === 'account' ? 'active' : ''; ?>" data-tab="account" role="tab" aria-selected="<?php echo $activeTab === 'account' ? 'true' : 'false'; ?>">Account</button>
-          <button type="button" class="tab-button <?php echo $activeTab === 'appearance' ? 'active' : ''; ?>" data-tab="appearance" role="tab" aria-selected="<?php echo $activeTab === 'appearance' ? 'true' : 'false'; ?>">Appearance</button>
-        </div>
-
-        <div class="tab-panel <?php echo $activeTab === 'account' ? 'active' : ''; ?>" data-tab-panel="account" role="tabpanel">
-          <div class="card card-section">
-            <h2>Reset Password</h2>
-            <form method="POST" action="" class="create-user-form">
-              <?php renderCsrfField(); ?>
-              <input type="hidden" name="action" value="update_password">
-              <input type="hidden" name="tab" value="account">
-              <div class="form-group">
-                <label for="current_password">Current Password</label>
-                <input type="password" id="current_password" name="current_password" class="input" required>
-              </div>
-              <div class="form-group">
-                <label for="new_password">New Password</label>
-                <input type="password" id="new_password" name="new_password" class="input" required>
-              </div>
-              <div class="form-group">
-                <label for="confirm_password">Confirm New Password</label>
-                <input type="password" id="confirm_password" name="confirm_password" class="input" required>
-              </div>
-              <button type="submit" class="btn">Update Password</button>
-            </form>
-          </div>
-        </div>
-
-        <div class="tab-panel <?php echo $activeTab === 'appearance' ? 'active' : ''; ?>" data-tab-panel="appearance" role="tabpanel">
-          <div class="card card-section profile-theme-card">
-            <h2>Theme</h2>
-            <form method="POST" action="" class="create-user-form">
-              <?php renderCsrfField(); ?>
-              <input type="hidden" name="action" value="update_theme">
-              <input type="hidden" name="tab" value="appearance">
-              <div class="form-group">
-                <label for="theme">Color Theme</label>
-                <select id="theme" name="theme" class="input">
-                  <?php foreach ($themeOptions as $value => $label): ?>
-                    <option value="<?php echo htmlspecialchars($value); ?>" <?php echo $currentTheme === $value ? 'selected' : ''; ?>>
-                      <?php echo htmlspecialchars($label); ?>
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-              <button type="submit" class="btn">Update Theme</button>
-            </form>
+<?php renderPageStart('Profile', ['bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight']); ?>
+      <section class="section">
+        <div class="container is-fluid">
+          <div class="level mb-4">
+            <div class="level-left">
+              <h1 class="title is-3 has-text-light">Profile</h1>
+            </div>
           </div>
 
-          <div class="card card-section">
-            <h2>Venues List</h2>
-            <form method="POST" action="" class="create-user-form">
-              <?php renderCsrfField(); ?>
-              <input type="hidden" name="action" value="update_page_size">
-              <input type="hidden" name="tab" value="appearance">
-              <div class="form-group">
-                <label for="venues_page_size">Venues per page (25-500)</label>
-                <input
-                  type="number"
-                  id="venues_page_size"
-                  name="venues_page_size"
-                  class="input"
-                  min="<?php echo (int) $minPageSize; ?>"
-                  max="<?php echo (int) $maxPageSize; ?>"
-                  value="<?php echo (int) $currentPageSize; ?>"
-                  required
-                >
+          <?php if ($notice): ?>
+            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+          <?php endif; ?>
+
+          <?php foreach ($errors as $error): ?>
+            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+          <?php endforeach; ?>
+
+          <div class="columns is-multiline">
+            <div class="column is-12">
+              <div class="box has-background-dark has-text-light">
+                <h2 class="title is-5 has-text-light">Reset Password</h2>
+                <form method="POST" action="" class="columns is-multiline">
+                  <?php renderCsrfField(); ?>
+                  <input type="hidden" name="action" value="update_password">
+                  <div class="column is-4">
+                    <div class="field">
+                      <label for="current_password" class="label has-text-light">Current Password</label>
+                      <div class="control">
+                        <input type="password" id="current_password" name="current_password" class="input has-background-grey-darker has-text-light" required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column is-4">
+                    <div class="field">
+                      <label for="new_password" class="label has-text-light">New Password</label>
+                      <div class="control">
+                        <input type="password" id="new_password" name="new_password" class="input has-background-grey-darker has-text-light" required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column is-4">
+                    <div class="field">
+                      <label for="confirm_password" class="label has-text-light">Confirm New Password</label>
+                      <div class="control">
+                        <input type="password" id="confirm_password" name="confirm_password" class="input has-background-grey-darker has-text-light" required>
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column is-12">
+                    <button type="submit" class="button is-link">Update Password</button>
+                  </div>
+                </form>
               </div>
-              <button type="submit" class="btn">Update Page Size</button>
-            </form>
+            </div>
+            <div class="column is-12">
+              <div class="box has-background-dark has-text-light">
+                <h2 class="title is-5 has-text-light">Venues List</h2>
+                <form method="POST" action="" class="columns is-multiline">
+                  <?php renderCsrfField(); ?>
+                  <input type="hidden" name="action" value="update_page_size">
+                  <div class="column is-4">
+                    <div class="field">
+                      <label for="venues_page_size" class="label has-text-light">Venues per page (25-500)</label>
+                      <div class="control">
+                        <input
+                          type="number"
+                          id="venues_page_size"
+                          name="venues_page_size"
+                          class="input has-background-grey-darker has-text-light"
+                          min="<?php echo (int) $minPageSize; ?>"
+                          max="<?php echo (int) $maxPageSize; ?>"
+                          value="<?php echo (int) $currentPageSize; ?>"
+                          required
+                        >
+                      </div>
+                    </div>
+                  </div>
+                  <div class="column is-12">
+                    <button type="submit" class="button is-link">Update Page Size</button>
+                  </div>
+                </form>
+              </div>
+            </div>
           </div>
+
         </div>
-      </div>
+      </section>
 <?php renderPageEnd(); ?>

@@ -17,36 +17,59 @@ $isProfile = strpos($relativePath, '/pages/profile') === 0;
 $isCommunication = strpos($relativePath, '/pages/communication') === 0;
 $isTeamAdmin = $currentUser['is_team_admin'] ?? false;
 ?>
-<aside class="sidebar">
-  <nav class="sidebar-nav">
-    <a href="<?php echo BASE_PATH; ?>/index.php" class="sidebar-link <?php echo $isDashboard ? 'active' : ''; ?>" aria-label="Dashboard">
-      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-dashboard.svg" alt="Dashboard">
-    </a>
-    <a href="<?php echo BASE_PATH; ?>/pages/map/index.php" class="sidebar-link <?php echo $isMap ? 'active' : ''; ?>" aria-label="Map">
-      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-map.svg" alt="Map">
-    </a>
-    <a href="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="sidebar-link <?php echo $isVenues ? 'active' : ''; ?>" aria-label="Venues">
-      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-mapmarker.svg" alt="Venues">
-    </a>
-    <a href="<?php echo BASE_PATH; ?>/pages/communication/index.php" class="sidebar-link <?php echo $isCommunication ? 'active' : ''; ?>" aria-label="Communication">
-      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-communication.svg" alt="Communication">
-    </a>
-    <?php if ($isTeamAdmin): ?>
-      <a href="<?php echo BASE_PATH; ?>/pages/team/index.php" class="sidebar-link <?php echo $isTeam ? 'active' : ''; ?>" aria-label="Team">
-        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-team.svg" alt="Team">
-      </a>
-    <?php endif; ?>
-    <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
-      <a href="<?php echo BASE_PATH; ?>/pages/admin/user_management.php" class="sidebar-link <?php echo $isAdmin ? 'active' : ''; ?>" aria-label="Admin">
-        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-settings.svg" alt="Admin">
-      </a>
-    <?php endif; ?>
-  </nav>
-  <div class="sidebar-spacer"></div>
-  <a href="<?php echo BASE_PATH; ?>/pages/profile/index.php" class="sidebar-link <?php echo $isProfile ? 'active' : ''; ?>" aria-label="Profile">
-    <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-user.svg" alt="Profile">
-  </a>
-  <a href="<?php echo BASE_PATH; ?>/pages/auth/logout.php" class="sidebar-link" aria-label="Logout">
-    <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-logout.svg" alt="Logout">
-  </a>
+<aside class="column is-narrow has-background-dark has-text-white">
+  <div class="is-flex is-flex-direction-column is-justify-content-space-between is-fullheight p-3">
+    <nav class="menu">
+      <ul class="menu-list">
+        <li>
+          <a href="<?php echo BASE_PATH; ?>/index.php" class="has-text-white <?php echo $isDashboard ? 'is-active' : ''; ?>" aria-label="Dashboard">
+            <span class="icon"><i class="fa-solid fa-gauge-high"></i></span>
+          </a>
+        </li>
+        <li>
+          <a href="<?php echo BASE_PATH; ?>/pages/map/index.php" class="has-text-white <?php echo $isMap ? 'is-active' : ''; ?>" aria-label="Map">
+            <span class="icon"><i class="fa-solid fa-map"></i></span>
+          </a>
+        </li>
+        <li>
+          <a href="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="has-text-white <?php echo $isVenues ? 'is-active' : ''; ?>" aria-label="Venues">
+            <span class="icon"><i class="fa-solid fa-location-dot"></i></span>
+          </a>
+        </li>
+        <li>
+          <a href="<?php echo BASE_PATH; ?>/pages/communication/index.php" class="has-text-white <?php echo $isCommunication ? 'is-active' : ''; ?>" aria-label="Communication">
+            <span class="icon"><i class="fa-solid fa-comments"></i></span>
+          </a>
+        </li>
+        <?php if ($isTeamAdmin): ?>
+          <li>
+            <a href="<?php echo BASE_PATH; ?>/pages/team/index.php" class="has-text-white <?php echo $isTeam ? 'is-active' : ''; ?>" aria-label="Team">
+              <span class="icon"><i class="fa-solid fa-users"></i></span>
+            </a>
+          </li>
+        <?php endif; ?>
+        <?php if (($currentUser['role'] ?? '') === 'admin'): ?>
+          <li>
+            <a href="<?php echo BASE_PATH; ?>/pages/admin/user_management.php" class="has-text-white <?php echo $isAdmin ? 'is-active' : ''; ?>" aria-label="Admin">
+              <span class="icon"><i class="fa-solid fa-gear"></i></span>
+            </a>
+          </li>
+        <?php endif; ?>
+      </ul>
+    </nav>
+    <nav class="menu">
+      <ul class="menu-list">
+        <li>
+          <a href="<?php echo BASE_PATH; ?>/pages/profile/index.php" class="has-text-white <?php echo $isProfile ? 'is-active' : ''; ?>" aria-label="Profile">
+            <span class="icon"><i class="fa-solid fa-user"></i></span>
+          </a>
+        </li>
+        <li>
+          <a href="<?php echo BASE_PATH; ?>/pages/auth/logout.php" class="has-text-white" aria-label="Logout">
+            <span class="icon"><i class="fa-solid fa-right-from-bracket"></i></span>
+          </a>
+        </li>
+      </ul>
+    </nav>
+  </div>
 </aside>

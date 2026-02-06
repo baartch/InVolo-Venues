@@ -65,54 +65,56 @@ if ($pdo) {
     }
 }
 ?>
-<div class="tab-panel <?php echo $activeTab === 'templates' ? 'active' : ''; ?>" data-tab-panel="templates" role="tabpanel">
+<div class="tab-panel <?php echo $activeTab === 'templates' ? '' : 'is-hidden'; ?>" data-tab-panel="templates" role="tabpanel">
   <?php if ($notice): ?>
-    <div class="notice"><?php echo htmlspecialchars($notice); ?></div>
+    <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
   <?php endif; ?>
 
   <?php foreach ($errors as $error): ?>
-    <div class="error"><?php echo htmlspecialchars($error); ?></div>
+    <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
   <?php endforeach; ?>
 
-  <div class="page-header mailbox-header">
-    <h2>Templates</h2>
-    <div class="page-header-actions">
-      <a href="<?php echo BASE_PATH; ?>/pages/team/template_form.php" class="btn">Add Template</a>
+  <div class="level mb-4">
+    <div class="level-left">
+      <h2 class="title is-4 has-text-light">Templates</h2>
+    </div>
+    <div class="level-right">
+      <a href="<?php echo BASE_PATH; ?>/pages/team/template_form.php" class="button is-link">Add Template</a>
     </div>
   </div>
 
-  <div class="card card-section">
-    <h2>Email Templates</h2>
+  <div class="box has-background-dark has-text-light">
+    <h3 class="title is-5 has-text-light">Email Templates</h3>
     <?php if (!$templates): ?>
-      <p class="text-muted">No templates configured yet.</p>
+      <p class="has-text-grey-light">No templates configured yet.</p>
     <?php else: ?>
-      <div class="table-wrapper">
-        <table class="table team-table">
+      <div class="table-container">
+        <table class="table is-fullwidth is-striped is-hoverable is-dark" data-templates-table>
           <thead>
             <tr>
-              <th>Team</th>
-              <th>Name</th>
-              <th>Subject</th>
-              <th>Actions</th>
+              <th class="has-text-light">Team</th>
+              <th class="has-text-light">Name</th>
+              <th class="has-text-light">Subject</th>
+              <th class="has-text-light">Actions</th>
             </tr>
           </thead>
-          <tbody>
+          <tbody class="has-text-light">
             <?php foreach ($templates as $template): ?>
               <tr>
                 <td><?php echo htmlspecialchars($template['team_name'] ?? ''); ?></td>
                 <td><?php echo htmlspecialchars($template['name'] ?? ''); ?></td>
                 <td><?php echo htmlspecialchars($template['subject'] ?? ''); ?></td>
                 <td>
-                  <div class="venue-actions-buttons">
-                    <a href="<?php echo BASE_PATH; ?>/pages/team/template_form.php?edit_template_id=<?php echo (int) $template['id']; ?>" class="icon-button secondary" aria-label="Edit template" title="Edit template">
-                      <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-pen.svg" alt="Edit">
+                  <div class="buttons are-small">
+                    <a href="<?php echo BASE_PATH; ?>/pages/team/template_form.php?edit_template_id=<?php echo (int) $template['id']; ?>" class="button is-light" aria-label="Edit template" title="Edit template">
+                      <span class="icon"><i class="fa-solid fa-pen"></i></span>
                     </a>
                     <form method="POST" action="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" onsubmit="return confirm('Delete this template?');">
                       <?php renderCsrfField(); ?>
                       <input type="hidden" name="action" value="delete_template">
                       <input type="hidden" name="template_id" value="<?php echo (int) $template['id']; ?>">
-                      <button type="submit" class="icon-button" aria-label="Delete template" title="Delete template">
-                        <img src="<?php echo BASE_PATH; ?>/public/assets/icons/icon-basket.svg" alt="Delete">
+                      <button type="submit" class="button is-danger is-light" aria-label="Delete template" title="Delete template">
+                        <span class="icon"><i class="fa-solid fa-trash"></i></span>
                       </button>
                     </form>
                   </div>

@@ -44,7 +44,8 @@ const initVenueFormMapbox = (): void => {
 
     if (addressButton) {
       addressButton.disabled = !isReady;
-      addressButton.classList.toggle('is-disabled', !isReady);
+      addressButton.classList.toggle('is-static', !isReady);
+      addressButton.classList.toggle('is-light', !isReady);
       if (!isReady) {
         addressButton.setAttribute('aria-disabled', 'true');
       } else {

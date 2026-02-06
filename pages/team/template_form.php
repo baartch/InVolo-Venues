@@ -2,7 +2,6 @@
 require_once __DIR__ . '/../../src-php/team_admin_check.php';
 require_once __DIR__ . '/../../src-php/database.php';
 require_once __DIR__ . '/../../src-php/layout.php';
-require_once __DIR__ . '/../../src-php/theme.php';
 require_once __DIR__ . '/../../src-php/email_templates_helpers.php';
 require_once __DIR__ . '/../../src-php/email_helpers.php';
 
@@ -133,70 +132,92 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
 logAction($currentUser['user_id'] ?? null, 'view_team_template_form', $editTemplate ? 'User opened edit template form' : 'User opened create template form');
 ?>
-<?php renderPageStart('Template', [
-    'theme' => getCurrentTheme($currentUser['ui_theme'] ?? null)
-]); ?>
-      <div class="content-wrapper">
-        <div class="page-header">
-          <h1><?php echo $editTemplate ? 'Edit Template' : 'Add Template'; ?></h1>
-          <div class="page-header-actions">
-            <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="btn">Back to Templates</a>
+<?php renderPageStart('Template', ['bodyClass' => 'has-background-grey-dark has-text-light is-flex is-flex-direction-column is-fullheight']); ?>
+      <section class="section">
+        <div class="container is-fluid">
+          <div class="level mb-4">
+            <div class="level-left">
+              <h1 class="title is-3 has-text-light"><?php echo $editTemplate ? 'Edit Template' : 'Add Template'; ?></h1>
+            </div>
+            <div class="level-right">
+              <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="button is-light">Back to Templates</a>
+            </div>
+          </div>
+
+          <?php if ($notice): ?>
+            <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
+          <?php endif; ?>
+
+          <?php foreach ($errors as $error): ?>
+            <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
+          <?php endforeach; ?>
+
+          <div class="box has-background-dark has-text-light">
+            <form method="POST" action="" class="columns is-multiline">
+              <?php renderCsrfField(); ?>
+              <input type="hidden" name="action" value="<?php echo $editTemplate ? 'update_template' : 'create_template'; ?>">
+              <?php if ($editTemplate): ?>
+                <input type="hidden" name="template_id" value="<?php echo (int) $editTemplate['id']; ?>">
+                <input type="hidden" name="team_id" value="<?php echo (int) $editTemplate['team_id']; ?>">
+              <?php elseif (count($teams) === 1): ?>
+                <input type="hidden" name="team_id" value="<?php echo (int) $teams[0]['id']; ?>">
+              <?php endif; ?>
+
+              <?php if (count($teams) > 1 && !$editTemplate): ?>
+                <div class="column is-4">
+                  <div class="field">
+                    <label for="team_id" class="label has-text-light">Team</label>
+                    <div class="control">
+                      <div class="select is-fullwidth">
+                        <select id="team_id" name="team_id" required>
+                          <option value="">Select a team</option>
+                          <?php foreach ($teams as $team): ?>
+                            <option value="<?php echo (int) $team['id']; ?>" <?php echo (int) $formValues['team_id'] === (int) $team['id'] ? 'selected' : ''; ?>>
+                              <?php echo htmlspecialchars($team['name']); ?>
+                            </option>
+                          <?php endforeach; ?>
+                        </select>
+                      </div>
+                    </div>
+                  </div>
+                </div>
+              <?php endif; ?>
+
+              <div class="column is-6">
+                <div class="field">
+                  <label for="template_name" class="label has-text-light">Template Name</label>
+                  <div class="control">
+                    <input type="text" id="template_name" name="name" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['name']); ?>" required>
+                  </div>
+                </div>
+              </div>
+
+              <div class="column is-6">
+                <div class="field">
+                  <label for="template_subject" class="label has-text-light">Subject</label>
+                  <div class="control">
+                    <input type="text" id="template_subject" name="subject" class="input has-background-grey-darker has-text-light" value="<?php echo htmlspecialchars($formValues['subject']); ?>">
+                  </div>
+                </div>
+              </div>
+
+              <div class="column is-12">
+                <div class="field">
+                  <label for="template_body" class="label has-text-light">Body</label>
+                  <div class="control">
+                    <textarea id="template_body" name="body" class="textarea has-background-grey-darker has-text-light" rows="8"><?php echo htmlspecialchars($formValues['body']); ?></textarea>
+                  </div>
+                </div>
+              </div>
+
+              <div class="column is-12">
+                <div class="buttons">
+                  <button type="submit" class="button is-link"><?php echo $editTemplate ? 'Update Template' : 'Create Template'; ?></button>
+                  <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="button is-light">Cancel</a>
+                </div>
+              </div>
+            </form>
           </div>
         </div>
-
-        <?php if ($notice): ?>
-          <div class="notice"><?php echo htmlspecialchars($notice); ?></div>
-        <?php endif; ?>
-
-        <?php foreach ($errors as $error): ?>
-          <div class="error"><?php echo htmlspecialchars($error); ?></div>
-        <?php endforeach; ?>
-
-        <section class="card card-section mailbox-form">
-          <form method="POST" action="" class="create-user-form">
-            <?php renderCsrfField(); ?>
-            <input type="hidden" name="action" value="<?php echo $editTemplate ? 'update_template' : 'create_template'; ?>">
-            <?php if ($editTemplate): ?>
-              <input type="hidden" name="template_id" value="<?php echo (int) $editTemplate['id']; ?>">
-              <input type="hidden" name="team_id" value="<?php echo (int) $editTemplate['team_id']; ?>">
-            <?php elseif (count($teams) === 1): ?>
-              <input type="hidden" name="team_id" value="<?php echo (int) $teams[0]['id']; ?>">
-            <?php endif; ?>
-
-            <?php if (count($teams) > 1 && !$editTemplate): ?>
-              <div class="form-group">
-                <label for="team_id">Team</label>
-                <select id="team_id" name="team_id" class="input" required>
-                  <option value="">Select a team</option>
-                  <?php foreach ($teams as $team): ?>
-                    <option value="<?php echo (int) $team['id']; ?>" <?php echo (int) $formValues['team_id'] === (int) $team['id'] ? 'selected' : ''; ?>>
-                      <?php echo htmlspecialchars($team['name']); ?>
-                    </option>
-                  <?php endforeach; ?>
-                </select>
-              </div>
-            <?php endif; ?>
-
-            <div class="form-group">
-              <label for="template_name">Template Name</label>
-              <input type="text" id="template_name" name="name" class="input" value="<?php echo htmlspecialchars($formValues['name']); ?>" required>
-            </div>
-
-            <div class="form-group">
-              <label for="template_subject">Subject</label>
-              <input type="text" id="template_subject" name="subject" class="input" value="<?php echo htmlspecialchars($formValues['subject']); ?>">
-            </div>
-
-            <div class="form-group">
-              <label for="template_body">Body</label>
-              <textarea id="template_body" name="body" class="input" rows="8"><?php echo htmlspecialchars($formValues['body']); ?></textarea>
-            </div>
-
-            <div class="page-header-actions">
-              <button type="submit" class="btn"><?php echo $editTemplate ? 'Update Template' : 'Create Template'; ?></button>
-              <a href="<?php echo BASE_PATH; ?>/pages/team/index.php?tab=templates" class="btn">Cancel</a>
-            </div>
-          </form>
-        </section>
-      </div>
+      </section>
 <?php renderPageEnd(); ?>

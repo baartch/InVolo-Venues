@@ -1,9 +1,5 @@
 <?php
-function getCurrentTheme(?string $userTheme = null, array $allowedThemes = ['forest', 'dracula']): string
+function getCurrentTheme(?string $userTheme = null, array $allowedThemes = ['bulma']): string
 {
-    if ($userTheme !== null && $userTheme !== '' && in_array($userTheme, $allowedThemes, true)) {
-        return $userTheme;
-    }
-
-    return 'forest';
+    return 'bulma';
 }

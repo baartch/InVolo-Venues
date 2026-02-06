@@ -30,14 +30,14 @@ const createDebounce = (callback: () => void, delay: number) => {
 const initImportModal = (): void => {
   const importToggle = qs<HTMLElement>('[data-import-toggle]');
   const importModal = qs<HTMLElement>('[data-import-modal]');
-  const importClose = qs<HTMLElement>('[data-import-close]');
+  const importCloseButtons = qsAll<HTMLElement>('[data-import-close]');
 
   if (!importModal) {
     return;
   }
 
   const setOpen = (isOpen: boolean): void => {
-    importModal.classList.toggle('open', isOpen);
+    importModal.classList.toggle('is-active', isOpen);
   };
 
   importToggle?.addEventListener('click', (event) => {
@@ -45,15 +45,11 @@ const initImportModal = (): void => {
     setOpen(true);
   });
 
-  importClose?.addEventListener('click', (event) => {
-    event.stopPropagation();
-    setOpen(false);
-  });
-
-  importModal.addEventListener('click', (event) => {
-    if (event.target === importModal) {
+  importCloseButtons.forEach((button) => {
+    button.addEventListener('click', (event) => {
+      event.stopPropagation();
       setOpen(false);
-    }
+    });
   });
 
   if (importModal.dataset.initialOpen === 'true') {
@@ -76,7 +72,9 @@ const initFilterForm = (): void => {
     if (!filterClear) {
       return;
     }
-    filterClear.classList.toggle('is-hidden', !visible);
+    filterClear.toggleAttribute('disabled', !visible);
+    filterClear.classList.toggle('is-static', !visible);
+    filterClear.classList.toggle('is-light', !visible);
     filterClear.setAttribute('aria-hidden', visible ? 'false' : 'true');
   };
 
@@ -111,6 +109,9 @@ const initFilterForm = (): void => {
 
   if (filterClear) {
     const clearFilter = (): void => {
+      if (filterClear.hasAttribute('disabled')) {
+        return;
+      }
       debounce.clear();
       filterInput.value = '';
       setClearVisible(false);
@@ -130,7 +131,7 @@ const initFilterForm = (): void => {
 };
 
 const initSorting = (): void => {
-  const venuesTable = qs<HTMLTableElement>('.table');
+  const venuesTable = qs<HTMLTableElement>('[data-venues-table]');
   if (!venuesTable) {
     return;
   }
@@ -238,9 +239,8 @@ const initVenueDetails = (): void => {
       if (!detailsRow || !detailsRow.hasAttribute('data-venue-details')) {
         return;
       }
-      const isHidden = detailsRow.dataset.visible !== 'true';
-      detailsRow.dataset.visible = isHidden ? 'true' : 'false';
-      detailsRow.classList.toggle('is-open', isHidden);
+      const isHidden = detailsRow.classList.contains('is-hidden');
+      detailsRow.classList.toggle('is-hidden', !isHidden);
       button.setAttribute('aria-expanded', isHidden ? 'true' : 'false');
     });
   });

@@ -277,232 +277,287 @@ $baseQuery = [
 ];
 $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $value !== '');
 ?>
-<div class="email-client">
-  <aside class="email-panel email-sidebar">
-    <div class="email-panel-header">
-      <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1]))); ?>" class="btn">New eMail</a>
+<div class="columns is-variable is-3">
+  <aside class="column is-3">
+    <div class="box has-background-dark has-text-light">
+      <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1]))); ?>" class="button is-link is-fullwidth">New eMail</a>
     </div>
 
     <?php if ($notice): ?>
-      <div class="notice"><?php echo htmlspecialchars($notice); ?></div>
+      <div class="notification is-success is-light"><?php echo htmlspecialchars($notice); ?></div>
     <?php endif; ?>
 
     <?php foreach ($errors as $error): ?>
-      <div class="error"><?php echo htmlspecialchars($error); ?></div>
+      <div class="notification is-danger is-light"><?php echo htmlspecialchars($error); ?></div>
     <?php endforeach; ?>
 
-    <div class="email-section">
-      <h3>Mailbox</h3>
+    <div class="box has-background-dark has-text-light">
+      <h3 class="title is-6 has-text-light">Mailbox</h3>
       <?php if (!$teamMailboxes): ?>
-        <p class="text-muted">No mailboxes assigned.</p>
+        <p class="has-text-grey-light">No mailboxes assigned.</p>
       <?php else: ?>
-        <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="email-form">
+        <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons">
           <input type="hidden" name="tab" value="email">
-          <select name="mailbox_id" class="input">
-            <?php foreach ($teamMailboxes as $mailbox): ?>
-              <option value="<?php echo (int) $mailbox['id']; ?>" <?php echo (int) ($selectedMailbox['id'] ?? 0) === (int) $mailbox['id'] ? 'selected' : ''; ?>>
-                <?php echo htmlspecialchars($mailbox['team_name'] . ' · ' . $mailbox['name']); ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-          <button type="submit" class="btn">Go</button>
+          <div class="control is-expanded">
+            <div class="select is-fullwidth">
+              <select name="mailbox_id">
+                <?php foreach ($teamMailboxes as $mailbox): ?>
+                  <option value="<?php echo (int) $mailbox['id']; ?>" <?php echo (int) ($selectedMailbox['id'] ?? 0) === (int) $mailbox['id'] ? 'selected' : ''; ?>>
+                    <?php echo htmlspecialchars($mailbox['team_name'] . ' · ' . $mailbox['name']); ?>
+                  </option>
+                <?php endforeach; ?>
+              </select>
+            </div>
+          </div>
+          <div class="control">
+            <button type="submit" class="button is-link">Go</button>
+          </div>
         </form>
       <?php endif; ?>
     </div>
 
     <?php if ($selectedMailbox): ?>
-      <div class="email-section">
-        <h3>Folders</h3>
-        <nav class="email-folders">
-          <?php foreach ($folderOptions as $folderKey => $folderLabel): ?>
-            <?php
-              $folderLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
-                  'folder' => $folderKey,
-                  'page' => 1,
-                  'message_id' => null
-              ]));
-              $folderCount = $folderCounts[$folderKey] ?? 0;
-            ?>
-            <a href="<?php echo htmlspecialchars($folderLink); ?>" class="email-folder <?php echo $folder === $folderKey ? 'is-active' : ''; ?>">
-              <span><?php echo htmlspecialchars($folderLabel); ?></span>
-              <span class="email-count"><?php echo (int) $folderCount; ?></span>
-            </a>
-          <?php endforeach; ?>
-        </nav>
-      </div>
-
-      <div class="email-section">
-        <h3>Attachment quota</h3>
-        <div class="email-quota">
-          <progress class="email-quota-bar" value="<?php echo (int) $quotaUsed; ?>" max="<?php echo (int) $quotaTotal; ?>"></progress>
-          <div class="email-quota-meta">
-            <?php echo htmlspecialchars(formatBytes($quotaUsed)); ?> / <?php echo htmlspecialchars(formatBytes($quotaTotal)); ?>
-          </div>
-        </div>
-      </div>
-    <?php endif; ?>
-  </aside>
-
-  <section class="email-panel email-list">
-    <div class="email-panel-header">
-      <h2><?php echo htmlspecialchars($folderOptions[$folder] ?? 'Inbox'); ?></h2>
-      <?php if ($selectedMailbox): ?>
-        <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="email-filter">
-          <input type="hidden" name="tab" value="email">
-          <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
-          <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
-          <input type="hidden" name="page" value="1">
-          <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sortKey); ?>">
-          <input type="text" name="filter" value="<?php echo htmlspecialchars($filter); ?>" placeholder="Search" class="input">
-          <button type="submit" class="btn">Filter</button>
-        </form>
-      <?php endif; ?>
-    </div>
-
-    <?php if ($selectedMailbox): ?>
-      <div class="email-list-meta">
-        <span><?php echo (int) $totalMessages; ?> emails</span>
-        <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="email-sort">
-          <input type="hidden" name="tab" value="email">
-          <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
-          <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
-          <input type="hidden" name="page" value="1">
-          <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
-          <select name="sort" class="inline-select">
-            <?php foreach ($sortOptions as $key => $option): ?>
-              <option value="<?php echo htmlspecialchars($key); ?>" <?php echo $sortKey === $key ? 'selected' : ''; ?>>
-                <?php echo htmlspecialchars($option['label']); ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-          <button type="submit" class="btn">Sort</button>
-        </form>
-      </div>
-
-      <div class="email-list-items">
-        <?php if (!$messages): ?>
-          <p class="text-muted">No emails found.</p>
-        <?php else: ?>
-          <?php foreach ($messages as $row): ?>
-            <?php
-              $messageLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
-                  'message_id' => $row['id']
-              ]));
-              $displayName = $folder === 'inbox'
-                  ? trim(($row['from_name'] ?? '') !== '' ? $row['from_name'] : ($row['from_email'] ?? 'Unknown'))
-                  : trim((string) ($row['to_emails'] ?? ''));
-              $dateValue = $folder === 'inbox' ? ($row['received_at'] ?? $row['created_at']) : ($row['sent_at'] ?? $row['created_at']);
-              $dateLabel = $dateValue ? date('Y-m-d H:i', strtotime((string) $dateValue)) : '';
-            ?>
-            <a href="<?php echo htmlspecialchars($messageLink); ?>" class="email-item <?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?> <?php echo !$row['is_read'] && $folder === 'inbox' ? 'is-unread' : ''; ?>">
-              <div class="email-item-main">
-                <div class="email-item-name"><?php echo htmlspecialchars($displayName); ?></div>
-                <div class="email-item-subject"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
-              </div>
-              <div class="email-item-time"><?php echo htmlspecialchars($dateLabel); ?></div>
-            </a>
-          <?php endforeach; ?>
-        <?php endif; ?>
-      </div>
-
-      <?php if ($totalPages > 1): ?>
-        <div class="email-pagination">
-          <?php for ($pageIndex = 1; $pageIndex <= $totalPages; $pageIndex++): ?>
-            <?php
-              $pageLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
-                  'page' => $pageIndex
-              ]));
-            ?>
-            <a class="pagination-page <?php echo $pageIndex === $page ? 'is-active' : ''; ?>" href="<?php echo htmlspecialchars($pageLink); ?>">
-              <?php echo (int) $pageIndex; ?>
-            </a>
-          <?php endfor; ?>
-        </div>
-      <?php endif; ?>
-    <?php else: ?>
-      <p class="text-muted">Select a mailbox to view emails.</p>
-    <?php endif; ?>
-  </section>
-
-  <section class="email-panel email-detail">
-    <?php if (!$selectedMailbox): ?>
-      <p class="text-muted">Pick a mailbox to view details.</p>
-    <?php elseif ($composeMode): ?>
-      <div class="email-panel-header">
-        <h2>Compose</h2>
-        <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query($baseQuery)); ?>" class="btn">Cancel</a>
-      </div>
-
-      <?php if ($templates): ?>
-        <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="email-template-picker">
-          <input type="hidden" name="tab" value="email">
-          <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
-          <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
-          <input type="hidden" name="compose" value="1">
-          <input type="hidden" name="page" value="1">
-          <select name="template_id" class="input">
-            <option value="">Select template</option>
-            <?php foreach ($templates as $template): ?>
-              <option value="<?php echo (int) $template['id']; ?>" <?php echo $templateId === (int) $template['id'] ? 'selected' : ''; ?>>
-                <?php echo htmlspecialchars($template['name']); ?>
-              </option>
-            <?php endforeach; ?>
-          </select>
-          <button type="submit" class="btn">Use Template</button>
-        </form>
-      <?php endif; ?>
-
-      <?php require __DIR__ . '/email_compose_form.php'; ?>
-    <?php elseif ($message): ?>
-      <div class="email-panel-header">
-        <div>
-          <h2><?php echo htmlspecialchars($message['subject'] ?? '(No subject)'); ?></h2>
-          <div class="email-detail-meta">
-            <?php if ($folder === 'inbox'): ?>
-              <span>From: <?php echo htmlspecialchars($message['from_name'] ?? $message['from_email'] ?? ''); ?></span>
-            <?php else: ?>
-              <span>To: <?php echo htmlspecialchars($message['to_emails'] ?? ''); ?></span>
-            <?php endif; ?>
-            <span><?php echo htmlspecialchars($message['received_at'] ?? $message['sent_at'] ?? $message['created_at'] ?? ''); ?></span>
-          </div>
-        </div>
-        <div class="email-detail-actions">
-          <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'reply' => $message['id']]))); ?>" class="btn">Reply</a>
-          <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'forward' => $message['id']]))); ?>" class="btn">Forward</a>
-          <form method="POST" action="<?php echo BASE_PATH; ?>/routes/email/delete.php" onsubmit="return confirm('Delete this email?');">
-            <?php renderCsrfField(); ?>
-            <input type="hidden" name="email_id" value="<?php echo (int) $message['id']; ?>">
-            <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
-            <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
-            <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sortKey); ?>">
-            <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
-            <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
-            <input type="hidden" name="tab" value="email">
-            <button type="submit" class="btn">Delete</button>
-          </form>
-        </div>
-      </div>
-
-      <div class="email-detail-body">
-        <?php echo nl2br(htmlspecialchars($message['body'] ?? '')); ?>
-      </div>
-
-      <?php if ($attachments): ?>
-        <div class="email-detail-attachments">
-          <h3>Attachments</h3>
-          <ul>
-            <?php foreach ($attachments as $attachment): ?>
+      <div class="box has-background-dark has-text-light">
+        <h3 class="title is-6 has-text-light">Folders</h3>
+        <aside class="menu">
+          <ul class="menu-list">
+            <?php foreach ($folderOptions as $folderKey => $folderLabel): ?>
+              <?php
+                $folderLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
+                    'folder' => $folderKey,
+                    'page' => 1,
+                    'message_id' => null
+                ]));
+                $folderCount = $folderCounts[$folderKey] ?? 0;
+              ?>
               <li>
-                <a href="<?php echo BASE_PATH; ?>/routes/email/attachment.php?id=<?php echo (int) $attachment['id']; ?>" class="email-attachment-link">
-                  <?php echo htmlspecialchars($attachment['filename'] ?? 'Attachment'); ?> (<?php echo htmlspecialchars(formatBytes((int) $attachment['file_size'])); ?>)
+                <a href="<?php echo htmlspecialchars($folderLink); ?>" class="<?php echo $folder === $folderKey ? 'is-active' : ''; ?> has-text-light">
+                  <span><?php echo htmlspecialchars($folderLabel); ?></span>
+                  <span class="tag is-dark is-pulled-right"><?php echo (int) $folderCount; ?></span>
                 </a>
               </li>
             <?php endforeach; ?>
           </ul>
-        </div>
-      <?php endif; ?>
-    <?php else: ?>
-      <p class="text-muted">Select an email to view its details.</p>
+        </aside>
+      </div>
+
+      <div class="box has-background-dark has-text-light">
+        <h3 class="title is-6 has-text-light">Attachment quota</h3>
+        <progress class="progress is-info" value="<?php echo (int) $quotaUsed; ?>" max="<?php echo (int) $quotaTotal; ?>"></progress>
+        <p class="has-text-grey-light"><?php echo htmlspecialchars(formatBytes($quotaUsed)); ?> / <?php echo htmlspecialchars(formatBytes($quotaTotal)); ?></p>
+      </div>
     <?php endif; ?>
+  </aside>
+
+  <section class="column is-4">
+    <div class="box has-background-dark has-text-light">
+      <div class="level mb-3">
+        <div class="level-left">
+          <h2 class="title is-5 has-text-light"><?php echo htmlspecialchars($folderOptions[$folder] ?? 'Inbox'); ?></h2>
+        </div>
+        <?php if ($selectedMailbox): ?>
+          <div class="level-right">
+            <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons">
+              <input type="hidden" name="tab" value="email">
+              <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
+              <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
+              <input type="hidden" name="page" value="1">
+              <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sortKey); ?>">
+              <div class="control">
+                <input type="text" name="filter" value="<?php echo htmlspecialchars($filter); ?>" placeholder="Search" class="input has-background-grey-darker has-text-light">
+              </div>
+              <div class="control">
+                <button type="submit" class="button is-link">Filter</button>
+              </div>
+            </form>
+          </div>
+        <?php endif; ?>
+      </div>
+
+      <?php if ($selectedMailbox): ?>
+        <div class="level mb-2">
+          <div class="level-left">
+            <span class="tag is-dark"><?php echo (int) $totalMessages; ?> emails</span>
+          </div>
+          <div class="level-right">
+            <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons">
+              <input type="hidden" name="tab" value="email">
+              <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
+              <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
+              <input type="hidden" name="page" value="1">
+              <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
+              <div class="control">
+                <div class="select">
+                  <select name="sort">
+                    <?php foreach ($sortOptions as $key => $option): ?>
+                      <option value="<?php echo htmlspecialchars($key); ?>" <?php echo $sortKey === $key ? 'selected' : ''; ?>>
+                        <?php echo htmlspecialchars($option['label']); ?>
+                      </option>
+                    <?php endforeach; ?>
+                  </select>
+                </div>
+              </div>
+              <div class="control">
+                <button type="submit" class="button is-light">Sort</button>
+              </div>
+            </form>
+          </div>
+        </div>
+
+        <div class="menu">
+          <ul class="menu-list">
+            <?php if (!$messages): ?>
+              <li><span class="has-text-grey-light">No emails found.</span></li>
+            <?php else: ?>
+              <?php foreach ($messages as $row): ?>
+                <?php
+                  $messageLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
+                      'message_id' => $row['id']
+                  ]));
+                  $displayName = $folder === 'inbox'
+                      ? trim(($row['from_name'] ?? '') !== '' ? $row['from_name'] : ($row['from_email'] ?? 'Unknown'))
+                      : trim((string) ($row['to_emails'] ?? ''));
+                  $dateValue = $folder === 'inbox' ? ($row['received_at'] ?? $row['created_at']) : ($row['sent_at'] ?? $row['created_at']);
+                  $dateLabel = $dateValue ? date('Y-m-d H:i', strtotime((string) $dateValue)) : '';
+                ?>
+                <li>
+                  <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?> has-text-light">
+                    <div class="is-flex is-justify-content-space-between">
+                      <div>
+                        <div class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></div>
+                        <div class="has-text-grey-light is-size-7"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
+                        <?php if (!$row['is_read'] && $folder === 'inbox'): ?>
+                          <span class="tag is-warning is-light is-small">Unread</span>
+                        <?php endif; ?>
+                      </div>
+                      <div class="has-text-grey-light is-size-7"><?php echo htmlspecialchars($dateLabel); ?></div>
+                    </div>
+                  </a>
+                </li>
+              <?php endforeach; ?>
+            <?php endif; ?>
+          </ul>
+        </div>
+
+        <?php if ($totalPages > 1): ?>
+          <nav class="pagination is-centered" role="navigation" aria-label="pagination">
+            <ul class="pagination-list">
+              <?php for ($pageIndex = 1; $pageIndex <= $totalPages; $pageIndex++): ?>
+                <?php
+                  $pageLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
+                      'page' => $pageIndex
+                  ]));
+                ?>
+                <li>
+                  <a class="pagination-link<?php echo $pageIndex === $page ? ' is-current' : ''; ?>" href="<?php echo htmlspecialchars($pageLink); ?>">
+                    <?php echo (int) $pageIndex; ?>
+                  </a>
+                </li>
+              <?php endfor; ?>
+            </ul>
+          </nav>
+        <?php endif; ?>
+      <?php else: ?>
+        <p class="has-text-grey-light">Select a mailbox to view emails.</p>
+      <?php endif; ?>
+    </div>
+  </section>
+
+  <section class="column">
+    <div class="box has-background-dark has-text-light">
+      <?php if (!$selectedMailbox): ?>
+        <p class="has-text-grey-light">Pick a mailbox to view details.</p>
+      <?php elseif ($composeMode): ?>
+        <div class="level mb-3">
+          <div class="level-left">
+            <h2 class="title is-5 has-text-light">Compose</h2>
+          </div>
+          <div class="level-right">
+            <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query($baseQuery)); ?>" class="button is-light">Cancel</a>
+          </div>
+        </div>
+
+        <?php if ($templates): ?>
+          <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons mb-4">
+            <input type="hidden" name="tab" value="email">
+            <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
+            <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
+            <input type="hidden" name="compose" value="1">
+            <input type="hidden" name="page" value="1">
+            <div class="control is-expanded">
+              <div class="select is-fullwidth">
+                <select name="template_id">
+                  <option value="">Select template</option>
+                  <?php foreach ($templates as $template): ?>
+                    <option value="<?php echo (int) $template['id']; ?>" <?php echo $templateId === (int) $template['id'] ? 'selected' : ''; ?>>
+                      <?php echo htmlspecialchars($template['name']); ?>
+                    </option>
+                  <?php endforeach; ?>
+                </select>
+              </div>
+            </div>
+            <div class="control">
+              <button type="submit" class="button is-link">Use Template</button>
+            </div>
+          </form>
+        <?php endif; ?>
+
+        <?php require __DIR__ . '/email_compose_form.php'; ?>
+      <?php elseif ($message): ?>
+        <div class="level mb-3">
+          <div class="level-left">
+            <div>
+              <h2 class="title is-5 has-text-light"><?php echo htmlspecialchars($message['subject'] ?? '(No subject)'); ?></h2>
+              <p class="has-text-grey-light is-size-7">
+                <?php if ($folder === 'inbox'): ?>
+                  From: <?php echo htmlspecialchars($message['from_name'] ?? $message['from_email'] ?? ''); ?>
+                <?php else: ?>
+                  To: <?php echo htmlspecialchars($message['to_emails'] ?? ''); ?>
+                <?php endif; ?>
+                · <?php echo htmlspecialchars($message['received_at'] ?? $message['sent_at'] ?? $message['created_at'] ?? ''); ?>
+              </p>
+            </div>
+          </div>
+          <div class="level-right">
+            <div class="buttons are-small">
+              <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'reply' => $message['id']]))); ?>" class="button is-link">Reply</a>
+              <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'forward' => $message['id']]))); ?>" class="button is-link">Forward</a>
+              <form method="POST" action="<?php echo BASE_PATH; ?>/routes/email/delete.php" onsubmit="return confirm('Delete this email?');">
+                <?php renderCsrfField(); ?>
+                <input type="hidden" name="email_id" value="<?php echo (int) $message['id']; ?>">
+                <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
+                <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
+                <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sortKey); ?>">
+                <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
+                <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
+                <input type="hidden" name="tab" value="email">
+                <button type="submit" class="button is-danger is-light">Delete</button>
+              </form>
+            </div>
+          </div>
+        </div>
+
+        <div class="content has-text-light">
+          <?php echo nl2br(htmlspecialchars($message['body'] ?? '')); ?>
+        </div>
+
+        <?php if ($attachments): ?>
+          <div class="content has-text-light">
+            <h3 class="title is-6 has-text-light">Attachments</h3>
+            <ul>
+              <?php foreach ($attachments as $attachment): ?>
+                <li>
+                  <a href="<?php echo BASE_PATH; ?>/routes/email/attachment.php?id=<?php echo (int) $attachment['id']; ?>">
+                    <?php echo htmlspecialchars($attachment['filename'] ?? 'Attachment'); ?> (<?php echo htmlspecialchars(formatBytes((int) $attachment['file_size'])); ?>)
+                  </a>
+                </li>
+              <?php endforeach; ?>
+            </ul>
+          </div>
+        <?php endif; ?>
+      <?php else: ?>
+        <p class="has-text-grey-light">Select an email to view its details.</p>
+      <?php endif; ?>
+    </div>
   </section>
 </div>

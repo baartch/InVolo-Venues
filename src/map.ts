@@ -51,8 +51,8 @@ const MAP_CONTAINER_ID = 'mapid';
 const SEARCH_INPUT_ID = 'waypoint-search';
 const SEARCH_RESULTS_ID = 'search-results';
 const WAYPOINTS_URL = 'routes/waypoints/index.php';
-const SEARCH_RESULT_CLASS = 'search-result-item';
-const SELECTED_CLASS = 'selected';
+const SEARCH_RESULT_CLASS = 'panel-block';
+const SELECTED_CLASS = 'is-active';
 const SEARCH_API_URL = 'routes/venues/search.php';
 const SEARCH_MIN_LENGTH = 2;
 const SEARCH_DEBOUNCE_MS = 500;
@@ -177,7 +177,7 @@ const setZoomHintVisible = (isVisible: boolean): void => {
   if (!hint) {
     return;
   }
-  hint.classList.toggle('is-visible', isVisible);
+  hint.classList.toggle('is-hidden', !isVisible);
   hint.setAttribute('aria-hidden', isVisible ? 'false' : 'true');
 };
 
@@ -341,7 +341,7 @@ function initializeSearch(): void {
   let debounceId: number | null = null;
 
   const clearSearchResults = (): void => {
-    searchResults.style.display = 'none';
+    searchResults.classList.add('is-hidden');
     searchResults.innerHTML = '';
     selectedIndex = -1;
   };
@@ -381,28 +381,28 @@ function initializeSearch(): void {
 
   const renderResults = (): void => {
     if (searchMatches.length === 0 && filteredWaypoints.length === 0) {
-      searchResults.innerHTML = `<div class="${SEARCH_RESULT_CLASS}">No venues found</div>`;
-      searchResults.style.display = 'block';
+      searchResults.innerHTML = `<div class="panel-block">No venues found</div>`;
+      searchResults.classList.remove('is-hidden');
       return;
     }
 
     if (searchMatches.length > 0) {
       searchResults.innerHTML = searchMatches.map((result, index) => `
-        <div class="${SEARCH_RESULT_CLASS}" data-index="${index}">
+        <a class="${SEARCH_RESULT_CLASS}" data-index="${index}">
           ${result.name}
-        </div>
+        </a>
       `).join('');
-      searchResults.style.display = 'block';
+      searchResults.classList.remove('is-hidden');
       return;
     }
 
     searchResults.innerHTML = filteredWaypoints.map((wp, index) => `
-      <div class="${SEARCH_RESULT_CLASS}" data-index="${index}">
+      <a class="${SEARCH_RESULT_CLASS}" data-index="${index}">
         ${wp.name}
-      </div>
+      </a>
     `).join('');
 
-    searchResults.style.display = 'block';
+    searchResults.classList.remove('is-hidden');
   };
 
   const performSearch = async (query: string): Promise<void> => {
