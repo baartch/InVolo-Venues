@@ -120,7 +120,7 @@ try {
     $conversationId = ensureConversationForEmail(
         $pdo,
         $mailbox,
-        (string) ($mailbox['smtp_username'] ?? ''),
+        getMailboxPrimaryEmail($mailbox),
         $toEmails,
         $subject,
         $startNewConversation,

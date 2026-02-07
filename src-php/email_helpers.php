@@ -114,12 +114,24 @@ function normalizeEmailList(string $value): string
         return '';
     }
 
-    $parts = preg_split('/[\s,;]+/', $value) ?: [];
+    $parts = preg_split('/[,;]+/', $value) ?: [];
     $clean = [];
     foreach ($parts as $part) {
+        $part = trim($part);
+        if ($part === '') {
+            continue;
+        }
+
+        if (preg_match_all('/[A-Z0-9._%+-]+@[A-Z0-9.-]+\.[A-Z]{2,}/i', $part, $matches)) {
+            foreach ($matches[0] as $match) {
+                $clean[] = strtolower($match);
+            }
+            continue;
+        }
+
         $candidate = filter_var($part, FILTER_SANITIZE_EMAIL);
-        if ($candidate !== '') {
-            $clean[] = $candidate;
+        if ($candidate !== '' && filter_var($candidate, FILTER_VALIDATE_EMAIL)) {
+            $clean[] = strtolower($candidate);
         }
     }
 
@@ -200,7 +212,21 @@ function normalizeConversationSubject(?string $subject): string
     $subject = preg_replace('/^\s*((re|fw|fwd|aw|sv|wg|rv):\s*)+/i', '', $subject);
     $subject = trim((string) $subject);
 
-    return strtolower($subject === '' ? 'no-subject' : $subject);
+    if (function_exists('mb_convert_encoding')) {
+        $subject = mb_convert_encoding($subject, 'UTF-8', 'UTF-8, ISO-8859-1, WINDOWS-1252');
+    }
+
+    if (class_exists('Normalizer')) {
+        $subject = Normalizer::normalize($subject, Normalizer::FORM_C);
+    }
+
+    if (function_exists('mb_strtolower')) {
+        $subject = mb_strtolower($subject, 'UTF-8');
+    } else {
+        $subject = strtolower($subject);
+    }
+
+    return $subject === '' ? 'no-subject' : $subject;
 }
 
 function formatConversationSubject(?string $subject): string
@@ -220,16 +246,44 @@ function buildConversationParticipantKey(string $mailboxEmail, string $fromEmail
 {
     $mailboxEmail = strtolower(trim($mailboxEmail));
     $fromEmail = strtolower(trim($fromEmail));
-    $recipientList = splitEmailList($toEmails);
-    $primaryRecipient = strtolower(trim((string) ($recipientList[0] ?? '')));
+    $recipientList = array_map('strtolower', splitEmailList($toEmails));
 
-    if ($mailboxEmail !== '' && $fromEmail === $mailboxEmail) {
-        $partnerEmail = $primaryRecipient;
+    $mailboxIdentity = '';
+    if ($mailboxEmail !== '' && filter_var($mailboxEmail, FILTER_VALIDATE_EMAIL)) {
+        $mailboxIdentity = $mailboxEmail;
+    } elseif ($fromEmail !== '' && filter_var($fromEmail, FILTER_VALIDATE_EMAIL)) {
+        $mailboxIdentity = $fromEmail;
     } else {
-        $partnerEmail = $fromEmail !== '' ? $fromEmail : $primaryRecipient;
+        foreach ($recipientList as $recipient) {
+            if ($recipient !== '' && filter_var($recipient, FILTER_VALIDATE_EMAIL)) {
+                $mailboxIdentity = $recipient;
+                break;
+            }
+        }
     }
 
-    $participants = array_filter([$mailboxEmail, $partnerEmail], static fn($value) => $value !== '');
+    $partnerEmail = '';
+    if ($mailboxIdentity !== '' && $fromEmail === $mailboxIdentity) {
+        foreach ($recipientList as $recipient) {
+            if ($recipient !== '' && $recipient !== $mailboxIdentity) {
+                $partnerEmail = $recipient;
+                break;
+            }
+        }
+    } else {
+        $partnerEmail = $fromEmail !== '' ? $fromEmail : '';
+    }
+
+    if ($partnerEmail === '' && $recipientList) {
+        foreach ($recipientList as $recipient) {
+            if ($recipient !== '' && $recipient !== $mailboxIdentity) {
+                $partnerEmail = $recipient;
+                break;
+            }
+        }
+    }
+
+    $participants = array_filter([$mailboxIdentity, $partnerEmail], static fn($value) => $value !== '');
     $participants = array_unique($participants);
     sort($participants, SORT_STRING);
 
