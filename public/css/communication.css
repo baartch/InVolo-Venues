@@ -1,6 +1,12 @@
 .email-list-item {
   position: relative;
   display: block;
+  border-left: 2px solid transparent;
+  padding-left: 0.5rem;
+}
+
+.email-list-item.warning {
+  border-left-color: var(--bulma-warning, #ffdd57);
 }
 
 .email-meta-right {

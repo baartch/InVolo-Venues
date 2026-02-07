@@ -59,17 +59,16 @@
                   : trim((string) ($row['to_emails'] ?? ''));
               $dateValue = $folder === 'inbox' ? ($row['received_at'] ?? $row['created_at']) : ($row['sent_at'] ?? $row['created_at']);
               $dateLabel = $dateValue ? date('Y-m-d H:i', strtotime((string) $dateValue)) : '';
+              $isUnread = !$row['is_read'] && $folder === 'inbox';
+              $itemClass = $isUnread ? 'email-list-item warning' : 'email-list-item';
             ?>
             <li>
-              <div class="email-list-item">
+              <div class="<?php echo $itemClass; ?>">
                 <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?>">
                   <div class="is-flex is-justify-content-space-between">
                     <div>
                       <div class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></div>
                       <div class="is-size-7"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
-                      <?php if (!$row['is_read'] && $folder === 'inbox'): ?>
-                        <span class="tag is-small">Unread</span>
-                      <?php endif; ?>
                     </div>
                     <div class="is-size-7 email-meta-right">
                       <div><?php echo htmlspecialchars($dateLabel); ?></div>

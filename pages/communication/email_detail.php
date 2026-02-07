@@ -67,7 +67,9 @@
             <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
             <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
             <input type="hidden" name="tab" value="email">
-            <button type="submit" class="button">Move to trash</button>
+            <button type="submit" class="button" aria-label="Move email to trash" title="Move email to trash">
+              <span class="icon"><i class="fa-solid fa-trash"></i></span>
+            </button>
           </form>
         </div>
       </div>
