@@ -278,9 +278,9 @@ $baseQuery = [
 $baseQuery = array_filter($baseQuery, static fn($value) => $value !== null && $value !== '');
 $mailboxCount = count($teamMailboxes);
 ?>
-<div class="columns is-variable is-3">
-  <aside class="column is-3">
-    <div class="box">
+<div class="box">
+  <div class="columns is-variable is-3 email-columns has-text-primary-40">
+    <aside class="column is-3 email-column">
       <h3 class="title is-6">Mailbox</h3>
       <?php if (!$teamMailboxes): ?>
         <p>No mailboxes assigned.</p>
@@ -367,11 +367,9 @@ $mailboxCount = count($teamMailboxes);
           <p><?php echo htmlspecialchars(formatBytes($quotaUsed)); ?> / <?php echo htmlspecialchars(formatBytes($quotaTotal)); ?></p>
         </div>
       <?php endif; ?>
-    </div>
-  </aside>
+    </aside>
 
-  <section class="column is-4">
-    <div class="box">
+    <section class="column is-4 email-column">
       <div class="level mb-3">
         <div class="level-left">
           <h2 class="title is-5"><?php echo htmlspecialchars($folderOptions[$folder] ?? 'Inbox'); ?></h2>
@@ -500,11 +498,9 @@ $mailboxCount = count($teamMailboxes);
       <?php else: ?>
         <p>Select a mailbox to view emails.</p>
       <?php endif; ?>
-    </div>
-  </section>
+    </section>
 
-  <section class="column">
-    <div class="box">
+    <section class="column email-column">
       <?php if (!$selectedMailbox): ?>
         <p>Pick a mailbox to view details.</p>
       <?php elseif ($composeMode): ?>
@@ -605,6 +601,6 @@ $mailboxCount = count($teamMailboxes);
       <?php else: ?>
         <p>Select an email to view its details.</p>
       <?php endif; ?>
-    </div>
-  </section>
+    </section>
+  </div>
 </div>

@@ -28,6 +28,51 @@
   padding: 0.2rem 0.3rem;
 }
 
+.email-columns {
+  display: flex;
+  flex-wrap: nowrap;
+  align-items: stretch;
+}
+
+.email-column {
+  display: flex;
+  flex-direction: column;
+  position: relative;
+  flex: 1 1 0;
+  border-right: 1px solid currentColor;
+  border-right-color: color-mix(in srgb, currentColor 50%, transparent);
+  padding-right: 0.75rem;
+}
+
+.email-column > *:last-child {
+  margin-bottom: 0;
+}
+
+.email-column:last-child {
+  border-right: none;
+  padding-right: 0;
+}
+
+.email-columns > .column.is-3 {
+  flex: 0 0 25%;
+}
+
+.email-columns > .column.is-4 {
+  flex: 0 0 33.3333%;
+}
+
+@media screen and (max-width: 1023px) {
+  .email-columns {
+    flex-direction: column;
+  }
+
+  .email-column {
+    flex: 1 1 auto;
+    border-right: none;
+    padding-right: 0;
+  }
+}
+
 /* Cooldown progress bar color steps - red to blue (no gradient)
    Uses discrete steps so we can avoid inline CSS while mapping cooldown percent to color.
    Colors are linearly interpolated between Bulma red (#ff3860) and Bulma blue (#209cee).
