@@ -578,7 +578,14 @@ $mailboxCount = count($teamMailboxes);
         </div>
 
         <div class="content">
-          <?php echo nl2br(htmlspecialchars($message['body'] ?? '')); ?>
+          <?php
+            $messageBody = (string) ($message['body'] ?? '');
+            if ($messageBody !== '' && $messageBody !== strip_tags($messageBody)) {
+                echo $messageBody;
+            } else {
+                echo nl2br(htmlspecialchars($messageBody));
+            }
+          ?>
         </div>
 
         <?php if ($attachments): ?>
