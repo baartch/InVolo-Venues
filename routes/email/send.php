@@ -117,15 +117,26 @@ try {
         exit;
     }
 
-    $conversationId = ensureConversationForEmail(
-        $pdo,
-        $mailbox,
-        getMailboxPrimaryEmail($mailbox),
-        $toEmails,
-        $subject,
-        $startNewConversation,
-        date('Y-m-d H:i:s')
-    );
+    if ($startNewConversation) {
+        $conversationId = ensureConversationForEmail(
+            $pdo,
+            $mailbox,
+            getMailboxPrimaryEmail($mailbox),
+            $toEmails,
+            $subject,
+            true,
+            date('Y-m-d H:i:s')
+        );
+    } else {
+        $conversationId = findConversationForEmail(
+            $pdo,
+            $mailbox,
+            getMailboxPrimaryEmail($mailbox),
+            $toEmails,
+            $subject,
+            date('Y-m-d H:i:s')
+        );
+    }
 
     $stmt = $pdo->prepare(
         'INSERT INTO email_messages

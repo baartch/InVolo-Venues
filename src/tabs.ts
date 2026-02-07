@@ -24,7 +24,11 @@ const initTabs = (): void => {
       const target = tab.getAttribute('data-tab');
       setActiveTab(tab);
       panels.forEach((panel) => {
-        panel.classList.toggle('is-hidden', panel.getAttribute('data-tab-panel') !== target);
+        const isActive = panel.getAttribute('data-tab-panel') === target;
+        panel.classList.toggle('is-hidden', !isActive);
+        if (isActive) {
+          document.dispatchEvent(new CustomEvent('tab:activated', { detail: { tab: target } }));
+        }
       });
     });
   });

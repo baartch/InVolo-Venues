@@ -31,13 +31,16 @@ function sendEmailViaMailbox(PDO $pdo, array $mailbox, array $payload): bool
 
     $recipients = array_values(array_unique(array_merge($toList, $ccList, $bccList)));
 
+    $isHtml = $body !== strip_tags($body);
+    $contentType = $isHtml ? 'text/html' : 'text/plain';
+
     $headers = [
         'From: ' . $fromEmail,
         'To: ' . implode(', ', $toList),
         'Subject: ' . $subject,
         'Date: ' . date('r'),
         'MIME-Version: 1.0',
-        'Content-Type: text/plain; charset=UTF-8'
+        'Content-Type: ' . $contentType . '; charset=UTF-8'
     ];
 
     if ($ccList) {

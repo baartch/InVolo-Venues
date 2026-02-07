@@ -10,10 +10,13 @@ logAction($currentUser['user_id'] ?? null, 'view_communication', 'User opened co
 <?php renderPageStart('Communication', [
     'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
     'extraStyles' => [
-        BASE_PATH . '/public/css/communication.css'
+        BASE_PATH . '/public/css/communication.css',
+        BASE_PATH . '/public/css/wysi.min.css'
     ],
     'extraScripts' => [
-        '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'
+        '<script src="' . BASE_PATH . '/public/js/wysi.min.js" defer></script>',
+        '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>',
+        '<script type="module" src="' . BASE_PATH . '/public/js/wysi-email.js" defer></script>'
     ]
 ]); ?>
       <section class="section">

@@ -294,6 +294,55 @@ function buildConversationParticipantKey(string $mailboxEmail, string $fromEmail
     return implode('|', $participants);
 }
 
+function findConversationForEmail(
+    PDO $pdo,
+    array $mailbox,
+    string $fromEmail,
+    string $toEmails,
+    ?string $subject,
+    ?string $activityAt
+): ?int {
+    $mailboxId = (int) ($mailbox['id'] ?? 0);
+    $teamId = (int) ($mailbox['team_id'] ?? 0);
+    if ($mailboxId <= 0 || $teamId <= 0) {
+        return null;
+    }
+
+    $normalizedSubject = normalizeConversationSubject($subject);
+    $participantKey = buildConversationParticipantKey(getMailboxPrimaryEmail($mailbox), $fromEmail, $toEmails);
+    $activityAt = $activityAt ?: date('Y-m-d H:i:s');
+
+    $stmt = $pdo->prepare(
+        'SELECT id FROM email_conversations
+         WHERE mailbox_id = :mailbox_id
+           AND subject_normalized = :subject_normalized
+           AND participant_key = :participant_key
+           AND is_closed = 0
+         ORDER BY id DESC
+         LIMIT 1'
+    );
+    $stmt->execute([
+        ':mailbox_id' => $mailboxId,
+        ':subject_normalized' => $normalizedSubject,
+        ':participant_key' => $participantKey
+    ]);
+    $conversationId = (int) $stmt->fetchColumn();
+    if ($conversationId > 0) {
+        $updateStmt = $pdo->prepare(
+            'UPDATE email_conversations
+             SET last_activity_at = :last_activity_at
+             WHERE id = :id'
+        );
+        $updateStmt->execute([
+            ':last_activity_at' => $activityAt,
+            ':id' => $conversationId
+        ]);
+        return $conversationId;
+    }
+
+    return null;
+}
+
 function ensureConversationForEmail(
     PDO $pdo,
     array $mailbox,
@@ -315,33 +364,19 @@ function ensureConversationForEmail(
     $activityAt = $activityAt ?: date('Y-m-d H:i:s');
 
     if (!$forceNew) {
-        $stmt = $pdo->prepare(
-            'SELECT id FROM email_conversations
-             WHERE mailbox_id = :mailbox_id
-               AND subject_normalized = :subject_normalized
-               AND participant_key = :participant_key
-               AND is_closed = 0
-             ORDER BY id DESC
-             LIMIT 1'
+        $conversationId = findConversationForEmail(
+            $pdo,
+            $mailbox,
+            $fromEmail,
+            $toEmails,
+            $subject,
+            $activityAt
         );
-        $stmt->execute([
-            ':mailbox_id' => $mailboxId,
-            ':subject_normalized' => $normalizedSubject,
-            ':participant_key' => $participantKey
-        ]);
-        $conversationId = (int) $stmt->fetchColumn();
-        if ($conversationId > 0) {
-            $updateStmt = $pdo->prepare(
-                'UPDATE email_conversations
-                 SET last_activity_at = :last_activity_at
-                 WHERE id = :id'
-            );
-            $updateStmt->execute([
-                ':last_activity_at' => $activityAt,
-                ':id' => $conversationId
-            ]);
+        if ($conversationId !== null) {
             return $conversationId;
         }
+
+        return null;
     }
 
     $insertStmt = $pdo->prepare(
