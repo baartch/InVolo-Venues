@@ -58,6 +58,17 @@
         <div class="buttons are-small">
           <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'reply' => $message['id']]))); ?>" class="button">Reply</a>
           <a href="<?php echo htmlspecialchars($baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, ['compose' => 1, 'forward' => $message['id']]))); ?>" class="button">Forward</a>
+          <form method="POST" action="<?php echo BASE_PATH; ?>/routes/email/mark_unread.php">
+            <?php renderCsrfField(); ?>
+            <input type="hidden" name="email_id" value="<?php echo (int) $message['id']; ?>">
+            <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
+            <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
+            <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sortKey); ?>">
+            <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
+            <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
+            <input type="hidden" name="tab" value="email">
+            <button type="submit" class="button">Mark as unread</button>
+          </form>
           <form method="POST" action="<?php echo BASE_PATH; ?>/routes/email/delete.php" onsubmit="return confirm('Delete this email?');">
             <?php renderCsrfField(); ?>
             <input type="hidden" name="email_id" value="<?php echo (int) $message['id']; ?>">
