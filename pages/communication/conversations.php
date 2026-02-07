@@ -8,6 +8,7 @@ $teamMailboxes = [];
 $selectedMailbox = null;
 $pdo = null;
 $userId = (int) ($currentUser['user_id'] ?? 0);
+$folderOptions = getEmailFolderOptions();
 
 try {
     $pdo = getDatabaseConnection();
@@ -61,7 +62,7 @@ if ($pdo && $selectedMailbox) {
 if ($pdo && $selectedMailbox && $conversationId > 0) {
     try {
         $stmt = $pdo->prepare(
-            'SELECT em.id, em.subject, em.from_name, em.from_email, em.to_emails, em.folder,
+            'SELECT em.id, em.subject, em.body, em.from_name, em.from_email, em.to_emails, em.folder,
                     em.is_read, em.received_at, em.sent_at, em.created_at
              FROM email_messages em
              WHERE em.mailbox_id = :mailbox_id AND em.conversation_id = :conversation_id
@@ -218,45 +219,45 @@ $cooldownSeconds = 14 * 24 * 60 * 60;
       <?php elseif (!$conversationMessages): ?>
         <p>No emails found for this conversation.</p>
       <?php else: ?>
-        <div class="menu">
-          <ul class="menu-list">
-            <?php foreach ($conversationMessages as $message): ?>
-              <?php
-                $messageFolder = $message['folder'] ?? 'inbox';
-                $messageLink = $baseUrl . '?' . http_build_query([
-                    'tab' => 'email',
-                    'mailbox_id' => $selectedMailbox['id'],
-                    'folder' => $messageFolder,
-                    'sort' => 'received_desc',
-                    'page' => 1,
-                    'message_id' => $message['id']
-                ]);
-                $displayName = $messageFolder === 'inbox'
-                    ? trim(($message['from_name'] ?? '') !== '' ? $message['from_name'] : ($message['from_email'] ?? 'Unknown'))
-                    : trim((string) ($message['to_emails'] ?? ''));
-                $dateValue = $messageFolder === 'inbox'
-                    ? ($message['received_at'] ?? $message['created_at'])
-                    : ($message['sent_at'] ?? $message['created_at']);
-                $dateLabel = $dateValue ? date('Y-m-d H:i', strtotime((string) $dateValue)) : '';
-              ?>
-              <li>
-                <a href="<?php echo htmlspecialchars($messageLink); ?>">
-                  <div class="is-flex is-justify-content-space-between">
-                    <div>
-                      <div class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></div>
-                      <div class="is-size-7"><?php echo htmlspecialchars($message['subject'] ?? '(No subject)'); ?></div>
-                      <?php if (empty($message['is_read']) && $messageFolder === 'inbox'): ?>
-                        <span class="tag is-small">Unread</span>
-                      <?php endif; ?>
-                    </div>
-                    <div class="is-size-7 has-text-right">
-                      <?php echo htmlspecialchars($dateLabel); ?>
-                    </div>
-                  </div>
-                </a>
-              </li>
-            <?php endforeach; ?>
-          </ul>
+        <div class="content">
+          <?php foreach ($conversationMessages as $message): ?>
+            <?php
+              $messageFolder = $message['folder'] ?? 'inbox';
+              $displayName = $messageFolder === 'inbox'
+                  ? trim(($message['from_name'] ?? '') !== '' ? $message['from_name'] : ($message['from_email'] ?? 'Unknown'))
+                  : trim((string) ($message['to_emails'] ?? ''));
+              $dateValue = $messageFolder === 'inbox'
+                  ? ($message['received_at'] ?? $message['created_at'])
+                  : ($message['sent_at'] ?? $message['created_at']);
+              $dateLabel = $dateValue ? date('Y-m-d H:i', strtotime((string) $dateValue)) : '';
+              $folderLabel = $folderOptions[$messageFolder] ?? ucfirst($messageFolder);
+              $isUnread = empty($message['is_read']) && $messageFolder === 'inbox';
+              $messageBody = (string) ($message['body'] ?? '');
+            ?>
+            <article class="box mb-4">
+              <div class="is-flex is-justify-content-space-between is-size-7 mb-2">
+                <div>
+                  <span class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></span>
+                  <span class="mx-1">·</span>
+                  <span><?php echo htmlspecialchars($folderLabel); ?></span>
+                  <?php if ($isUnread): ?>
+                    <span class="tag is-small ml-2">Unread</span>
+                  <?php endif; ?>
+                </div>
+                <div><?php echo htmlspecialchars($dateLabel); ?></div>
+              </div>
+              <h3 class="title is-6 mb-2"><?php echo htmlspecialchars($message['subject'] ?? '(No subject)'); ?></h3>
+              <div class="content is-size-7">
+                <?php
+                  if ($messageBody !== '' && $messageBody !== strip_tags($messageBody)) {
+                      echo $messageBody;
+                  } else {
+                      echo nl2br(htmlspecialchars($messageBody));
+                  }
+                ?>
+              </div>
+            </article>
+          <?php endforeach; ?>
         </div>
       <?php endif; ?>
     </div>
