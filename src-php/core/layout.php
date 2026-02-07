@@ -48,7 +48,7 @@ function renderPageStart(string $title, array $options = []): void
 
     if ($includeSidebar) {
         echo "  <div class=\"columns is-gapless app-layout is-flex-grow-1\">\n";
-        require __DIR__ . '/../partials/sidebar.php';
+        require __DIR__ . '/../../partials/sidebar.php';
         echo "\n";
         echo "    <main class=\"column main-content is-flex is-flex-direction-column\">\n";
     } else {

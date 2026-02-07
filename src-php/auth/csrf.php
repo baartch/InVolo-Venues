@@ -95,7 +95,7 @@ function verifyCsrfToken(): void
     $token = $_POST['csrf_token'] ?? '';
     
     if (!validateCsrfToken($token)) {
-        require_once __DIR__ . '/database.php';
+        require_once __DIR__ . '/../core/database.php';
         
         $userId = null;
         if (isset($GLOBALS['currentUser']['user_id'])) {

@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../src-php/defaults.php';
-require_once __DIR__ . '/../src-php/database.php';
-require_once __DIR__ . '/../src-php/email_helpers.php';
+require_once __DIR__ . '/../src-php/core/defaults.php';
+require_once __DIR__ . '/../src-php/core/database.php';
+require_once __DIR__ . '/../src-php/communication/email_helpers.php';
 
 if (PHP_SAPI !== 'cli') {
     http_response_code(403);

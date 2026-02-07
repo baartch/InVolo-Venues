@@ -1,4 +1,6 @@
 <?php
+require_once __DIR__ . '/../core/database.php';
+
 /**
  * Rate limiting functionality for preventing brute force attacks
  */

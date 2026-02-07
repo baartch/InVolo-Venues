@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/../core/database.php';
 require_once __DIR__ . '/email_helpers.php';
 
 function sendEmailViaMailbox(PDO $pdo, array $mailbox, array $payload): bool

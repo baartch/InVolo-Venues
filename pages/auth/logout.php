@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../src-php/defaults.php';
-require_once __DIR__ . '/../../src-php/database.php';
-require_once __DIR__ . '/../../src-php/cookie_helpers.php';
+require_once __DIR__ . '/../../src-php/core/defaults.php';
+require_once __DIR__ . '/../../src-php/core/database.php';
+require_once __DIR__ . '/../../src-php/auth/cookie_helpers.php';
 
 $token = getSessionToken();
 $session = $token !== '' ? fetchSessionUser($token) : null;

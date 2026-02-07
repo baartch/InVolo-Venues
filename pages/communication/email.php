@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../src-php/email_view.php';
+require_once __DIR__ . '/../../src-php/communication/email_view.php';
 ?>
 <div class="box">
   <div class="columns is-variable is-3 email-columns has-text-primary-40">

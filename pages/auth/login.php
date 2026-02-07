@@ -1,10 +1,10 @@
 <?php
 require_once __DIR__ . '/../../config/config.php';
-require_once __DIR__ . '/../../src-php/defaults.php';
-require_once __DIR__ . '/../../src-php/database.php';
-require_once __DIR__ . '/../../src-php/rate_limit.php';
-require_once __DIR__ . '/../../src-php/cookie_helpers.php';
-require_once __DIR__ . '/../../src-php/layout.php';
+require_once __DIR__ . '/../../src-php/core/defaults.php';
+require_once __DIR__ . '/../../src-php/core/database.php';
+require_once __DIR__ . '/../../src-php/auth/rate_limit.php';
+require_once __DIR__ . '/../../src-php/auth/cookie_helpers.php';
+require_once __DIR__ . '/../../src-php/core/layout.php';
 
 $token = getSessionToken();
 $existingSession = $token !== '' ? fetchSessionUser($token) : null;

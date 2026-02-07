@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../auth/check.php';
-require_once __DIR__ . '/../../src-php/database.php';
-require_once __DIR__ . '/../../src-php/security_headers.php';
+require_once __DIR__ . '/../../src-php/core/database.php';
+require_once __DIR__ . '/../../src-php/core/security_headers.php';
 
 setApiSecurityHeaders();
 header('Content-Type: application/json');

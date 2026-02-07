@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../src-php/email_helpers.php';
+require_once __DIR__ . '/../../src-php/communication/email_helpers.php';
 
 $errors = [];
 $conversations = [];

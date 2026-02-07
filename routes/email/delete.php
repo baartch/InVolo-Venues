@@ -1,8 +1,8 @@
 <?php
 require_once __DIR__ . '/../auth/check.php';
-require_once __DIR__ . '/../../src-php/database.php';
-require_once __DIR__ . '/../../src-php/email_helpers.php';
-require_once __DIR__ . '/../../src-php/form_helpers.php';
+require_once __DIR__ . '/../../src-php/core/database.php';
+require_once __DIR__ . '/../../src-php/communication/email_helpers.php';
+require_once __DIR__ . '/../../src-php/core/form_helpers.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);

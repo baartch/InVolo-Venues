@@ -1,10 +1,10 @@
 <?php
 require_once __DIR__ . '/../../routes/auth/check.php';
-require_once __DIR__ . '/../../src-php/database.php';
-require_once __DIR__ . '/../../src-php/form_helpers.php';
-require_once __DIR__ . '/../../src-php/layout.php';
-require_once __DIR__ . '/../../src-php/venues_actions.php';
-require_once __DIR__ . '/../../src-php/venues_repository.php';
+require_once __DIR__ . '/../../src-php/core/database.php';
+require_once __DIR__ . '/../../src-php/core/form_helpers.php';
+require_once __DIR__ . '/../../src-php/core/layout.php';
+require_once __DIR__ . '/../../src-php/venues/venues_actions.php';
+require_once __DIR__ . '/../../src-php/venues/venues_repository.php';
 
 $errors = [];
 $notice = '';

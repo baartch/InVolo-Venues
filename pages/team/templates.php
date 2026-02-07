@@ -1,7 +1,7 @@
 <?php
 /** @var string $activeTab */
-require_once __DIR__ . '/../../src-php/email_templates_helpers.php';
-require_once __DIR__ . '/../../src-php/email_helpers.php';
+require_once __DIR__ . '/../../src-php/communication/email_templates_helpers.php';
+require_once __DIR__ . '/../../src-php/communication/email_helpers.php';
 
 $errors = [];
 $notice = '';

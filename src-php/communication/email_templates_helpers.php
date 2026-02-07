@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/database.php';
-require_once __DIR__ . '/form_helpers.php';
+require_once __DIR__ . '/../core/database.php';
+require_once __DIR__ . '/../core/form_helpers.php';
 require_once __DIR__ . '/email_helpers.php';
 
 function fetchTeamTemplate(PDO $pdo, int $templateId, int $userId): ?array

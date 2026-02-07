@@ -1,7 +1,7 @@
 <?php
 require_once __DIR__ . '/../config/config.php';
-require_once __DIR__ . '/../src-php/defaults.php';
-require_once __DIR__ . '/../src-php/database.php';
+require_once __DIR__ . '/../src-php/core/defaults.php';
+require_once __DIR__ . '/../src-php/core/database.php';
 
 $defaultDays = 180;
 $daysToKeep = $defaultDays;

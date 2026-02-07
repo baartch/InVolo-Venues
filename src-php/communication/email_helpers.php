@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/database.php';
+require_once __DIR__ . '/../core/database.php';
 
 const EMAIL_PAGE_SIZE_DEFAULT = 25;
 const EMAIL_ATTACHMENT_QUOTA_DEFAULT = 104857600;

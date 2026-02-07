@@ -1,6 +1,6 @@
 <?php
-require_once __DIR__ . '/database.php';
-require_once __DIR__ . '/form_helpers.php';
+require_once __DIR__ . '/../core/database.php';
+require_once __DIR__ . '/../core/form_helpers.php';
 
 function fetchTeamMailbox(PDO $pdo, int $mailboxId, int $userId): ?array
 {

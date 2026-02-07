@@ -249,7 +249,7 @@ frontend/
 │   └── waypoints/index.php    # Protected venues endpoint (GPX)
 ├── config/                    # Configuration only (protected)
 │   └── config.php             # Credentials & settings
-├── src-php/                   # Shared PHP helpers
+├── src-php/                   # Shared PHP helpers (auth/, communication/, core/, venues/)
 │   ├── database.php           # Database functions
 │   ├── admin_check.php        # Admin authorization
 │   ├── rate_limit.php         # Rate limiting

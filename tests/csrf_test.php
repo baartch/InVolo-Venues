@@ -6,7 +6,7 @@
  * Run this from the command line: php tests/csrf_test.php
  */
 
-require_once __DIR__ . '/../src-php/csrf.php';
+require_once __DIR__ . '/../src-php/auth/csrf.php';
 
 echo "CSRF Token Protection Test\n";
 echo "==========================\n\n";

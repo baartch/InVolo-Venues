@@ -3,7 +3,7 @@
 // Base directory for stored email attachments (app root)
 // Ensure the web server user can read/write this directory.
 if (!defined('MAIL_ATTACHMENTS_PATH')) {
-    define('MAIL_ATTACHMENTS_PATH', dirname(__DIR__));
+    define('MAIL_ATTACHMENTS_PATH', dirname(__DIR__, 2));
 }
 
 // Base path - auto-detect or set manually

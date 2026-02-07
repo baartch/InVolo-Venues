@@ -1,9 +1,9 @@
 <?php
-require_once __DIR__ . '/../../src-php/team_admin_check.php';
-require_once __DIR__ . '/../../src-php/database.php';
-require_once __DIR__ . '/../../src-php/layout.php';
-require_once __DIR__ . '/../../src-php/email_templates_helpers.php';
-require_once __DIR__ . '/../../src-php/email_helpers.php';
+require_once __DIR__ . '/../../src-php/auth/team_admin_check.php';
+require_once __DIR__ . '/../../src-php/core/database.php';
+require_once __DIR__ . '/../../src-php/core/layout.php';
+require_once __DIR__ . '/../../src-php/communication/email_templates_helpers.php';
+require_once __DIR__ . '/../../src-php/communication/email_helpers.php';
 
 $errors = [];
 $notice = '';

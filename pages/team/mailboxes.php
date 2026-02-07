@@ -1,6 +1,6 @@
 <?php
 /** @var string $activeTab */
-require_once __DIR__ . '/../../src-php/mailbox_helpers.php';
+require_once __DIR__ . '/../../src-php/communication/mailbox_helpers.php';
 
 $errors = [];
 $notice = '';

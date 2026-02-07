@@ -1,8 +1,8 @@
 <?php
-require_once __DIR__ . '/../../src-php/admin_check.php';
-require_once __DIR__ . '/../../src-php/database.php';
-require_once __DIR__ . '/../../src-php/layout.php';
-require_once __DIR__ . '/../../src-php/settings.php';
+require_once __DIR__ . '/../../src-php/auth/admin_check.php';
+require_once __DIR__ . '/../../src-php/core/database.php';
+require_once __DIR__ . '/../../src-php/core/layout.php';
+require_once __DIR__ . '/../../src-php/core/settings.php';
 
 $errors = [];
 $notice = '';
