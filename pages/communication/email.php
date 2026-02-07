@@ -21,7 +21,7 @@ if (!array_key_exists($folder, $folderOptions)) {
 }
 
 $sortKey = (string) ($_GET['sort'] ?? 'received_desc');
-if (!array_key_exists($sortKey, $sortOptions)) {
+if (!array_key_exists($sortKey, $sortOptions) || !in_array($sortKey, ['received_desc', 'received_asc'], true)) {
     $sortKey = 'received_desc';
 }
 
@@ -399,27 +399,17 @@ $mailboxCount = count($teamMailboxes);
             <span class="tag"><?php echo (int) $totalMessages; ?> emails</span>
           </div>
           <div class="level-right">
-            <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons">
-              <input type="hidden" name="tab" value="email">
-              <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
-              <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
-              <input type="hidden" name="page" value="1">
-              <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
-              <div class="control">
-                <div class="select">
-                  <select name="sort">
-                    <?php foreach ($sortOptions as $key => $option): ?>
-                      <option value="<?php echo htmlspecialchars($key); ?>" <?php echo $sortKey === $key ? 'selected' : ''; ?>>
-                        <?php echo htmlspecialchars($option['label']); ?>
-                      </option>
-                    <?php endforeach; ?>
-                  </select>
-                </div>
-              </div>
-              <div class="control">
-                <button type="submit" class="button">Sort</button>
-              </div>
-            </form>
+            <?php
+              $toggleSortKey = $sortKey === 'received_asc' ? 'received_desc' : 'received_asc';
+              $sortArrow = $sortKey === 'received_asc' ? '↑' : '↓';
+              $sortLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
+                  'sort' => $toggleSortKey,
+                  'page' => 1
+              ]));
+            ?>
+            <a href="<?php echo htmlspecialchars($sortLink); ?>" aria-label="Toggle sort order" title="Toggle sort order">
+              <?php echo htmlspecialchars($sortArrow); ?>
+            </a>
           </div>
         </div>
 
