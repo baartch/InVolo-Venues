@@ -331,24 +331,28 @@ logAction($currentUser['user_id'] ?? null, 'view_venues', 'User opened venue man
                 <h2 class="title is-5">All Venues</h2>
               </div>
               <div class="level-right">
-                <form method="GET" action="<?php echo BASE_PATH; ?>/pages/venues/index.php" class="field has-addons" data-filter-form>
+                <form method="GET" action="<?php echo BASE_PATH; ?>/pages/venues/index.php" data-filter-form>
                   <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
-                  <div class="control has-icons-left">
-                    <input
-                      class="input"
-                      type="text"
-                      name="filter"
-                      value="<?php echo htmlspecialchars($filter); ?>"
-                      placeholder="Filter venues"
-                      autocomplete="off"
-                    >
-                    <span class="icon is-left"><i class="fa-solid fa-magnifying-glass"></i></span>
-                  </div>
-                  <div class="control">
-                    <button class="button" type="submit">Filter</button>
-                  </div>
-                  <div class="control">
-                    <button type="button" class="button" data-filter-clear aria-label="Clear filter">Clear</button>
+                  <div class="field has-addons">
+                    <div class="control has-icons-left is-expanded">
+                      <div class="dropdown is-fullwidth map-search-dropdown">
+                        <div class="dropdown-trigger">
+                          <input
+                            class="input"
+                            type="text"
+                            id="venue-filter"
+                            name="filter"
+                            value="<?php echo htmlspecialchars($filter); ?>"
+                            placeholder="Search for venues..."
+                            autocomplete="off"
+                          >
+                          <span class="icon is-left"><i class="fa-solid fa-magnifying-glass"></i></span>
+                        </div>
+                      </div>
+                    </div>
+                    <p class="control">
+                      <span class="button is-static">Ctrl+K</span>
+                    </p>
                   </div>
                 </form>
               </div>

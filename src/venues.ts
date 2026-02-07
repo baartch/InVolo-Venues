@@ -60,22 +60,12 @@ const initImportModal = (): void => {
 const initFilterForm = (): void => {
   const filterForm = qs<HTMLFormElement>('[data-filter-form]');
   const filterInput = filterForm ? qs<HTMLInputElement>('input[name="filter"]', filterForm) : null;
-  const filterClear = qs<HTMLElement>('[data-filter-clear]');
-
   if (!filterForm || !filterInput) {
     return;
   }
 
   const focusKey = 'venueFilterFocus';
   const pageInput = qs<HTMLInputElement>('input[name="page"]', filterForm);
-  const setClearVisible = (visible: boolean): void => {
-    if (!filterClear) {
-      return;
-    }
-    filterClear.toggleAttribute('disabled', !visible);
-    filterClear.classList.toggle('is-static', !visible);
-    filterClear.setAttribute('aria-hidden', visible ? 'false' : 'true');
-  };
 
   const submitFilter = (): void => {
     sessionStorage.setItem(focusKey, '1');
@@ -95,7 +85,6 @@ const initFilterForm = (): void => {
   }
 
   filterInput.addEventListener('input', () => {
-    setClearVisible(filterInput.value.trim() !== '');
     debounce.trigger();
   });
 
@@ -106,27 +95,14 @@ const initFilterForm = (): void => {
     }
   });
 
-  if (filterClear) {
-    const clearFilter = (): void => {
-      if (filterClear.hasAttribute('disabled')) {
-        return;
-      }
-      debounce.clear();
-      filterInput.value = '';
-      setClearVisible(false);
-      submitFilter();
-    };
+  document.addEventListener('keydown', (event) => {
+    if ((event.ctrlKey || event.metaKey) && event.key === 'k') {
+      event.preventDefault();
+      filterInput.focus();
+      filterInput.select();
+    }
+  });
 
-    filterClear.addEventListener('click', clearFilter);
-    filterClear.addEventListener('keydown', (event) => {
-      if (event.key === 'Enter' || event.key === ' ') {
-        event.preventDefault();
-        clearFilter();
-      }
-    });
-  }
-
-  setClearVisible(filterInput.value.trim() !== '');
 };
 
 const initSorting = (): void => {
