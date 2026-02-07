@@ -27,3 +27,82 @@
 .email-meta-right .email-delete-action .button {
   padding: 0.2rem 0.3rem;
 }
+
+/* Cooldown progress bar color steps - red to blue (no gradient)
+   Uses discrete steps so we can avoid inline CSS while mapping cooldown percent to color.
+   Colors are linearly interpolated between Bulma red (#ff3860) and Bulma blue (#209cee).
+*/
+.progress[class*="is-cooldown-step-"] {
+  --bulma-progress-value-background-color: var(--cooldown-color);
+  --bulma-progress-indeterminate-value-background-color: var(--cooldown-color);
+  accent-color: var(--cooldown-color);
+}
+
+.progress[class*="is-cooldown-step-"]::-webkit-progress-value,
+.progress[class*="is-cooldown-step-"]::-moz-progress-bar {
+  background-color: var(--cooldown-color);
+}
+
+.progress.is-cooldown-step-0 {
+  --cooldown-color: #ff3860;
+}
+.progress.is-cooldown-step-5 {
+  --cooldown-color: #f43d67;
+}
+.progress.is-cooldown-step-10 {
+  --cooldown-color: #e9426e;
+}
+.progress.is-cooldown-step-15 {
+  --cooldown-color: #de4775;
+}
+.progress.is-cooldown-step-20 {
+  --cooldown-color: #d24c7c;
+}
+.progress.is-cooldown-step-25 {
+  --cooldown-color: #c75184;
+}
+.progress.is-cooldown-step-30 {
+  --cooldown-color: #bc568b;
+}
+.progress.is-cooldown-step-35 {
+  --cooldown-color: #b15b92;
+}
+.progress.is-cooldown-step-40 {
+  --cooldown-color: #a66099;
+}
+.progress.is-cooldown-step-45 {
+  --cooldown-color: #9b65a0;
+}
+.progress.is-cooldown-step-50 {
+  --cooldown-color: #906aa7;
+}
+.progress.is-cooldown-step-55 {
+  --cooldown-color: #846fae;
+}
+.progress.is-cooldown-step-60 {
+  --cooldown-color: #7974b5;
+}
+.progress.is-cooldown-step-65 {
+  --cooldown-color: #6e79bc;
+}
+.progress.is-cooldown-step-70 {
+  --cooldown-color: #637ec3;
+}
+.progress.is-cooldown-step-75 {
+  --cooldown-color: #5883cb;
+}
+.progress.is-cooldown-step-80 {
+  --cooldown-color: #4d88d2;
+}
+.progress.is-cooldown-step-85 {
+  --cooldown-color: #418dd9;
+}
+.progress.is-cooldown-step-90 {
+  --cooldown-color: #3692e0;
+}
+.progress.is-cooldown-step-95 {
+  --cooldown-color: #2b97e7;
+}
+.progress.is-cooldown-step-100 {
+  --cooldown-color: #209cee;
+}

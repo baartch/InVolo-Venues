@@ -142,9 +142,9 @@ $cooldownSeconds = 14 * 24 * 60 * 60;
                       ? min(100, (int) round(($elapsedSeconds / $cooldownSeconds) * 100))
                       : 100;
                   $heatPercent = max(0, 100 - $cooldownPercent);
-                  $isCool = $cooldownPercent >= 100;
-                  $statusLabel = $isCool ? 'Cool' : 'Hot';
-                  $statusClass = $isCool ? 'is-light' : 'is-danger';
+                  $colorStep = (int) round($cooldownPercent / 5) * 5;
+                  $colorStep = max(0, min(100, $colorStep));
+
                   $participantLabel = $conversation['participant_key'] === 'unknown'
                       ? 'Unknown participants'
                       : str_replace('|', ' · ', $conversation['participant_key']);
@@ -166,13 +166,12 @@ $cooldownSeconds = 14 * 24 * 60 * 60;
                         </div>
                       </div>
                       <div class="mt-2">
-                        <progress class="progress is-small" value="<?php echo $heatPercent; ?>" max="100"></progress>
-                        <div class="is-flex is-justify-content-space-between is-align-items-center">
-                          <span class="tag is-small <?php echo $statusClass; ?>"><?php echo htmlspecialchars($statusLabel); ?></span>
-                          <?php if (!empty($conversation['is_closed'])): ?>
+                        <progress class="progress is-small is-cooldown-step-<?php echo $colorStep; ?>" value="<?php echo $heatPercent; ?>" max="100"></progress>
+                        <?php if (!empty($conversation['is_closed'])): ?>
+                          <div class="mt-2">
                             <span class="tag is-small is-light">Closed</span>
-                          <?php endif; ?>
-                        </div>
+                          </div>
+                        <?php endif; ?>
                       </div>
                     </a>
                     <?php if (empty($conversation['is_closed'])): ?>
