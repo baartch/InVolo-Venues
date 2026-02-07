@@ -67,8 +67,8 @@
                 <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?>">
                   <div class="is-flex is-justify-content-space-between">
                     <div>
-                      <div class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></div>
-                      <div class="is-size-7"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
+                      <div class="<?php echo $isUnread ? 'has-text-weight-bold' : 'has-text-weight-semibold'; ?>"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
+                      <div class="is-size-7"><?php echo htmlspecialchars($displayName); ?></div>
                     </div>
                     <div class="is-size-7 email-meta-right">
                       <div><?php echo htmlspecialchars($dateLabel); ?></div>
