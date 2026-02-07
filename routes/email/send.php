@@ -21,6 +21,7 @@ $ccEmails = normalizeEmailList((string) ($_POST['cc_emails'] ?? ''));
 $bccEmails = normalizeEmailList((string) ($_POST['bcc_emails'] ?? ''));
 $subject = trim((string) ($_POST['subject'] ?? ''));
 $body = trim((string) ($_POST['body'] ?? ''));
+$startNewConversation = !empty($_POST['start_new_conversation']);
 
 $redirectParams = [
     'tab' => 'email',
@@ -110,37 +111,27 @@ try {
         'from_email' => $mailbox['smtp_username'] ?? ''
     ]);
 
-    if ($sent) {
-        if (!empty($mailbox['store_sent_on_server'])) {
-            $stmt = $pdo->prepare(
-                'INSERT INTO email_messages
-                 (mailbox_id, team_id, folder, subject, body, to_emails, cc_emails, bcc_emails, created_by, sent_at, created_at)
-                 VALUES
-                 (:mailbox_id, :team_id, "sent", :subject, :body, :to_emails, :cc_emails, :bcc_emails, :created_by, NOW(), NOW())'
-            );
-            $stmt->execute([
-                ':mailbox_id' => $mailbox['id'],
-                ':team_id' => $mailbox['team_id'],
-                ':subject' => $subject !== '' ? $subject : null,
-                ':body' => $body !== '' ? $body : null,
-                ':to_emails' => $toEmails,
-                ':cc_emails' => $ccEmails !== '' ? $ccEmails : null,
-                ':bcc_emails' => $bccEmails !== '' ? $bccEmails : null,
-                ':created_by' => $userId
-            ]);
-            $redirectParams['folder'] = 'sent';
-        }
-        logAction($userId, 'email_sent', sprintf('Sent email via mailbox %d', $mailboxId));
-        $redirectParams['notice'] = 'sent';
+    if (!$sent) {
+        $redirectParams['notice'] = 'send_failed';
         header('Location: ' . BASE_PATH . '/pages/communication/index.php?' . http_build_query($redirectParams));
         exit;
     }
 
+    $conversationId = ensureConversationForEmail(
+        $pdo,
+        $mailbox,
+        (string) ($mailbox['smtp_username'] ?? ''),
+        $toEmails,
+        $subject,
+        $startNewConversation,
+        date('Y-m-d H:i:s')
+    );
+
     $stmt = $pdo->prepare(
         'INSERT INTO email_messages
-         (mailbox_id, team_id, folder, subject, body, to_emails, cc_emails, bcc_emails, created_by, created_at)
+         (mailbox_id, team_id, folder, subject, body, to_emails, cc_emails, bcc_emails, created_by, sent_at, created_at, conversation_id)
          VALUES
-         (:mailbox_id, :team_id, "drafts", :subject, :body, :to_emails, :cc_emails, :bcc_emails, :created_by, NOW())'
+         (:mailbox_id, :team_id, "sent", :subject, :body, :to_emails, :cc_emails, :bcc_emails, :created_by, NOW(), NOW(), :conversation_id)'
     );
     $stmt->execute([
         ':mailbox_id' => $mailbox['id'],
@@ -150,11 +141,12 @@ try {
         ':to_emails' => $toEmails,
         ':cc_emails' => $ccEmails !== '' ? $ccEmails : null,
         ':bcc_emails' => $bccEmails !== '' ? $bccEmails : null,
-        ':created_by' => $userId
+        ':created_by' => $userId,
+        ':conversation_id' => $conversationId
     ]);
-    logAction($userId, 'email_send_failed', sprintf('Send failed for mailbox %d', $mailboxId));
-    $redirectParams['notice'] = 'send_failed';
-    $redirectParams['folder'] = 'drafts';
+    $redirectParams['folder'] = 'sent';
+    logAction($userId, 'email_sent', sprintf('Sent email via mailbox %d', $mailboxId));
+    $redirectParams['notice'] = 'sent';
     header('Location: ' . BASE_PATH . '/pages/communication/index.php?' . http_build_query($redirectParams));
     exit;
 } catch (Throwable $error) {

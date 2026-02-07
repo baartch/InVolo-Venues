@@ -116,10 +116,30 @@ CREATE TABLE mailboxes (
     UNIQUE KEY uniq_user_mailbox_name (user_id, name)
 );
 
+CREATE TABLE email_conversations (
+    id INT PRIMARY KEY AUTO_INCREMENT,
+    mailbox_id INT NOT NULL,
+    team_id INT NOT NULL,
+    subject VARCHAR(255) NOT NULL,
+    subject_normalized VARCHAR(255) NOT NULL,
+    participant_key VARCHAR(255) NOT NULL,
+    is_closed TINYINT(1) NOT NULL DEFAULT 0,
+    closed_at DATETIME DEFAULT NULL,
+    last_activity_at DATETIME DEFAULT NULL,
+    created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
+    updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
+    FOREIGN KEY (mailbox_id) REFERENCES mailboxes(id) ON DELETE CASCADE,
+    FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+    INDEX idx_email_conversations_mailbox (mailbox_id, last_activity_at),
+    INDEX idx_email_conversations_status (is_closed, last_activity_at),
+    UNIQUE KEY uniq_email_conversation (mailbox_id, subject_normalized, participant_key, is_closed)
+);
+
 CREATE TABLE email_messages (
     id INT PRIMARY KEY AUTO_INCREMENT,
     mailbox_id INT NOT NULL,
     team_id INT NOT NULL,
+    conversation_id INT DEFAULT NULL,
     folder ENUM('inbox', 'drafts', 'sent', 'trash') NOT NULL DEFAULT 'inbox',
     subject VARCHAR(255) DEFAULT NULL,
     body TEXT DEFAULT NULL,
@@ -137,10 +157,12 @@ CREATE TABLE email_messages (
     updated_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP ON UPDATE CURRENT_TIMESTAMP,
     FOREIGN KEY (mailbox_id) REFERENCES mailboxes(id) ON DELETE CASCADE,
     FOREIGN KEY (team_id) REFERENCES teams(id) ON DELETE CASCADE,
+    FOREIGN KEY (conversation_id) REFERENCES email_conversations(id) ON DELETE SET NULL,
     FOREIGN KEY (created_by) REFERENCES users(id) ON DELETE SET NULL,
     INDEX idx_email_messages_mailbox_folder (mailbox_id, folder),
     INDEX idx_email_messages_received (received_at),
-    INDEX idx_email_messages_sent (sent_at)
+    INDEX idx_email_messages_sent (sent_at),
+    INDEX idx_email_messages_conversation (conversation_id, created_at)
 );
 
 CREATE TABLE email_attachments (

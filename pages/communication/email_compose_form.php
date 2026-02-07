@@ -35,6 +35,14 @@
     </div>
   </div>
   <div class="field">
+    <div class="control">
+      <label class="checkbox">
+        <input type="checkbox" name="start_new_conversation" value="1">
+        Start a new conversation
+      </label>
+    </div>
+  </div>
+  <div class="field">
     <label for="email_body" class="label">Body</label>
     <div class="control">
       <textarea id="email_body" name="body" class="textarea" rows="10"><?php echo htmlspecialchars($composeValues['body']); ?></textarea>

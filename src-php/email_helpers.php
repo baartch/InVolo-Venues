@@ -178,3 +178,131 @@ function formatBytes(int $bytes): string
     $value = $bytes / pow(1024, $index);
     return number_format($value, 1) . ' ' . $units[$index];
 }
+
+function getMailboxPrimaryEmail(array $mailbox): string
+{
+    $email = strtolower(trim((string) ($mailbox['smtp_username'] ?? '')));
+    if ($email === '') {
+        $email = strtolower(trim((string) ($mailbox['imap_username'] ?? '')));
+    }
+
+    return $email;
+}
+
+function normalizeConversationSubject(?string $subject): string
+{
+    $subject = trim((string) $subject);
+    if ($subject === '') {
+        return 'no-subject';
+    }
+
+    $subject = preg_replace('/^\s*((re|fw|fwd|aw|sv|wg|rv):\s*)+/i', '', $subject);
+    $subject = trim((string) $subject);
+
+    return strtolower($subject === '' ? 'no-subject' : $subject);
+}
+
+function formatConversationSubject(?string $subject): string
+{
+    $subject = trim((string) $subject);
+    if ($subject === '') {
+        return '(No subject)';
+    }
+
+    $subject = preg_replace('/^\s*((re|fw|fwd|aw|sv|wg|rv):\s*)+/i', '', $subject);
+    $subject = trim((string) $subject);
+
+    return $subject !== '' ? $subject : '(No subject)';
+}
+
+function buildConversationParticipantKey(string $mailboxEmail, string $fromEmail, string $toEmails): string
+{
+    $mailboxEmail = strtolower(trim($mailboxEmail));
+    $fromEmail = strtolower(trim($fromEmail));
+    $recipientList = splitEmailList($toEmails);
+    $primaryRecipient = strtolower(trim((string) ($recipientList[0] ?? '')));
+
+    if ($mailboxEmail !== '' && $fromEmail === $mailboxEmail) {
+        $partnerEmail = $primaryRecipient;
+    } else {
+        $partnerEmail = $fromEmail !== '' ? $fromEmail : $primaryRecipient;
+    }
+
+    $participants = array_filter([$mailboxEmail, $partnerEmail], static fn($value) => $value !== '');
+    $participants = array_unique($participants);
+    sort($participants, SORT_STRING);
+
+    if (!$participants) {
+        return 'unknown';
+    }
+
+    return implode('|', $participants);
+}
+
+function ensureConversationForEmail(
+    PDO $pdo,
+    array $mailbox,
+    string $fromEmail,
+    string $toEmails,
+    ?string $subject,
+    bool $forceNew,
+    ?string $activityAt
+): ?int {
+    $mailboxId = (int) ($mailbox['id'] ?? 0);
+    $teamId = (int) ($mailbox['team_id'] ?? 0);
+    if ($mailboxId <= 0 || $teamId <= 0) {
+        return null;
+    }
+
+    $normalizedSubject = normalizeConversationSubject($subject);
+    $displaySubject = formatConversationSubject($subject);
+    $participantKey = buildConversationParticipantKey(getMailboxPrimaryEmail($mailbox), $fromEmail, $toEmails);
+    $activityAt = $activityAt ?: date('Y-m-d H:i:s');
+
+    if (!$forceNew) {
+        $stmt = $pdo->prepare(
+            'SELECT id FROM email_conversations
+             WHERE mailbox_id = :mailbox_id
+               AND subject_normalized = :subject_normalized
+               AND participant_key = :participant_key
+               AND is_closed = 0
+             ORDER BY id DESC
+             LIMIT 1'
+        );
+        $stmt->execute([
+            ':mailbox_id' => $mailboxId,
+            ':subject_normalized' => $normalizedSubject,
+            ':participant_key' => $participantKey
+        ]);
+        $conversationId = (int) $stmt->fetchColumn();
+        if ($conversationId > 0) {
+            $updateStmt = $pdo->prepare(
+                'UPDATE email_conversations
+                 SET last_activity_at = :last_activity_at
+                 WHERE id = :id'
+            );
+            $updateStmt->execute([
+                ':last_activity_at' => $activityAt,
+                ':id' => $conversationId
+            ]);
+            return $conversationId;
+        }
+    }
+
+    $insertStmt = $pdo->prepare(
+        'INSERT INTO email_conversations
+         (mailbox_id, team_id, subject, subject_normalized, participant_key, last_activity_at)
+         VALUES
+         (:mailbox_id, :team_id, :subject, :subject_normalized, :participant_key, :last_activity_at)'
+    );
+    $insertStmt->execute([
+        ':mailbox_id' => $mailboxId,
+        ':team_id' => $teamId,
+        ':subject' => $displaySubject,
+        ':subject_normalized' => $normalizedSubject,
+        ':participant_key' => $participantKey,
+        ':last_activity_at' => $activityAt
+    ]);
+
+    return (int) $pdo->lastInsertId();
+}

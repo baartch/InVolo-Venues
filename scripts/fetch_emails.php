@@ -321,11 +321,22 @@ foreach ($mailboxes as $mailbox) {
             $pdo = getDatabaseConnection();
             $pdo->beginTransaction();
 
+            $toEmails = $toRaw !== '' ? parseEmailAddressList($toRaw) : '';
+            $conversationId = ensureConversationForEmail(
+                $pdo,
+                $mailbox,
+                (string) $fromEmail,
+                $toEmails,
+                $subject,
+                false,
+                $date !== '' ? date('Y-m-d H:i:s', strtotime($date)) : date('Y-m-d H:i:s')
+            );
+
             $stmt = $pdo->prepare(
                 'INSERT INTO email_messages
-                 (mailbox_id, team_id, folder, subject, body, from_name, from_email, to_emails, cc_emails, message_id, received_at)
+                 (mailbox_id, team_id, folder, subject, body, from_name, from_email, to_emails, cc_emails, message_id, received_at, conversation_id)
                  VALUES
-                 (:mailbox_id, :team_id, "inbox", :subject, :body, :from_name, :from_email, :to_emails, :cc_emails, :message_id, :received_at)'
+                 (:mailbox_id, :team_id, "inbox", :subject, :body, :from_name, :from_email, :to_emails, :cc_emails, :message_id, :received_at, :conversation_id)'
             );
             $stmt->execute([
                 ':mailbox_id' => $mailboxId,
@@ -334,10 +345,11 @@ foreach ($mailboxes as $mailbox) {
                 ':body' => $body !== '' ? $body : null,
                 ':from_name' => $fromName !== '' ? $fromName : null,
                 ':from_email' => $fromEmail !== '' ? $fromEmail : null,
-                ':to_emails' => $toRaw !== '' ? parseEmailAddressList($toRaw) : null,
+                ':to_emails' => $toEmails !== '' ? $toEmails : null,
                 ':cc_emails' => $ccRaw !== '' ? parseEmailAddressList($ccRaw) : null,
                 ':message_id' => $messageId !== '' ? $messageId : null,
-                ':received_at' => $date !== '' ? date('Y-m-d H:i:s', strtotime($date)) : null
+                ':received_at' => $date !== '' ? date('Y-m-d H:i:s', strtotime($date)) : null,
+                ':conversation_id' => $conversationId
             ]);
             $emailId = (int) $pdo->lastInsertId();
 
