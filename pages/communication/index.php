@@ -9,6 +9,9 @@ logAction($currentUser['user_id'] ?? null, 'view_communication', 'User opened co
 ?>
 <?php renderPageStart('Communication', [
     'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
+    'extraStyles' => [
+        BASE_PATH . '/public/css/communication.css'
+    ],
     'extraScripts' => [
         '<script type="module" src="' . BASE_PATH . '/public/js/tabs.js" defer></script>'
     ]

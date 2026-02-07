@@ -142,7 +142,8 @@ function getEmailFolderOptions(): array
     return [
         'inbox' => 'Inbox',
         'drafts' => 'Drafts',
-        'sent' => 'Sent'
+        'sent' => 'Sent',
+        'trash' => 'Trash bin'
     ];
 }
 

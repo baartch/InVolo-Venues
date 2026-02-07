@@ -39,31 +39,17 @@ try {
         exit;
     }
 
-    $attachmentStmt = $pdo->prepare(
-        'SELECT file_path FROM email_attachments WHERE email_id = :email_id AND mailbox_id = :mailbox_id'
-    );
-    $attachmentStmt->execute([
-        ':email_id' => $emailId,
-        ':mailbox_id' => $mailboxId
-    ]);
-    $attachmentPaths = $attachmentStmt->fetchAll();
-
     $stmt = $pdo->prepare(
-        'DELETE FROM email_messages WHERE id = :id AND mailbox_id = :mailbox_id'
+        'UPDATE email_messages
+         SET folder = "trash"
+         WHERE id = :id AND mailbox_id = :mailbox_id'
     );
     $stmt->execute([
         ':id' => $emailId,
         ':mailbox_id' => $mailboxId
     ]);
 
-    foreach ($attachmentPaths as $attachment) {
-        $filePath = $attachment['file_path'] ?? '';
-        if ($filePath !== '' && file_exists($filePath)) {
-            unlink($filePath);
-        }
-    }
-
-    logAction($userId, 'email_deleted', sprintf('Deleted email %d', $emailId));
+    logAction($userId, 'email_deleted', sprintf('Moved email %d to trash', $emailId));
     $redirectParams['notice'] = 'deleted';
     header('Location: ' . BASE_PATH . '/pages/communication/index.php?' . http_build_query($redirectParams));
     exit;

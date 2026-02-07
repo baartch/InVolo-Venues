@@ -324,13 +324,15 @@ $mailboxCount = count($teamMailboxes);
           <aside class="menu">
             <ul class="menu-list">
               <?php foreach ($folderOptions as $folderKey => $folderLabel): ?>
-                <?php
-                  $folderLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
-                      'folder' => $folderKey,
-                      'page' => 1,
-                      'message_id' => null
-                  ]));
-                  $folderCount = $folderCounts[$folderKey] ?? 0;
+                <?php if ($folderKey === 'trash') {
+                    continue;
+                }
+                $folderLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
+                    'folder' => $folderKey,
+                    'page' => 1,
+                    'message_id' => null
+                ]));
+                $folderCount = $folderCounts[$folderKey] ?? 0;
                 ?>
                 <li>
                   <a href="<?php echo htmlspecialchars($folderLink); ?>" class="<?php echo $folder === $folderKey ? 'is-active' : ''; ?>">
@@ -338,6 +340,22 @@ $mailboxCount = count($teamMailboxes);
                     <span class="tag is-pulled-right"><?php echo (int) $folderCount; ?></span>
                   </a>
                 </li>
+                <?php if ($folderKey === 'sent'): ?>
+                  <?php
+                    $trashLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
+                        'folder' => 'trash',
+                        'page' => 1,
+                        'message_id' => null
+                    ]));
+                    $trashCount = $folderCounts['trash'] ?? 0;
+                  ?>
+                  <li>
+                    <a href="<?php echo htmlspecialchars($trashLink); ?>" class="<?php echo $folder === 'trash' ? 'is-active' : ''; ?>">
+                      <span><?php echo htmlspecialchars($folderOptions['trash'] ?? 'Trash bin'); ?></span>
+                      <span class="tag is-pulled-right"><?php echo (int) $trashCount; ?></span>
+                    </a>
+                  </li>
+                <?php endif; ?>
               <?php endforeach; ?>
             </ul>
           </aside>
@@ -424,18 +442,37 @@ $mailboxCount = count($teamMailboxes);
                   $dateLabel = $dateValue ? date('Y-m-d H:i', strtotime((string) $dateValue)) : '';
                 ?>
                 <li>
-                  <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?>">
-                    <div class="is-flex is-justify-content-space-between">
-                      <div>
-                        <div class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></div>
-                        <div class="is-size-7"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
-                        <?php if (!$row['is_read'] && $folder === 'inbox'): ?>
-                          <span class="tag is-small">Unread</span>
-                        <?php endif; ?>
+                  <div class="email-list-item">
+                    <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?>">
+                      <div class="is-flex is-justify-content-space-between">
+                        <div>
+                          <div class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></div>
+                          <div class="is-size-7"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>
+                          <?php if (!$row['is_read'] && $folder === 'inbox'): ?>
+                            <span class="tag is-small">Unread</span>
+                          <?php endif; ?>
+                        </div>
+                        <div class="is-size-7 email-meta-right">
+                          <div><?php echo htmlspecialchars($dateLabel); ?></div>
+                          <div class="email-delete-action">
+                            <form method="POST" action="<?php echo BASE_PATH; ?>/routes/email/delete.php" onsubmit="return confirm('Move this email to trash?');">
+                              <?php renderCsrfField(); ?>
+                              <input type="hidden" name="email_id" value="<?php echo (int) $row['id']; ?>">
+                              <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
+                              <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
+                              <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sortKey); ?>">
+                              <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
+                              <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
+                              <input type="hidden" name="tab" value="email">
+                              <button type="submit" class="button is-small" aria-label="Move email to trash" title="Move email to trash">
+                                <span class="icon"><i class="fa-solid fa-trash"></i></span>
+                              </button>
+                            </form>
+                          </div>
+                        </div>
                       </div>
-                      <div class="is-size-7"><?php echo htmlspecialchars($dateLabel); ?></div>
-                    </div>
-                  </a>
+                    </a>
+                  </div>
                 </li>
               <?php endforeach; ?>
             <?php endif; ?>
@@ -534,7 +571,7 @@ $mailboxCount = count($teamMailboxes);
                 <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
                 <input type="hidden" name="page" value="<?php echo (int) $page; ?>">
                 <input type="hidden" name="tab" value="email">
-                <button type="submit" class="button">Delete</button>
+                <button type="submit" class="button">Move to trash</button>
               </form>
             </div>
           </div>
