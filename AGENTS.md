@@ -14,70 +14,36 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 ## Key Paths
 
 ```
-├── index.php                      # App entry point
-├── app/pages/admin/user_management.php # Admin-only user management
-├── app/pages/venues/              # Venue management views
-├── app/pages/profile/             # Profile password reset
-├── app/routes/waypoints/index.php # GPX output from DB venues
-├── app/pages/auth/                # Login/logout
-├── app/routes/auth/check.php      # Auth check (session validation)
-├── config/                        # Configuration only
-│   └── config.php                 # DB credentials & app settings
-├── app/src-php/                   # Shared PHP helpers
-│   ├── auth/                      # Auth + session helpers
-│   │   ├── admin_check.php
-│   │   ├── cookie_helpers.php
-│   │   ├── csrf.php
-│   │   ├── rate_limit.php
-│   │   └── team_admin_check.php
-│   ├── communication/             # Email + mailbox helpers
-│   ├── core/                      # Core app helpers
-│   │   ├── database.php           # DB functions (connection, sessions, logging)
-│   │   ├── defaults.php
-│   │   ├── form_helpers.php       # Form validation helpers
-│   │   ├── layout.php             # Page layout rendering
-│   │   ├── search_helpers.php     # Web search API helpers
-│   │   ├── security_headers.php   # HTTP security headers (CSP, HSTS, etc.)
-│   │   ├── settings.php           # Settings management
-│   │   └── theme.php              # Theme selection (legacy)
-│   └── venues/                    # Venue-specific helpers
-├── app/public/                    # Static assets
-│   ├── js/map.js                  # Map client
-│   └── assets/                    # Icons
-├── app/scripts/cleanup.php        # Log/session/rate limit retention
-└── scripts/deploy_ftp.sh          # Deployment
+├── app/                     # Application codebase (PHP pages/routes, assets, scripts, TS)
+│   ├── pages/               # Server-rendered pages (auth, admin, venues, profile, team)
+│   ├── partials/            # Shared PHP view fragments
+│   ├── public/              # Public static assets
+│   │   ├── assets/          # Icons and imagery
+│   │   ├── css/             # Compiled and vendor CSS
+│   │   └── js/              # Compiled JavaScript output
+│   ├── routes/              # HTTP endpoints and API handlers
+│   │   ├── auth/            # Authentication/session validation routes
+│   │   ├── communication/   # Email conversation routes
+│   │   ├── email/           # Email send/delete/attachment routes
+│   │   ├── venues/          # Venue-related API endpoints
+│   │   └── waypoints/       # GPX waypoint output endpoint
+│   ├── scripts/             # CLI/cron scripts (cleanup, mailbox fetch)
+│   ├── src/                 # TypeScript source files
+│   └── src-php/             # Shared PHP helper libraries
+│       ├── auth/            # Auth/session helpers
+│       ├── communication/   # Email and mailbox helpers
+│       ├── core/            # Core utilities (DB, layout, security headers, settings)
+│       └── venues/          # Venue repository and actions
+├── config/                  # Runtime configuration (config.php)
+├── dev_helpers/             # Development helper scripts and notes
+├── scripts/                 # Project-level scripts (deployment, diagnostics)
+├── sql/                     # Database schema and migrations
+├── tests/                   # Test scripts (CLI checks and utilities)
+├── .pi/                     # Pi agent workspace metadata
+│   └── todos/               # Pi agent todo storage
+├── node_modules/            # Node dependency install output
+└── index.php                # App entry point
 ```
-
-## Directories
-
-- `app/` - Application codebase (PHP pages/routes, assets, scripts, and TypeScript sources).
-- `app/pages/` - Server-rendered pages (auth, admin, venues, profile, team, communication).
-- `app/partials/` - Shared PHP view fragments for layouts and page sections.
-- `app/public/` - Public static assets (CSS, JS, icons, downloads).
-- `app/public/assets/` - Image and icon assets used by the UI.
-- `app/public/css/` - Compiled and vendor CSS files.
-- `app/public/js/` - Compiled JavaScript output from TypeScript.
-- `app/routes/` - HTTP endpoints and API handlers.
-- `app/routes/auth/` - Authentication/session validation routes.
-- `app/routes/communication/` - Email conversation and mailbox routes.
-- `app/routes/email/` - Email send, delete, and attachment routes.
-- `app/routes/venues/` - Venue-related API endpoints.
-- `app/routes/waypoints/` - GPX waypoint output endpoint.
-- `app/scripts/` - CLI/cron scripts (cleanup, mailbox fetch).
-- `app/src/` - TypeScript source files for the client UI.
-- `app/src-php/` - Shared PHP helper libraries.
-- `app/src-php/auth/` - Auth/session helpers (CSRF, cookies, admin checks).
-- `app/src-php/communication/` - Email and mailbox helpers.
-- `app/src-php/core/` - Core utilities (DB, layout, security headers, settings).
-- `app/src-php/venues/` - Venue repository and actions.
-- `config/` - Runtime configuration (config.php).
-- `dev_helpers/` - Development helper scripts and notes.
-- `scripts/` - Project-level scripts (deployment, diagnostics).
-- `sql/` - Database schema and migrations.
-- `tests/` - Test scripts (CLI checks and utilities).
-- `.pi/` - Pi agent workspace metadata.
-- `.pi/todos/` - Pi agent todo storage.
-- `node_modules/` - Node dependency install output.
 
 ## Database
 
@@ -90,6 +56,11 @@ The database schema is in `sql/schema.sql` and includes the following tables:
 - `settings`: Application configuration settings
 - `teams`: User teams for grouping
 - `team_members`: Many-to-many mapping of users to teams
+- `mailboxes`: Team/user mailboxes with IMAP/SMTP credentials
+- `email_conversations`: Conversation threads grouped by mailbox and participants
+- `email_messages`: Email records for inbox, drafts, sent, and trash
+- `email_attachments`: Stored email attachment metadata and file paths
+- `email_templates`: Saved email templates per team
 - `rate_limits`: Rate limiting tracking for brute force protection
 
 ## Security
