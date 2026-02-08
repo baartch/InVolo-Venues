@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/../../../config/config.php';
+require_once __DIR__ . '/../../config/config.php';
 require_once __DIR__ . '/../src-php/core/defaults.php';
 require_once __DIR__ . '/../src-php/core/database.php';
 require_once __DIR__ . '/../src-php/communication/email_helpers.php';
@@ -16,7 +16,7 @@ if ($attachmentRoot === '') {
     exit(1);
 }
 
-$attachmentBase = rtrim($attachmentRoot, '/\\') . DIRECTORY_SEPARATOR . 'uploads' . DIRECTORY_SEPARATOR . 'email' . DIRECTORY_SEPARATOR . 'attachments';
+$attachmentBase = rtrim($attachmentRoot, '/\\');
 
 function decodeHeaderValue(?string $value): string
 {
