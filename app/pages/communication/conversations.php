@@ -235,7 +235,7 @@ $cooldownSeconds = 14 * 24 * 60 * 60;
               $messageBody = (string) ($message['body'] ?? '');
             ?>
             <article class="box mb-4">
-              <div class="is-flex is-justify-content-space-between is-size-7 mb-2">
+              <div class="is-flex is-justify-content-space-between is-align-items-flex-start is-size-7 mb-2">
                 <div>
                   <span class="has-text-weight-semibold"><?php echo htmlspecialchars($displayName); ?></span>
                   <span class="mx-1">·</span>
@@ -244,7 +244,18 @@ $cooldownSeconds = 14 * 24 * 60 * 60;
                     <span class="tag is-small ml-2">Unread</span>
                   <?php endif; ?>
                 </div>
-                <div><?php echo htmlspecialchars($dateLabel); ?></div>
+                <div class="is-flex is-align-items-center">
+                  <span><?php echo htmlspecialchars($dateLabel); ?></span>
+                  <form method="POST" action="<?php echo BASE_PATH; ?>/app/routes/communication/rm_conversation_message.php" class="ml-2" onsubmit="return confirm('Remove this email from the conversation?');">
+                    <?php renderCsrfField(); ?>
+                    <input type="hidden" name="mailbox_id" value="<?php echo (int) ($selectedMailbox['id'] ?? 0); ?>">
+                    <input type="hidden" name="conversation_id" value="<?php echo (int) $conversationId; ?>">
+                    <input type="hidden" name="message_id" value="<?php echo (int) $message['id']; ?>">
+                    <button type="submit" class="button is-small" aria-label="Remove from conversation" title="Remove from conversation">
+                      <span class="icon"><i class="fa-solid fa-link-slash"></i></span>
+                    </button>
+                  </form>
+                </div>
               </div>
               <h3 class="title is-6 mb-2"><?php echo htmlspecialchars($message['subject'] ?? '(No subject)'); ?></h3>
               <div class="content is-size-7">
