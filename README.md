@@ -18,7 +18,7 @@ nano config/config.php
 php -S localhost:8000
 ```
 
-Open: **http://localhost:8000/pages/auth/login.php**
+Open: **http://localhost:8000/app/pages/auth/login.php**
 
 Set up user accounts in the `users` table (with `password_hash` values). Ensure at least one admin user exists.
 
@@ -73,8 +73,8 @@ Example (generate password hash in PHP):
 
 ### Authentication URLs
 
-Login page: `http://localhost:8000/pages/auth/login.php`
-Logout handler: `http://localhost:8000/pages/auth/logout.php`
+Login page: `http://localhost:8000/app/pages/auth/login.php`
+Logout handler: `http://localhost:8000/app/pages/auth/logout.php`
 
 ### Database Connection
 
@@ -193,7 +193,7 @@ If you see "not allowed here" errors:
 
 ### Redirects Not Working?
 
-If redirects go to wrong URLs (e.g., `/pages/auth/login.php` instead of `/venues/pages/auth/login.php`):
+If redirects go to wrong URLs (e.g., `/app/pages/auth/login.php` instead of `/venues/app/pages/auth/login.php`):
 
 - The BASE_PATH should auto-detect correctly
 - Check `config/config.php` has the BASE_PATH code
@@ -234,8 +234,7 @@ The main UI includes a sidebar with map, admin-only user management, and logout 
 ### File Structure
 
 ```
-frontend/
-├── index.php                 # Main app page
+app/
 ├── pages/                     # Application pages
 │   ├── auth/                  # Authentication system
 │   │   ├── login.php          # Login page
@@ -247,22 +246,25 @@ frontend/
 ├── routes/                    # API endpoints
 │   ├── auth/check.php         # Session validator
 │   └── waypoints/index.php    # Protected venues endpoint (GPX)
-├── config/                    # Configuration only (protected)
-│   └── config.php             # Credentials & settings
-├── src-php/                   # Shared PHP helpers (auth/, communication/, core/, venues/)
-│   ├── database.php           # Database functions
-│   ├── admin_check.php        # Admin authorization
-│   ├── rate_limit.php         # Rate limiting
-│   ├── csrf.php               # CSRF protection
-│   ├── form_helpers.php       # Form validation
-│   ├── layout.php             # Page layout
-│   ├── search_helpers.php     # Web search API
-│   ├── settings.php           # Settings management
-│   └── theme.php              # Theme selection (legacy)
 ├── public/                    # Public assets
-    ├── css/                   # Styles
-    ├── js/                    # Compiled JavaScript
-    └── assets/                # Assets (icons, marker)
+│   ├── css/                   # Styles
+│   ├── js/                    # Compiled JavaScript
+│   └── assets/                # Assets (icons, marker)
+├── scripts/                   # Cron-friendly scripts
+├── src/                       # TypeScript sources
+└── src-php/                   # Shared PHP helpers (auth/, communication/, core/, venues/)
+    ├── database.php           # Database functions
+    ├── admin_check.php        # Admin authorization
+    ├── rate_limit.php         # Rate limiting
+    ├── csrf.php               # CSRF protection
+    ├── form_helpers.php       # Form validation
+    ├── layout.php             # Page layout
+    ├── search_helpers.php     # Web search API
+    ├── settings.php           # Settings management
+    └── theme.php              # Theme selection (legacy)
+config/                        # Configuration only (protected)
+└── config.php                 # Credentials & settings
+index.php                      # App entry point
 ```
 
 ## 📊 Adding Venues

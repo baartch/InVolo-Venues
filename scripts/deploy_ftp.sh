@@ -10,13 +10,13 @@ PROJECT_ROOT="$(cd "$(dirname "${BASH_SOURCE[0]}")/.." && pwd)"
 
 pushd "${PROJECT_ROOT}" >/dev/null
 if git rev-parse --verify HEAD~1 >/dev/null 2>&1; then
-  if git diff --name-only HEAD~1 HEAD -- "src/**/*.ts" | grep -q .; then
+  if git diff --name-only HEAD~1 HEAD -- "app/src/**/*.ts" | grep -q .; then
     bun run build
-  elif git diff --name-only -- "src/**/*.ts" | grep -q .; then
+  elif git diff --name-only -- "app/src/**/*.ts" | grep -q .; then
     bun run build
   fi
 else
-  if git diff --name-only -- "src/**/*.ts" | grep -q .; then
+  if git diff --name-only -- "app/src/**/*.ts" | grep -q .; then
     bun run build
   fi
 fi
@@ -27,14 +27,15 @@ EXCLUDES=(
   ".pi/"
   ".git/"
   ".gitignore"
+  "app/src/"
+  "app/tsconfig.json"
+  "dev_helpers/"
   "node_modules/"
   "bun.lock"
   "package.json"
-  "tsconfig.json"
   "sql/"
-  "src/"
+  "tests/"
   "setup.sh"
-  "dev_helpers/"
 )
 
 EXCLUDE_ARGS=$(printf " --exclude-glob %s" "${EXCLUDES[@]}")
@@ -45,7 +46,7 @@ set net:max-retries 2
 set net:timeout 10
 set net:persist-retries 1
 
-mirror -R --verbose --delete --delete-first --delete-excluded --only-newer \
+mirror -R --verbose --delete --delete-first --delete-excluded --only-newer --parallel=5 \
   ${EXCLUDE_ARGS} \
   "${PROJECT_ROOT}" "${REMOTE_DIR}"
 

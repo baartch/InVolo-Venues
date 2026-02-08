@@ -3,8 +3,8 @@
   "version": "1.0.0",
   "description": "Database for venues",
   "scripts": {
-    "build": "tsc",
-    "watch": "tsc --watch"
+    "build": "tsc -p app/tsconfig.json",
+    "watch": "tsc -p app/tsconfig.json --watch"
   },
   "devDependencies": {
     "typescript": "^5.3.3"
