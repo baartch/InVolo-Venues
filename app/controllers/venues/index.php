@@ -121,7 +121,7 @@ try {
         } elseif ($activeTeamId > 0) {
             $selectedVenueRating = fetchVenueRatingForTeam($pdo, $selectedVenueId, $activeTeamId);
             $venueTaskTriggers = fetchVenueTaskTriggers($pdo, $selectedVenueId, $activeTeamId);
-            $venueLinks = fetchLinkedObjects($pdo, 'venue', $selectedVenueId, $activeTeamId, null);
+            $venueLinks = fetchLinkedObjects($pdo, 'venue', $selectedVenueId, $activeTeamId, $userId);
         }
     }
 } catch (Throwable $error) {
