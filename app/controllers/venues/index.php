@@ -67,20 +67,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'update_page_size') {
         $requestedPageSize = (int) ($_POST['venues_page_size'] ?? $pageSize);
-        $requestedPageSize = max(25, min(500, $requestedPageSize));
-        try {
-            $pdo = getDatabaseConnection();
-            $stmt = $pdo->prepare('UPDATE users SET venues_page_size = :page_size WHERE id = :user_id');
-            $stmt->execute([
-                ':page_size' => $requestedPageSize,
-                ':user_id' => $currentUser['user_id']
-            ]);
-            $pageSize = $requestedPageSize;
-            $currentUser['venues_page_size'] = $requestedPageSize;
-            $notice = 'Page size updated successfully.';
-        } catch (Throwable $error) {
-            $errors[] = 'Failed to update page size.';
-            logAction($currentUser['user_id'] ?? null, 'venues_page_size_error', $error->getMessage());
+        $result = handleVenuePageSizeUpdate($currentUser, $requestedPageSize);
+        $errors = array_merge($errors, $result['errors'] ?? []);
+        if (!empty($result['notice'])) {
+            $notice = (string) $result['notice'];
+        }
+        if (!empty($result['pageSize'])) {
+            $pageSize = (int) $result['pageSize'];
+            $currentUser['venues_page_size'] = $pageSize;
         }
     }
 }
