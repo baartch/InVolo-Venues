@@ -1,12 +1,13 @@
 <?php
 
-function buildListColumn(string $label, ?string $key = null, ?callable $render = null, bool $isHtml = false): array
+function buildListColumn(string $label, ?string $key = null, ?callable $render = null, bool $isHtml = false, ?string $sortKey = null): array
 {
     return [
         'label' => $label,
         'key' => $key,
         'render' => $render,
-        'isHtml' => $isHtml
+        'isHtml' => $isHtml,
+        'sortKey' => $sortKey
     ];
 }
 

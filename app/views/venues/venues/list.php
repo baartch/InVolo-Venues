@@ -30,7 +30,7 @@ $listColumns = [
         ]);
 
         return '<a href="' . htmlspecialchars($mapLink) . '" class="icon" aria-label="Open map" title="Open map">' . $mapIcon . '</a>';
-    }, true),
+    }, true, null),
     buildListColumn('Name', null, static function (array $venue) use ($teamRatings): string {
         $name = htmlspecialchars((string) ($venue['name'] ?? ''));
         $rating = $teamRatings[(int) ($venue['id'] ?? 0)] ?? '';
@@ -44,13 +44,13 @@ $listColumns = [
             default => 'venue-rating-default'
         };
         return $name . ' <span class="tag ' . $ratingClass . '">' . htmlspecialchars($rating) . '</span>';
-    }, true),
+    }, true, 'name'),
     buildListColumn('City', null, static function (array $venue): string {
         return (string) ($venue['city'] ?? '');
-    }),
+    }, false, 'city'),
     buildListColumn('Country', null, static function (array $venue): string {
         return (string) ($venue['country'] ?? '');
-    }),
+    }, false, 'country'),
     buildListColumn('Contact', null, static function (array $venue): string {
         $buttons = [];
         if (!empty($venue['website'])) {
@@ -112,7 +112,16 @@ $listColumns = [
         }
 
         return '<div class="buttons are-small">' . implode('', $buttons) . '</div>';
-    }, true)
+    }, true, null)
+];
+
+$listSort = [
+    'tableType' => 'venues',
+    'currentKey' => (string) ($sort ?? 'name'),
+    'currentDirection' => (string) ($dir ?? 'asc'),
+    'paramKey' => 'sort',
+    'paramDirection' => 'dir',
+    'pageParam' => 'page'
 ];
 
 $listRows = $venues;

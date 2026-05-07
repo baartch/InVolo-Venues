@@ -16,16 +16,65 @@ $listRowClass = $listRowClass ?? null;
 $listRowActions = $listRowActions ?? null;
 $listActionsLabel = $listActionsLabel ?? 'Actions';
 $listRowLink = $listRowLink ?? null;
+$listSort = $listSort ?? null;
+
+$sortTableType = null;
+$sortCurrentKey = '';
+$sortCurrentDirection = 'asc';
+$sortParamKey = 'sort';
+$sortParamDirection = 'dir';
+$sortPageParam = 'page';
+$currentPath = (string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_PATH);
+$currentQuery = [];
+parse_str((string) parse_url((string) ($_SERVER['REQUEST_URI'] ?? ''), PHP_URL_QUERY), $currentQuery);
+
+if (is_array($listSort)) {
+    $sortTableType = (string) ($listSort['tableType'] ?? '');
+    $sortCurrentKey = (string) ($listSort['currentKey'] ?? '');
+    $sortCurrentDirection = strtolower((string) ($listSort['currentDirection'] ?? 'asc')) === 'desc' ? 'desc' : 'asc';
+    $sortParamKey = (string) ($listSort['paramKey'] ?? 'sort');
+    $sortParamDirection = (string) ($listSort['paramDirection'] ?? 'dir');
+    $sortPageParam = (string) ($listSort['pageParam'] ?? 'page');
+}
 ?>
 <?php if (!$listRows): ?>
   <p><?php echo htmlspecialchars($listEmptyMessage); ?></p>
 <?php else: ?>
   <div class="table-container table-container--dropdowns">
-    <table class="table is-fullwidth is-hoverable" data-list-selectable data-list-active-class="is-selected">
+    <table class="table is-fullwidth is-hoverable" data-list-selectable data-list-active-class="is-selected"<?php if ($sortTableType !== null && $sortTableType !== ''): ?> data-sort-table-type="<?php echo htmlspecialchars($sortTableType); ?>" data-sort-param-key="<?php echo htmlspecialchars($sortParamKey); ?>" data-sort-param-direction="<?php echo htmlspecialchars($sortParamDirection); ?>" data-sort-page-param="<?php echo htmlspecialchars($sortPageParam); ?>"<?php endif; ?>>
       <thead>
         <tr>
           <?php foreach ($listColumns as $column): ?>
-            <th><?php echo htmlspecialchars((string) ($column['label'] ?? '')); ?></th>
+            <?php
+              $columnLabel = (string) ($column['label'] ?? '');
+              $columnSortKey = (string) ($column['sortKey'] ?? '');
+              $isSortable = $sortTableType !== null && $sortTableType !== '' && $columnSortKey !== '';
+            ?>
+            <th>
+              <?php if ($isSortable): ?>
+                <?php
+                  $nextDirection = 'asc';
+                  if ($sortCurrentKey === $columnSortKey && $sortCurrentDirection === 'asc') {
+                      $nextDirection = 'desc';
+                  }
+                  $sortQuery = $currentQuery;
+                  $sortQuery[$sortParamKey] = $columnSortKey;
+                  $sortQuery[$sortParamDirection] = $nextDirection;
+                  $sortQuery[$sortPageParam] = 1;
+                  $sortHref = ($currentPath !== '' ? $currentPath : '') . '?' . http_build_query($sortQuery);
+                  $isCurrentColumn = $sortCurrentKey === $columnSortKey;
+                  $sortArrow = $isCurrentColumn ? ($sortCurrentDirection === 'asc' ? ' ▲' : ' ▼') : '';
+                ?>
+                <a
+                  href="<?php echo htmlspecialchars($sortHref); ?>"
+                  data-table-sort
+                  data-sort-key="<?php echo htmlspecialchars($columnSortKey); ?>"
+                  data-sort-direction="<?php echo htmlspecialchars($nextDirection); ?>"
+                ><?php echo htmlspecialchars($columnLabel . $sortArrow); ?></a>
+              <?php else: ?>
+                <?php echo htmlspecialchars($columnLabel); ?>
+              <?php endif; ?>
+            </th>
           <?php endforeach; ?>
           <?php if ($listRowActions): ?>
             <th class="has-text-right"><?php echo htmlspecialchars($listActionsLabel); ?></th>

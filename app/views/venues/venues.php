@@ -26,13 +26,17 @@ $venuesPerPage = (int) ($pageSize ?? 25);
 $venuesTotal = (int) ($totalVenues ?? 0);
 $venuesTotalPages = (int) ($totalPages ?? 1);
 $venuesQuery = (string) ($filter ?? '');
+$venuesSort = (string) ($sort ?? 'name');
+$venuesDir = strtolower((string) ($dir ?? 'asc')) === 'desc' ? 'desc' : 'asc';
 
-$buildUrl = static function (int $pageNumber) use ($baseUrl, $venuesPerPage, $venuesQuery, $activeTeamId, $selectedVenueId): string {
+$buildUrl = static function (int $pageNumber) use ($baseUrl, $venuesPerPage, $venuesQuery, $activeTeamId, $selectedVenueId, $venuesSort, $venuesDir): string {
     $params = [
         'page' => max(1, $pageNumber),
         'per_page' => $venuesPerPage,
         'team_id' => $activeTeamId > 0 ? $activeTeamId : null,
-        'venue_id' => $selectedVenueId > 0 ? $selectedVenueId : null
+        'venue_id' => $selectedVenueId > 0 ? $selectedVenueId : null,
+        'sort' => $venuesSort,
+        'dir' => $venuesDir
     ];
 
     if ($venuesQuery !== '') {
@@ -66,7 +70,9 @@ $listSearch = [
     'hiddenFields' => [
         'per_page' => $venuesPerPage,
         'team_id' => $activeTeamId > 0 ? $activeTeamId : null,
-        'venue_id' => $selectedVenueId > 0 ? $selectedVenueId : null
+        'venue_id' => $selectedVenueId > 0 ? $selectedVenueId : null,
+        'sort' => $venuesSort,
+        'dir' => $venuesDir
     ]
 ];
 
@@ -112,6 +118,8 @@ if (HTMX::isRequest()) {
         <input type="hidden" name="venue_id" value="<?php echo (int) $selectedVenueId; ?>">
         <input type="hidden" name="page" value="<?php echo (int) $venuesPage; ?>">
         <input type="hidden" name="per_page" value="<?php echo (int) $venuesPerPage; ?>">
+        <input type="hidden" name="sort" value="<?php echo htmlspecialchars($venuesSort); ?>">
+        <input type="hidden" name="dir" value="<?php echo htmlspecialchars($venuesDir); ?>">
         <?php if ($venuesQuery !== ''): ?>
           <input type="hidden" name="filter" value="<?php echo htmlspecialchars($venuesQuery); ?>">
         <?php endif; ?>

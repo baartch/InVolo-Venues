@@ -2,9 +2,20 @@
 
 require_once __DIR__ . '/../core/database.php';
 
-function fetchVenuesWithPagination(string $filter, int $page, int $pageSize): array
+function fetchVenuesWithPagination(string $filter, int $page, int $pageSize, string $sortKey = 'name', string $sortDirection = 'asc'): array
 {
     $pdo = getDatabaseConnection();
+
+    $allowedSortColumns = [
+        'name' => 'name',
+        'city' => 'city',
+        'country' => 'country',
+        'created_at' => 'created_at',
+        'id' => 'id'
+    ];
+    $sortColumn = $allowedSortColumns[$sortKey] ?? 'name';
+    $sortDirectionSql = strtolower($sortDirection) === 'desc' ? 'DESC' : 'ASC';
+    $orderBy = ' ORDER BY ' . $sortColumn . ' ' . $sortDirectionSql . ', id ASC';
 
     if ($filter !== '') {
         $filterParam = '%' . $filter . '%';
@@ -54,7 +65,7 @@ function fetchVenuesWithPagination(string $filter, int $page, int $pageSize): ar
         $page = min($page, $totalPages);
         $offset = ($page - 1) * $pageSize;
 
-        $sql = 'SELECT * FROM venues WHERE ' . $where . ' ORDER BY name LIMIT ? OFFSET ?';
+        $sql = 'SELECT * FROM venues WHERE ' . $where . $orderBy . ' LIMIT ? OFFSET ?';
         $stmt = $pdo->prepare($sql);
 
         $position = 1;
@@ -69,7 +80,7 @@ function fetchVenuesWithPagination(string $filter, int $page, int $pageSize): ar
         $totalPages = max(1, (int) ceil($totalVenues / $pageSize));
         $page = min($page, $totalPages);
         $offset = ($page - 1) * $pageSize;
-        $stmt = $pdo->prepare('SELECT * FROM venues ORDER BY name LIMIT ? OFFSET ?');
+        $stmt = $pdo->prepare('SELECT * FROM venues' . $orderBy . ' LIMIT ? OFFSET ?');
         $stmt->bindValue(1, $pageSize, PDO::PARAM_INT);
         $stmt->bindValue(2, $offset, PDO::PARAM_INT);
         $stmt->execute();
