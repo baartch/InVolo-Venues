@@ -68,8 +68,8 @@ $listColumns = [
         if ($updatedAt === '') {
             return '';
         }
-        return substr($updatedAt, 0, 10);
-    }, false, 'updated_at'),
+        return '<span class="is-size-7">' . htmlspecialchars(substr($updatedAt, 0, 10)) . '</span>';
+    }, true, 'updated_at'),
     buildListColumn('Contact', null, static function (array $venue): string {
         $buttons = [];
         if (!empty($venue['website'])) {
