@@ -189,3 +189,30 @@ function handleVenueDelete(array $currentUser, int $venueId): array
 
     return ['errors' => $errors, 'notice' => $notice];
 }
+
+function handleVenuePageSizeUpdate(array $currentUser, int $requestedPageSize): array
+{
+    $errors = [];
+    $notice = '';
+
+    $requestedPageSize = max(25, min(500, $requestedPageSize));
+
+    try {
+        $pdo = getDatabaseConnection();
+        $stmt = $pdo->prepare('UPDATE users SET venues_page_size = :page_size WHERE id = :user_id');
+        $stmt->execute([
+            ':page_size' => $requestedPageSize,
+            ':user_id' => (int) ($currentUser['user_id'] ?? 0)
+        ]);
+        $notice = 'Page size updated successfully.';
+    } catch (Throwable $error) {
+        $errors[] = 'Failed to update page size.';
+        logAction($currentUser['user_id'] ?? null, 'venues_page_size_error', $error->getMessage());
+    }
+
+    return [
+        'errors' => $errors,
+        'notice' => $notice,
+        'pageSize' => $requestedPageSize,
+    ];
+}

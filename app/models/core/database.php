@@ -249,3 +249,4 @@ function updateUserVenuePageSize(int $userId, int $pageSize): void
         ':user_id' => $userId
     ]);
 }
+

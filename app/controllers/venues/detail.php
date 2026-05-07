@@ -4,7 +4,9 @@ require_once __DIR__ . '/../../models/core/database.php';
 require_once __DIR__ . '/../../models/venues/venues_repository.php';
 require_once __DIR__ . '/../../models/venues/venue_ratings.php';
 require_once __DIR__ . '/../../models/venues/venue_task_triggers.php';
+require_once __DIR__ . '/../../models/venues/venue_detail_data.php';
 require_once __DIR__ . '/../../models/communication/team_helpers.php';
+require_once __DIR__ . '/../../models/core/link_helpers.php';
 
 $venueId = (int) ($_GET['venue_id'] ?? 0);
 $teamId = (int) ($_GET['team_id'] ?? 0);
@@ -46,22 +48,16 @@ try {
 
     $selectedVenueRating = null;
     $venueTaskTriggers = [];
+    $venueLinks = [];
     $triggerNotice = '';
 
     $noticeKey = (string) ($_GET['notice'] ?? '');
-    if ($noticeKey === 'trigger_created') {
-        $triggerNotice = 'Trigger created successfully.';
-    } elseif ($noticeKey === 'trigger_updated') {
-        $triggerNotice = 'Trigger updated successfully.';
-    } elseif ($noticeKey === 'trigger_deleted') {
-        $triggerNotice = 'Trigger deleted successfully.';
-    } elseif ($noticeKey === 'trigger_error') {
-        $triggerNotice = 'Failed to save trigger.';
-    }
-
     if ($activeTeamId > 0) {
-        $selectedVenueRating = fetchVenueRatingForTeam($pdo, $venueId, $activeTeamId);
-        $venueTaskTriggers = fetchVenueTaskTriggers($pdo, $venueId, $activeTeamId);
+        $detailData = buildVenueDetailData($pdo, $venueId, $activeTeamId, $userId, $noticeKey);
+        $selectedVenueRating = $detailData['selectedVenueRating'];
+        $venueTaskTriggers = $detailData['venueTaskTriggers'];
+        $venueLinks = $detailData['venueLinks'];
+        $triggerNotice = $detailData['triggerNotice'];
     }
 
     $_GET['source'] = $source;

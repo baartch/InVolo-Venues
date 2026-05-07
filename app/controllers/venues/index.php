@@ -8,6 +8,7 @@ require_once __DIR__ . '/../../models/venues/venues_actions.php';
 require_once __DIR__ . '/../../models/venues/venues_repository.php';
 require_once __DIR__ . '/../../models/venues/venue_ratings.php';
 require_once __DIR__ . '/../../models/venues/venue_task_triggers.php';
+require_once __DIR__ . '/../../models/venues/venue_detail_data.php';
 require_once __DIR__ . '/../../models/communication/team_helpers.php';
 require_once __DIR__ . '/../../models/core/link_helpers.php';
 
@@ -37,15 +38,6 @@ $venueTaskTriggers = [];
 $venueLinks = [];
 
 $noticeKey = (string) ($_GET['notice'] ?? '');
-if ($noticeKey === 'trigger_created') {
-    $triggerNotice = 'Trigger created successfully.';
-} elseif ($noticeKey === 'trigger_updated') {
-    $triggerNotice = 'Trigger updated successfully.';
-} elseif ($noticeKey === 'trigger_deleted') {
-    $triggerNotice = 'Trigger deleted successfully.';
-} elseif ($noticeKey === 'trigger_error') {
-    $triggerNotice = 'Failed to save trigger.';
-}
 
 if ($_SERVER['REQUEST_METHOD'] === 'POST') {
     verifyCsrfToken();
@@ -75,20 +67,14 @@ if ($_SERVER['REQUEST_METHOD'] === 'POST') {
 
     if ($action === 'update_page_size') {
         $requestedPageSize = (int) ($_POST['venues_page_size'] ?? $pageSize);
-        $requestedPageSize = max(25, min(500, $requestedPageSize));
-        try {
-            $pdo = getDatabaseConnection();
-            $stmt = $pdo->prepare('UPDATE users SET venues_page_size = :page_size WHERE id = :user_id');
-            $stmt->execute([
-                ':page_size' => $requestedPageSize,
-                ':user_id' => $currentUser['user_id']
-            ]);
-            $pageSize = $requestedPageSize;
-            $currentUser['venues_page_size'] = $requestedPageSize;
-            $notice = 'Page size updated successfully.';
-        } catch (Throwable $error) {
-            $errors[] = 'Failed to update page size.';
-            logAction($currentUser['user_id'] ?? null, 'venues_page_size_error', $error->getMessage());
+        $result = handleVenuePageSizeUpdate($currentUser, $requestedPageSize);
+        $errors = array_merge($errors, $result['errors'] ?? []);
+        if (!empty($result['notice'])) {
+            $notice = (string) $result['notice'];
+        }
+        if (!empty($result['pageSize'])) {
+            $pageSize = (int) $result['pageSize'];
+            $currentUser['venues_page_size'] = $pageSize;
         }
     }
 }
@@ -119,9 +105,11 @@ try {
         if (!$selectedVenue) {
             $errors[] = 'Selected venue not found.';
         } elseif ($activeTeamId > 0) {
-            $selectedVenueRating = fetchVenueRatingForTeam($pdo, $selectedVenueId, $activeTeamId);
-            $venueTaskTriggers = fetchVenueTaskTriggers($pdo, $selectedVenueId, $activeTeamId);
-            $venueLinks = fetchLinkedObjects($pdo, 'venue', $selectedVenueId, $activeTeamId, null);
+            $detailData = buildVenueDetailData($pdo, $selectedVenueId, $activeTeamId, $userId, $noticeKey);
+            $selectedVenueRating = $detailData['selectedVenueRating'];
+            $venueTaskTriggers = $detailData['venueTaskTriggers'];
+            $venueLinks = $detailData['venueLinks'];
+            $triggerNotice = $detailData['triggerNotice'];
         }
     }
 } catch (Throwable $error) {
