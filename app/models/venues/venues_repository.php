@@ -11,6 +11,7 @@ function fetchVenuesWithPagination(string $filter, int $page, int $pageSize, str
         'city' => 'city',
         'country' => 'country',
         'created_at' => 'created_at',
+        'updated_at' => 'updated_at',
         'id' => 'id'
     ];
     $sortColumn = $allowedSortColumns[$sortKey] ?? 'name';

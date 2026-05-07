@@ -51,6 +51,9 @@ $listColumns = [
     buildListColumn('Country', null, static function (array $venue): string {
         return (string) ($venue['country'] ?? '');
     }, false, 'country'),
+    buildListColumn('Updated', null, static function (array $venue): string {
+        return (string) ($venue['updated_at'] ?? '');
+    }, false, 'updated_at'),
     buildListColumn('Contact', null, static function (array $venue): string {
         $buttons = [];
         if (!empty($venue['website'])) {
