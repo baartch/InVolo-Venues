@@ -3,6 +3,9 @@ export {};
 const qs = <T extends Element>(selector: string, scope: ParentNode = document): T | null =>
   scope.querySelector(selector) as T | null;
 
+const qsAll = <T extends Element>(selector: string, scope: ParentNode = document): T[] =>
+  Array.from(scope.querySelectorAll(selector)) as T[];
+
 const createDebounce = (callback: () => void, delay: number) => {
   let timerId: number | null = null;
 
@@ -97,6 +100,57 @@ const focusRowLink = (row: HTMLElement): void => {
   window.location.href = link;
 };
 
+const initTableSortPersistence = (): void => {
+  const table = qs<HTMLTableElement>('table[data-sort-table-type]');
+  if (!table) {
+    return;
+  }
+
+  const tableType = table.dataset.sortTableType?.trim() ?? '';
+  const sortParamKey = table.dataset.sortParamKey?.trim() || 'sort';
+  const sortParamDirection = table.dataset.sortParamDirection?.trim() || 'dir';
+  const sortPageParam = table.dataset.sortPageParam?.trim() || 'page';
+  if (tableType === '') {
+    return;
+  }
+
+  const storageKey = `tableSort:${tableType}`;
+  const url = new URL(window.location.href);
+  const currentSort = url.searchParams.get(sortParamKey);
+  const currentDirection = url.searchParams.get(sortParamDirection);
+
+  if (!currentSort || !currentDirection) {
+    const savedRaw = localStorage.getItem(storageKey);
+    if (savedRaw) {
+      try {
+        const saved = JSON.parse(savedRaw) as { key?: string; direction?: string };
+        const key = (saved.key ?? '').trim();
+        const direction = (saved.direction ?? '').toLowerCase();
+        if (key !== '' && (direction === 'asc' || direction === 'desc')) {
+          url.searchParams.set(sortParamKey, key);
+          url.searchParams.set(sortParamDirection, direction);
+          url.searchParams.set(sortPageParam, '1');
+          window.location.replace(url.toString());
+          return;
+        }
+      } catch {
+        localStorage.removeItem(storageKey);
+      }
+    }
+  }
+
+  qsAll<HTMLAnchorElement>('a[data-table-sort]', table).forEach((link) => {
+    link.addEventListener('click', () => {
+      const key = link.dataset.sortKey?.trim() ?? '';
+      const direction = (link.dataset.sortDirection ?? '').toLowerCase();
+      if (key === '' || (direction !== 'asc' && direction !== 'desc')) {
+        return;
+      }
+      localStorage.setItem(storageKey, JSON.stringify({ key, direction }));
+    });
+  });
+};
+
 const initListSelection = (): void => {
   const emptyStates = new Map<HTMLElement, { target: HTMLElement; html: string }>();
 
@@ -187,4 +241,5 @@ const initListSelection = (): void => {
 };
 
 initListSearch();
+initTableSortPersistence();
 initListSelection();

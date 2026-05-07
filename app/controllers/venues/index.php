@@ -29,6 +29,8 @@ if ($pageSizeOverride >= 25 && $pageSizeOverride <= 500) {
     $pageSize = $pageSizeOverride;
 }
 $page = max(1, (int) ($_GET['page'] ?? 1));
+$sort = trim((string) ($_GET['sort'] ?? 'name'));
+$dir = strtolower(trim((string) ($_GET['dir'] ?? 'asc')));
 $selectedVenue = null;
 $activeTeamId = 0;
 $userTeams = [];
@@ -89,7 +91,7 @@ try {
     $activeTeamId = resolveActiveTeamId($pdo, $userId, $requestedTeamId);
     $userTeams = fetchUserTeams($pdo, $userId);
 
-    $result = fetchVenuesWithPagination($filter, $page, $pageSize);
+    $result = fetchVenuesWithPagination($filter, $page, $pageSize, $sort, $dir);
     $venues = $result['venues'];
     $totalVenues = $result['totalVenues'];
     $totalPages = $result['totalPages'];

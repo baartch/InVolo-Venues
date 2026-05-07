@@ -8,6 +8,8 @@
  */
 require_once __DIR__ . '/../../../models/core/list_helpers.php';
 
+const VENUE_NAME_MAX_LENGTH = 30;
+
 $mapIcon = '<span class="icon"><i class="fa-solid fa-location-dot"></i></span>';
 
 $teamRatings = $teamRatings ?? [];
@@ -30,12 +32,22 @@ $listColumns = [
         ]);
 
         return '<a href="' . htmlspecialchars($mapLink) . '" class="icon" aria-label="Open map" title="Open map">' . $mapIcon . '</a>';
-    }, true),
+    }, true, null),
     buildListColumn('Name', null, static function (array $venue) use ($teamRatings): string {
-        $name = htmlspecialchars((string) ($venue['name'] ?? ''));
+        $rawName = trim((string) ($venue['name'] ?? ''));
+        $name = $rawName;
+        if (function_exists('mb_strlen') && function_exists('mb_substr')) {
+            if (mb_strlen($rawName, 'UTF-8') > VENUE_NAME_MAX_LENGTH) {
+                $name = mb_substr($rawName, 0, VENUE_NAME_MAX_LENGTH, 'UTF-8') . '…';
+            }
+        } elseif (strlen($rawName) > VENUE_NAME_MAX_LENGTH) {
+            $name = substr($rawName, 0, VENUE_NAME_MAX_LENGTH) . '…';
+        }
+        $escapedName = htmlspecialchars($name);
+
         $rating = $teamRatings[(int) ($venue['id'] ?? 0)] ?? '';
         if ($rating === '') {
-            return $name;
+            return $escapedName;
         }
         $ratingClass = match ($rating) {
             'A' => 'venue-rating-a',
@@ -43,14 +55,21 @@ $listColumns = [
             'C' => 'venue-rating-c',
             default => 'venue-rating-default'
         };
-        return $name . ' <span class="tag ' . $ratingClass . '">' . htmlspecialchars($rating) . '</span>';
-    }, true),
+        return $escapedName . ' <span class="tag ' . $ratingClass . '">' . htmlspecialchars($rating) . '</span>';
+    }, true, 'name'),
     buildListColumn('City', null, static function (array $venue): string {
         return (string) ($venue['city'] ?? '');
-    }),
+    }, false, 'city'),
     buildListColumn('Country', null, static function (array $venue): string {
         return (string) ($venue['country'] ?? '');
-    }),
+    }, false, 'country'),
+    buildListColumn('Updated', null, static function (array $venue): string {
+        $updatedAt = trim((string) ($venue['updated_at'] ?? ''));
+        if ($updatedAt === '') {
+            return '';
+        }
+        return '<span class="is-size-7">' . htmlspecialchars(substr($updatedAt, 0, 10)) . '</span>';
+    }, true, 'updated_at'),
     buildListColumn('Contact', null, static function (array $venue): string {
         $buttons = [];
         if (!empty($venue['website'])) {
@@ -112,7 +131,16 @@ $listColumns = [
         }
 
         return '<div class="buttons are-small">' . implode('', $buttons) . '</div>';
-    }, true)
+    }, true, null)
+];
+
+$listSort = [
+    'tableType' => 'venues',
+    'currentKey' => (string) ($sort ?? 'name'),
+    'currentDirection' => (string) ($dir ?? 'asc'),
+    'paramKey' => 'sort',
+    'paramDirection' => 'dir',
+    'pageParam' => 'page'
 ];
 
 $listRows = $venues;
