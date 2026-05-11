@@ -1,10 +1,8 @@
 <?php
 require_once __DIR__ . '/../../models/auth/check.php';
-require_once __DIR__ . '/../../models/core/database.php';
 require_once __DIR__ . '/../../models/communication/contacts_helpers.php';
 require_once __DIR__ . '/../../models/communication/navigation_helpers.php';
 require_once __DIR__ . '/../../models/core/error_helpers.php';
-require_once __DIR__ . '/../../models/core/object_links.php';
 
 if ($_SERVER['REQUEST_METHOD'] !== 'POST') {
     http_response_code(405);
@@ -24,22 +22,10 @@ $redirectParams = buildContactsTabQuery(
 );
 
 try {
-    $pdo = getDatabaseConnection();
-    if ($teamId <= 0 || !userHasTeamAccess($pdo, $userId, $teamId)) {
+    if ($teamId <= 0 || !userCanAccessTeam($userId, $teamId)) {
         $redirectParams['notice'] = 'contact_error';
     } else {
-        $existing = fetchContact($pdo, $teamId, $contactId);
-        if ($existing) {
-            $pdo->beginTransaction();
-            try {
-                clearAllObjectLinks($pdo, 'contact', $contactId);
-                $stmt = $pdo->prepare('DELETE FROM contacts WHERE id = :id AND team_id = :team_id');
-                $stmt->execute([':id' => $contactId, ':team_id' => $teamId]);
-                $pdo->commit();
-            } catch (Throwable $error) {
-                $pdo->rollBack();
-                throw $error;
-            }
+        if (deleteContact($teamId, $contactId)) {
             logAction($userId, 'contact_deleted', sprintf('Deleted contact %d', $contactId));
             $redirectParams['notice'] = 'contact_deleted';
         } else {

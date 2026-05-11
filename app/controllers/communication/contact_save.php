@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../models/auth/check.php';
-require_once __DIR__ . '/../../models/core/database.php';
 require_once __DIR__ . '/../../models/core/form_helpers.php';
 require_once __DIR__ . '/../../models/communication/contacts_helpers.php';
 
@@ -73,36 +72,14 @@ if ($errors) {
 }
 
 try {
-    $pdo = getDatabaseConnection();
-
-    if ($teamId <= 0 || !userHasTeamAccess($pdo, $userId, $teamId)) {
+    if ($teamId <= 0 || !userCanAccessTeam($userId, $teamId)) {
         logAction($userId, 'contact_team_access_denied', sprintf('Denied team access for contact save. team_id=%d', $teamId));
         header('Location: ' . $baseUrl . '?' . http_build_query(array_merge($redirectParams, ['notice' => 'contact_error'])));
         exit;
     }
 
     if ($action === 'create_contact') {
-        $stmt = $pdo->prepare(
-            'INSERT INTO contacts
-                (team_id, firstname, surname, email, phone, address, postal_code, city, country, website, notes)
-             VALUES
-                (:team_id, :firstname, :surname, :email, :phone, :address, :postal_code, :city, :country, :website, :notes)'
-        );
-        $stmt->execute([
-            ':team_id' => $teamId,
-            ':firstname' => normalizeOptionalString($payload['firstname']),
-            ':surname' => $payload['surname'],
-            ':email' => normalizeOptionalString($payload['email']),
-            ':phone' => normalizeOptionalString($payload['phone']),
-            ':address' => normalizeOptionalString($payload['address']),
-            ':postal_code' => normalizeOptionalString($payload['postal_code']),
-            ':city' => normalizeOptionalString($payload['city']),
-            ':country' => normalizeOptionalString($payload['country']),
-            ':website' => normalizeOptionalString($payload['website']),
-            ':notes' => normalizeOptionalString($payload['notes'])
-        ]);
-
-        $newId = (int) $pdo->lastInsertId();
+        $newId = createContact($teamId, $payload);
         logAction($userId, 'contact_created', sprintf('Created contact %d', $newId));
 
         header('Location: ' . $baseUrl . '?' . http_build_query(array_merge($redirectParams, [
@@ -117,42 +94,12 @@ try {
             exit;
         }
 
-        $existing = fetchContact($pdo, $teamId, $contactId);
-        if (!$existing) {
+        if (!updateContact($teamId, $contactId, $payload)) {
             header('Location: ' . $baseUrl . '?' . http_build_query(array_merge($redirectParams, ['notice' => 'contact_error'])));
             exit;
         }
 
-        $stmt = $pdo->prepare(
-            'UPDATE contacts
-             SET firstname = :firstname,
-                 surname = :surname,
-                 email = :email,
-                 phone = :phone,
-                 address = :address,
-                 postal_code = :postal_code,
-                 city = :city,
-                 country = :country,
-                 website = :website,
-                 notes = :notes
-             WHERE id = :id AND team_id = :team_id'
-        );
-        $stmt->execute([
-            ':firstname' => normalizeOptionalString($payload['firstname']),
-            ':surname' => $payload['surname'],
-            ':email' => normalizeOptionalString($payload['email']),
-            ':phone' => normalizeOptionalString($payload['phone']),
-            ':address' => normalizeOptionalString($payload['address']),
-            ':postal_code' => normalizeOptionalString($payload['postal_code']),
-            ':city' => normalizeOptionalString($payload['city']),
-            ':country' => normalizeOptionalString($payload['country']),
-            ':website' => normalizeOptionalString($payload['website']),
-            ':notes' => normalizeOptionalString($payload['notes']),
-            ':id' => (int) $existing['id'],
-            ':team_id' => $teamId
-        ]);
-
-        logAction($userId, 'contact_updated', sprintf('Updated contact %d', (int) $existing['id']));
+        logAction($userId, 'contact_updated', sprintf('Updated contact %d', $contactId));
 
         header('Location: ' . $baseUrl . '?' . http_build_query(array_merge($redirectParams, [
             'notice' => 'contact_updated'
