@@ -54,6 +54,7 @@ CREATE TABLE sessions (
     user_id INT,
     session_token VARCHAR(255) UNIQUE NOT NULL,
     expires_at TIMESTAMP,
+    last_refreshed_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     created_at TIMESTAMP DEFAULT CURRENT_TIMESTAMP,
     FOREIGN KEY (user_id) REFERENCES users(id) ON DELETE CASCADE
 );

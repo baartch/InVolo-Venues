@@ -17,5 +17,5 @@ define('ENCRYPTION_KEY', 'change-this-encryption-key');
 // Sessions expire after 24 hours of inactivity, capped at 7 days from creation
 // (Idle timeout is refreshed on each authenticated request).
 define('SESSION_IDLE_LIFETIME', 86400); // 24 hours in seconds
-define('SESSION_REFRESH_WINDOW', 86400); // Refresh only when <= 1 day remains
+define('SESSION_REFRESH_INTERVAL', 21600); // Refresh DB expiry at most once every 6 hours
 define('SESSION_MAX_LIFETIME', 604800); // 7 days in seconds

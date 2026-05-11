@@ -12,12 +12,14 @@ function createSession(int $userId): array
 
     $pdo = getDatabaseConnection();
     $stmt = $pdo->prepare(
-        'INSERT INTO sessions (user_id, session_token, expires_at) VALUES (:user_id, :token, :expires_at)'
+        'INSERT INTO sessions (user_id, session_token, expires_at, last_refreshed_at)
+         VALUES (:user_id, :token, :expires_at, :last_refreshed_at)'
     );
     $stmt->execute([
         ':user_id' => $userId,
         ':token' => $token,
-        ':expires_at' => date('Y-m-d H:i:s', $expiresAt)
+        ':expires_at' => date('Y-m-d H:i:s', $expiresAt),
+        ':last_refreshed_at' => date('Y-m-d H:i:s', $createdAt)
     ]);
 
     return [
@@ -34,7 +36,7 @@ function fetchSessionUser(string $token): ?array
 
     $pdo = getDatabaseConnection();
     $stmt = $pdo->prepare(
-        'SELECT sessions.id AS session_id, sessions.user_id, sessions.expires_at, sessions.created_at, users.username, users.display_name, users.role, users.ui_theme,
+        'SELECT sessions.id AS session_id, sessions.user_id, sessions.expires_at, sessions.last_refreshed_at, sessions.created_at, users.username, users.display_name, users.role, users.ui_theme,
                 users.venues_page_size
          FROM sessions
          JOIN users ON users.id = sessions.user_id
@@ -101,17 +103,28 @@ function refreshSession(string $token, ?array $session = null): ?int
         return null;
     }
 
-    $window = defined('SESSION_REFRESH_WINDOW') ? (int) SESSION_REFRESH_WINDOW : 900;
-    $window = max(0, $window);
+    $lastRefreshedAt = strtotime((string) ($session['last_refreshed_at'] ?? ''));
+    if ($lastRefreshedAt === false) {
+        $lastRefreshedAt = $createdAt;
+    }
 
-    if ($currentExpiresAt > ($now + $window)) {
+    $interval = defined('SESSION_REFRESH_INTERVAL') ? (int) SESSION_REFRESH_INTERVAL : 21600;
+    $interval = max(0, $interval);
+
+    if (($now - $lastRefreshedAt) < $interval) {
         return min($currentExpiresAt, $maxExpiresAt);
     }
 
     $expiresAt = min($now + SESSION_IDLE_LIFETIME, $maxExpiresAt);
-    $stmt = $pdo->prepare('UPDATE sessions SET expires_at = :expires_at WHERE session_token = :token');
+    $stmt = $pdo->prepare(
+        'UPDATE sessions
+         SET expires_at = :expires_at,
+             last_refreshed_at = :last_refreshed_at
+         WHERE session_token = :token'
+    );
     $stmt->execute([
         ':expires_at' => date('Y-m-d H:i:s', $expiresAt),
+        ':last_refreshed_at' => date('Y-m-d H:i:s', $now),
         ':token' => $token
     ]);
 
