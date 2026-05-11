@@ -88,8 +88,9 @@ function fetchMailboxQuotaUsage(PDO $pdo, int $mailboxId): int
     return (int) $stmt->fetchColumn();
 }
 
-function fetchAttachmentForUser(PDO $pdo, int $attachmentId, int $userId): ?array
+function fetchAttachmentForUser(int $attachmentId, int $userId): ?array
 {
+    $pdo = getDatabaseConnection();
     $stmt = $pdo->prepare(
         'SELECT ea.*, em.mailbox_id
          FROM email_attachments ea

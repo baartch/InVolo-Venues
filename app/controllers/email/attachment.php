@@ -14,8 +14,7 @@ if ($attachmentId <= 0) {
 }
 
 try {
-    $pdo = getDatabaseConnection();
-    $attachment = fetchAttachmentForUser($pdo, $attachmentId, $userId);
+    $attachment = fetchAttachmentForUser($attachmentId, $userId);
 
     if (!$attachment) {
         http_response_code(404);
