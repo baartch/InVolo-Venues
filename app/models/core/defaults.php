@@ -26,7 +26,10 @@ if (!defined('MAIL_ATTACHMENTS_PATH')) {
     }
 
     $basePath = rtrim(BASE_PATH, '/');
-    $rootPrefix = $documentRoot . ($basePath === '' ? '' : $basePath);
+    $rootPrefix = $documentRoot;
+    if ($basePath !== '' && !str_ends_with($documentRoot, $basePath)) {
+        $rootPrefix .= $basePath;
+    }
     define('MAIL_ATTACHMENTS_PATH', $rootPrefix . '/uploads/email_attachments');
     unset($documentRoot, $basePath, $rootPrefix);
 }

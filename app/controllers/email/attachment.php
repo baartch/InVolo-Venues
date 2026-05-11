@@ -19,13 +19,16 @@ try {
         'SELECT ea.*, em.mailbox_id
          FROM email_attachments ea
          JOIN email_messages em ON em.id = ea.email_id
-         JOIN team_members tm ON tm.team_id = em.team_id
-         WHERE ea.id = :id AND tm.user_id = :user_id
+         LEFT JOIN team_members tm ON tm.team_id = em.team_id AND tm.user_id = :team_user_id
+         WHERE ea.id = :id
+           AND (tm.user_id = :member_user_id OR em.user_id = :owner_user_id)
          LIMIT 1'
     );
     $stmt->execute([
         ':id' => $attachmentId,
-        ':user_id' => $userId
+        ':team_user_id' => $userId,
+        ':member_user_id' => $userId,
+        ':owner_user_id' => $userId
     ]);
     $attachment = $stmt->fetch();
 
