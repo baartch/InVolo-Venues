@@ -88,6 +88,28 @@ function fetchMailboxQuotaUsage(PDO $pdo, int $mailboxId): int
     return (int) $stmt->fetchColumn();
 }
 
+function fetchAttachmentForUser(PDO $pdo, int $attachmentId, int $userId): ?array
+{
+    $stmt = $pdo->prepare(
+        'SELECT ea.*, em.mailbox_id
+         FROM email_attachments ea
+         JOIN email_messages em ON em.id = ea.email_id
+         LEFT JOIN team_members tm ON tm.team_id = em.team_id AND tm.user_id = :team_user_id
+         WHERE ea.id = :id
+           AND (tm.user_id = :member_user_id OR em.user_id = :owner_user_id)
+         LIMIT 1'
+    );
+    $stmt->execute([
+        ':id' => $attachmentId,
+        ':team_user_id' => $userId,
+        ':member_user_id' => $userId,
+        ':owner_user_id' => $userId
+    ]);
+
+    $attachment = $stmt->fetch();
+    return $attachment ?: null;
+}
+
 function ensureConversationAccess(PDO $pdo, int $conversationId, int $userId): ?array
 {
     $stmt = $pdo->prepare(
