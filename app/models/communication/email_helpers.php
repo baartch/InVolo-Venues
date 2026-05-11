@@ -88,6 +88,197 @@ function fetchMailboxQuotaUsage(PDO $pdo, int $mailboxId): int
     return (int) $stmt->fetchColumn();
 }
 
+function fetchMailboxIndicators(array $mailboxIds): array
+{
+    $mailboxIds = array_values(array_filter(array_map('intval', $mailboxIds), static fn(int $id): bool => $id > 0));
+    if (!$mailboxIds) {
+        return [];
+    }
+
+    $pdo = getDatabaseConnection();
+    $placeholders = implode(',', array_fill(0, count($mailboxIds), '?'));
+    $stmt = $pdo->prepare(
+        'SELECT mailbox_id,
+                SUM(CASE WHEN folder = "inbox" AND is_read = 0 THEN 1 ELSE 0 END) AS unread_count,
+                SUM(CASE WHEN folder = "inbox" AND is_read = 0 AND received_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 ELSE 0 END) AS new_count
+         FROM email_messages
+         WHERE mailbox_id IN (' . $placeholders . ')
+         GROUP BY mailbox_id'
+    );
+    $stmt->execute($mailboxIds);
+
+    $indicators = [];
+    foreach ($stmt->fetchAll() as $row) {
+        $mailboxId = (int) ($row['mailbox_id'] ?? 0);
+        if ($mailboxId <= 0) {
+            continue;
+        }
+
+        $indicators[$mailboxId] = [
+            'unread_count' => (int) ($row['unread_count'] ?? 0),
+            'new_count' => (int) ($row['new_count'] ?? 0)
+        ];
+    }
+
+    return $indicators;
+}
+
+function fetchEmailMessageForMailbox(int $messageId, int $mailboxId, int $userId): ?array
+{
+    if ($messageId <= 0 || $mailboxId <= 0) {
+        return null;
+    }
+
+    $pdo = getDatabaseConnection();
+    $stmt = $pdo->prepare(
+        'SELECT em.*
+         FROM email_messages em
+         WHERE em.id = :id AND em.mailbox_id = :mailbox_id
+         LIMIT 1'
+    );
+    $stmt->execute([
+        ':id' => $messageId,
+        ':mailbox_id' => $mailboxId
+    ]);
+    $message = $stmt->fetch();
+    if (!$message) {
+        return null;
+    }
+
+    if (!empty($message['conversation_id'])) {
+        $conversation = ensureConversationAccess($pdo, (int) $message['conversation_id'], $userId);
+        if (!$conversation) {
+            return null;
+        }
+    }
+
+    return $message;
+}
+
+function markEmailMessageAsRead(int $messageId): void
+{
+    if ($messageId <= 0) {
+        return;
+    }
+
+    $pdo = getDatabaseConnection();
+    $stmt = $pdo->prepare('UPDATE email_messages SET is_read = 1 WHERE id = :id');
+    $stmt->execute([':id' => $messageId]);
+}
+
+function fetchAttachmentsForEmailMessage(int $messageId): array
+{
+    if ($messageId <= 0) {
+        return [];
+    }
+
+    $pdo = getDatabaseConnection();
+    $stmt = $pdo->prepare('SELECT * FROM email_attachments WHERE email_id = :email_id ORDER BY id');
+    $stmt->execute([':email_id' => $messageId]);
+
+    return $stmt->fetchAll();
+}
+
+function fetchConversationSubjectById(int $conversationId): string
+{
+    if ($conversationId <= 0) {
+        return '';
+    }
+
+    $pdo = getDatabaseConnection();
+    $stmt = $pdo->prepare('SELECT subject FROM email_conversations WHERE id = :id LIMIT 1');
+    $stmt->execute([':id' => $conversationId]);
+    $row = $stmt->fetch();
+
+    return trim((string) ($row['subject'] ?? ''));
+}
+
+function fetchMailboxEmailListData(int $mailboxId, string $folder, string $filter, int $page, int $pageSize, string $sortKey): array
+{
+    if ($mailboxId <= 0) {
+        return [
+            'total_messages' => 0,
+            'total_pages' => 1,
+            'page' => 1,
+            'messages' => [],
+            'folder_counts' => []
+        ];
+    }
+
+    $pdo = getDatabaseConnection();
+    $sortOptions = getEmailSortOptions();
+    if (!array_key_exists($sortKey, $sortOptions)) {
+        $sortKey = 'received_desc';
+    }
+
+    $filterSql = '';
+    $scopeSql = 'mailbox_id = :mailbox_id';
+    $params = [
+        ':mailbox_id' => $mailboxId,
+        ':folder' => $folder
+    ];
+
+    if ($filter !== '') {
+        $filterSql = 'AND (subject LIKE :filter OR ';
+        if ($folder === 'inbox') {
+            $filterSql .= 'from_name LIKE :filter OR from_email LIKE :filter';
+        } else {
+            $filterSql .= 'to_emails LIKE :filter';
+        }
+        $filterSql .= ')';
+        $params[':filter'] = '%' . $filter . '%';
+    }
+
+    $countSql = 'SELECT COUNT(*) FROM email_messages WHERE ' . $scopeSql . ' AND folder = :folder ' . $filterSql;
+    $countStmt = $pdo->prepare($countSql);
+    $countStmt->execute($params);
+    $totalMessages = (int) $countStmt->fetchColumn();
+    $totalPages = max(1, (int) ceil($totalMessages / max(1, $pageSize)));
+    $page = max(1, min($page, $totalPages));
+    $offset = ($page - 1) * $pageSize;
+
+    $sortColumn = $sortOptions[$sortKey]['column'];
+    $sortDirection = $sortOptions[$sortKey]['direction'];
+    if ($sortColumn === 'received_at' && $folder !== 'inbox') {
+        $sortColumn = $folder === 'sent' ? 'sent_at' : 'created_at';
+    }
+
+    $listSql = 'SELECT id, subject, from_name, from_email, to_emails, is_read,
+                received_at, sent_at, scheduled_at, created_at
+         FROM email_messages
+         WHERE ' . $scopeSql . ' AND folder = :folder ' . $filterSql .
+        ' ORDER BY ' . $sortColumn . ' ' . $sortDirection .
+        ' LIMIT :limit OFFSET :offset';
+    $listStmt = $pdo->prepare($listSql);
+    foreach ($params as $key => $value) {
+        $listStmt->bindValue($key, $value);
+    }
+    $listStmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
+    $listStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
+    $listStmt->execute();
+    $messages = $listStmt->fetchAll();
+
+    $folderStmt = $pdo->prepare(
+        'SELECT folder, COUNT(*) AS total
+         FROM email_messages
+         WHERE ' . $scopeSql . '
+         GROUP BY folder'
+    );
+    $folderStmt->execute([':mailbox_id' => $mailboxId]);
+    $folderCounts = [];
+    foreach ($folderStmt->fetchAll() as $row) {
+        $folderCounts[(string) ($row['folder'] ?? '')] = (int) ($row['total'] ?? 0);
+    }
+
+    return [
+        'total_messages' => $totalMessages,
+        'total_pages' => $totalPages,
+        'page' => $page,
+        'messages' => $messages,
+        'folder_counts' => $folderCounts
+    ];
+}
+
 function fetchConversationsForUser(int $userId): array
 {
     $pdo = getDatabaseConnection();
@@ -704,6 +895,65 @@ function findVenueIdsByEmail(PDO $pdo, string $email): array
     $stmt->execute([':email' => $normalized]);
 
     return array_map('intval', array_column($stmt->fetchAll(), 'id'));
+}
+
+function fetchContactLabelsByIds(array $contactIds, ?int $teamId = null): array
+{
+    $contactIds = array_values(array_unique(array_filter(array_map('intval', $contactIds), static fn(int $id): bool => $id > 0)));
+    if (!$contactIds) {
+        return [];
+    }
+
+    $pdo = getDatabaseConnection();
+    $placeholders = implode(',', array_fill(0, count($contactIds), '?'));
+    $sql = 'SELECT id, firstname, surname, email FROM contacts WHERE id IN (' . $placeholders . ')';
+    $params = $contactIds;
+    if ($teamId !== null) {
+        $sql .= ' AND team_id = ?';
+        $params[] = $teamId;
+    }
+
+    $stmt = $pdo->prepare($sql);
+    $stmt->execute($params);
+
+    $labelsByKey = [];
+    foreach ($stmt->fetchAll() as $contactRow) {
+        $name = trim((string) ($contactRow['firstname'] ?? '') . ' ' . (string) ($contactRow['surname'] ?? ''));
+        $email = trim((string) ($contactRow['email'] ?? ''));
+        $label = $name !== '' ? $name : $email;
+        if ($label === '') {
+            $label = 'Contact #' . (int) ($contactRow['id'] ?? 0);
+        }
+        $labelsByKey['contact:' . (int) ($contactRow['id'] ?? 0)] = $label;
+    }
+
+    return $labelsByKey;
+}
+
+function fetchVenueLabelsByIds(array $venueIds): array
+{
+    $venueIds = array_values(array_unique(array_filter(array_map('intval', $venueIds), static fn(int $id): bool => $id > 0)));
+    if (!$venueIds) {
+        return [];
+    }
+
+    $pdo = getDatabaseConnection();
+    $placeholders = implode(',', array_fill(0, count($venueIds), '?'));
+    $stmt = $pdo->prepare('SELECT id, name, contact_email FROM venues WHERE id IN (' . $placeholders . ')');
+    $stmt->execute($venueIds);
+
+    $labelsByKey = [];
+    foreach ($stmt->fetchAll() as $venueRow) {
+        $name = trim((string) ($venueRow['name'] ?? ''));
+        $email = trim((string) ($venueRow['contact_email'] ?? ''));
+        $label = $name !== '' ? $name : $email;
+        if ($label === '') {
+            $label = 'Venue #' . (int) ($venueRow['id'] ?? 0);
+        }
+        $labelsByKey['venue:' . (int) ($venueRow['id'] ?? 0)] = $label;
+    }
+
+    return $labelsByKey;
 }
 
 function formatPlainEmailBodyWithQuotes(string $body): string

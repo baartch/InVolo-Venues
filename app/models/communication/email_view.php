@@ -12,7 +12,6 @@ $templates = [];
 $teamMailboxes = [];
 $mailboxIndicators = [];
 $selectedMailbox = null;
-$pdo = null;
 $userId = (int) ($currentUser['user_id'] ?? 0);
 
 $folderOptions = getEmailFolderOptions();
@@ -65,8 +64,9 @@ if ($selectedMailboxId <= 0 && $teamMailboxes) {
     $selectedMailboxId = (int) ($teamMailboxes[0]['id'] ?? 0);
 }
 
-if ($pdo && $selectedMailboxId > 0) {
+if ($selectedMailboxId > 0) {
     try {
+        $pdo = getDatabaseConnection();
         $selectedMailbox = ensureMailboxAccess($pdo, $selectedMailboxId, $userId);
         if (!$selectedMailbox) {
             $errors[] = 'Mailbox access denied.';
@@ -79,8 +79,9 @@ if ($pdo && $selectedMailboxId > 0) {
 
 $quotaUsed = 0;
 $quotaTotal = EMAIL_ATTACHMENT_QUOTA_DEFAULT;
-if ($pdo && $selectedMailbox) {
+if ($selectedMailbox) {
     try {
+        $pdo = getDatabaseConnection();
         $quotaUsed = fetchMailboxQuotaUsage($pdo, (int) $selectedMailbox['id']);
         $quotaTotal = (int) ($selectedMailbox['attachment_quota_bytes'] ?? EMAIL_ATTACHMENT_QUOTA_DEFAULT);
     } catch (Throwable $error) {
@@ -89,35 +90,14 @@ if ($pdo && $selectedMailbox) {
     }
 }
 
-if ($pdo && $teamMailboxes) {
+if ($teamMailboxes) {
     try {
         $mailboxIds = array_values(array_filter(array_map(
             static fn(array $mailbox): int => (int) ($mailbox['id'] ?? 0),
             $teamMailboxes
         ), static fn(int $id): bool => $id > 0));
 
-        if ($mailboxIds) {
-            $placeholders = implode(',', array_fill(0, count($mailboxIds), '?'));
-            $stmt = $pdo->prepare(
-                'SELECT mailbox_id,
-                        SUM(CASE WHEN folder = "inbox" AND is_read = 0 THEN 1 ELSE 0 END) AS unread_count,
-                        SUM(CASE WHEN folder = "inbox" AND is_read = 0 AND received_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 ELSE 0 END) AS new_count
-                 FROM email_messages
-                 WHERE mailbox_id IN (' . $placeholders . ')
-                 GROUP BY mailbox_id'
-            );
-            $stmt->execute($mailboxIds);
-            foreach ($stmt->fetchAll() as $row) {
-                $mailboxId = (int) ($row['mailbox_id'] ?? 0);
-                if ($mailboxId <= 0) {
-                    continue;
-                }
-                $mailboxIndicators[$mailboxId] = [
-                    'unread_count' => (int) ($row['unread_count'] ?? 0),
-                    'new_count' => (int) ($row['new_count'] ?? 0)
-                ];
-            }
-        }
+        $mailboxIndicators = fetchMailboxIndicators($mailboxIds);
     } catch (Throwable $error) {
         logAction($userId, 'email_mailbox_indicator_error', $error->getMessage());
     }
@@ -144,9 +124,9 @@ $prefillBcc = trim((string) ($_GET['bcc'] ?? ''));
 if ($prefillTo !== '') {
     $composeValues['to_emails'] = normalizeEmailList($prefillTo);
 
-    if ($pdo) {
-        try {
-            $teamScopeId = !empty($selectedMailbox['team_id']) ? (int) $selectedMailbox['team_id'] : null;
+    try {
+        $pdo = getDatabaseConnection();
+        $teamScopeId = !empty($selectedMailbox['team_id']) ? (int) $selectedMailbox['team_id'] : null;
             $recipientEmails = preg_split('/[;,]+/', $composeValues['to_emails']) ?: [];
             $recipientEmails = array_values(array_unique(array_filter(array_map(
                 static fn(string $email): string => strtolower(trim($email)),
@@ -189,46 +169,8 @@ if ($prefillTo !== '') {
 
             if (!empty($linkItemsByKey)) {
                 $labelsByKey = [];
-
-                $uniqueContactIds = array_values(array_unique(array_map('intval', $contactIds)));
-                if (!empty($uniqueContactIds)) {
-                    $placeholders = implode(',', array_fill(0, count($uniqueContactIds), '?'));
-                    $sql = 'SELECT id, firstname, surname, email FROM contacts WHERE id IN (' . $placeholders . ')';
-                    $params = $uniqueContactIds;
-                    if ($teamScopeId !== null) {
-                        $sql .= ' AND team_id = ?';
-                        $params[] = $teamScopeId;
-                    }
-                    $contactStmt = $pdo->prepare($sql);
-                    $contactStmt->execute($params);
-                    foreach ($contactStmt->fetchAll() as $contactRow) {
-                        $name = trim((string) ($contactRow['firstname'] ?? '') . ' ' . (string) ($contactRow['surname'] ?? ''));
-                        $email = trim((string) ($contactRow['email'] ?? ''));
-                        $label = $name !== '' ? $name : $email;
-                        if ($label === '') {
-                            $label = 'Contact #' . (int) ($contactRow['id'] ?? 0);
-                        }
-                        $labelsByKey['contact:' . (int) ($contactRow['id'] ?? 0)] = $label;
-                    }
-                }
-
-                $uniqueVenueIds = array_values(array_unique(array_map('intval', $venueIds)));
-                if (!empty($uniqueVenueIds)) {
-                    $placeholders = implode(',', array_fill(0, count($uniqueVenueIds), '?'));
-                    $venueStmt = $pdo->prepare(
-                        'SELECT id, name, contact_email FROM venues WHERE id IN (' . $placeholders . ')'
-                    );
-                    $venueStmt->execute($uniqueVenueIds);
-                    foreach ($venueStmt->fetchAll() as $venueRow) {
-                        $name = trim((string) ($venueRow['name'] ?? ''));
-                        $email = trim((string) ($venueRow['contact_email'] ?? ''));
-                        $label = $name !== '' ? $name : $email;
-                        if ($label === '') {
-                            $label = 'Venue #' . (int) ($venueRow['id'] ?? 0);
-                        }
-                        $labelsByKey['venue:' . (int) ($venueRow['id'] ?? 0)] = $label;
-                    }
-                }
+                $labelsByKey = array_merge($labelsByKey, fetchContactLabelsByIds($contactIds, $teamScopeId));
+                $labelsByKey = array_merge($labelsByKey, fetchVenueLabelsByIds($venueIds));
 
                 $composeValues['link_items'] = array_map(
                     static fn(array $link): array => [
@@ -239,9 +181,8 @@ if ($prefillTo !== '') {
                     array_values($linkItemsByKey)
                 );
             }
-        } catch (Throwable $error) {
-            logAction($userId, 'email_prefill_links_resolve_error', $error->getMessage());
-        }
+    } catch (Throwable $error) {
+        logAction($userId, 'email_prefill_links_resolve_error', $error->getMessage());
     }
 
     $composeMode = true;
@@ -250,26 +191,13 @@ if ($prefillTo !== '') {
 $messageLinks = [];
 
 $selectedMessageId = (int) ($_GET['message_id'] ?? 0);
-if ($pdo && $selectedMailbox && $selectedMessageId > 0) {
+if ($selectedMailbox && $selectedMessageId > 0) {
     try {
-        $stmt = $pdo->prepare(
-            'SELECT em.*
-             FROM email_messages em
-             WHERE em.id = :id AND em.mailbox_id = :mailbox_id
-             LIMIT 1'
+        $message = fetchEmailMessageForMailbox(
+            $selectedMessageId,
+            (int) $selectedMailbox['id'],
+            $userId
         );
-        $stmt->execute([
-            ':id' => $selectedMessageId,
-            ':mailbox_id' => $selectedMailbox['id']
-        ]);
-        $message = $stmt->fetch();
-
-        if ($message && !empty($message['conversation_id'])) {
-            $conversation = ensureConversationAccess($pdo, (int) $message['conversation_id'], $userId);
-            if (!$conversation) {
-                $message = null;
-            }
-        }
 
         if ($message) {
             $messageFolder = (string) ($message['folder'] ?? '');
@@ -296,12 +224,9 @@ if ($pdo && $selectedMailbox && $selectedMessageId > 0) {
             $composeValues['conversation_id'] = !empty($message['conversation_id'])
                 ? (int) $message['conversation_id']
                 : null;
-            if (!empty($composeValues['conversation_id']) && isset($pdo)) {
+            if (!empty($composeValues['conversation_id'])) {
                 try {
-                    $convStmt = $pdo->prepare('SELECT subject FROM email_conversations WHERE id = :id LIMIT 1');
-                    $convStmt->execute([':id' => (int) $composeValues['conversation_id']]);
-                    $convRow = $convStmt->fetch();
-                    $composeValues['conversation_label'] = trim((string) ($convRow['subject'] ?? ''));
+                    $composeValues['conversation_label'] = fetchConversationSubjectById((int) $composeValues['conversation_id']);
                     if ($composeValues['conversation_label'] === '') {
                         $composeValues['conversation_label'] = 'Conversation #' . (int) $composeValues['conversation_id'];
                     }
@@ -311,16 +236,11 @@ if ($pdo && $selectedMailbox && $selectedMessageId > 0) {
             }
             $composeMode = true;
         } elseif ($message && !(bool) $message['is_read']) {
-            $updateStmt = $pdo->prepare('UPDATE email_messages SET is_read = 1 WHERE id = :id');
-            $updateStmt->execute([':id' => $selectedMessageId]);
+            markEmailMessageAsRead($selectedMessageId);
         }
 
         if ($message) {
-            $attachmentsStmt = $pdo->prepare(
-                'SELECT * FROM email_attachments WHERE email_id = :email_id ORDER BY id'
-            );
-            $attachmentsStmt->execute([':email_id' => $selectedMessageId]);
-            $attachments = $attachmentsStmt->fetchAll();
+            $attachments = fetchAttachmentsForEmailMessage($selectedMessageId);
 
             try {
                 $linkTeamId = !empty($selectedMailbox['team_id'])
@@ -330,13 +250,7 @@ if ($pdo && $selectedMailbox && $selectedMessageId > 0) {
                     ? (int) $selectedMailbox['user_id']
                     : null;
 
-                $messageLinks = fetchLinkedObjects(
-                    $pdo,
-                    'email',
-                    (int) $message['id'],
-                    $linkTeamId,
-                    $linkUserId
-                );
+                $messageLinks = fetchEmailMessageLinks((int) $message['id'], $linkTeamId, $linkUserId);
             } catch (Throwable $error) {
                 logAction($userId, 'email_links_load_error', $error->getMessage());
             }
@@ -359,26 +273,13 @@ if ($pdo && $selectedMailbox && $selectedMessageId > 0) {
 }
 
 $prefillMessageId = $replyId > 0 ? $replyId : $forwardId;
-if ($pdo && $selectedMailbox && $prefillMessageId > 0) {
+if ($selectedMailbox && $prefillMessageId > 0) {
     try {
-        $stmt = $pdo->prepare(
-            'SELECT em.*
-             FROM email_messages em
-             WHERE em.id = :id AND em.mailbox_id = :mailbox_id
-             LIMIT 1'
+        $prefillMessage = fetchEmailMessageForMailbox(
+            $prefillMessageId,
+            (int) $selectedMailbox['id'],
+            $userId
         );
-        $stmt->execute([
-            ':id' => $prefillMessageId,
-            ':mailbox_id' => $selectedMailbox['id']
-        ]);
-        $prefillMessage = $stmt->fetch();
-
-        if ($prefillMessage && !empty($prefillMessage['conversation_id'])) {
-            $conversation = ensureConversationAccess($pdo, (int) $prefillMessage['conversation_id'], $userId);
-            if (!$conversation) {
-                $prefillMessage = null;
-            }
-        }
         if ($prefillMessage) {
             $originalSubject = (string) ($prefillMessage['subject'] ?? '');
             $subjectPrefix = $replyId > 0 ? 'Re: ' : 'Fwd: ';
@@ -408,12 +309,9 @@ if ($pdo && $selectedMailbox && $prefillMessageId > 0) {
                 ? (int) $prefillMessage['conversation_id']
                 : null;
             $composeValues['conversation_id'] = $composeConversationId;
-            if (!empty($composeConversationId) && isset($pdo)) {
+            if (!empty($composeConversationId)) {
                 try {
-                    $convStmt = $pdo->prepare('SELECT subject FROM email_conversations WHERE id = :id LIMIT 1');
-                    $convStmt->execute([':id' => (int) $composeConversationId]);
-                    $convRow = $convStmt->fetch();
-                    $composeValues['conversation_label'] = trim((string) ($convRow['subject'] ?? ''));
+                    $composeValues['conversation_label'] = fetchConversationSubjectById((int) $composeConversationId);
                     if ($composeValues['conversation_label'] === '') {
                         $composeValues['conversation_label'] = 'Conversation #' . (int) $composeConversationId;
                     }
@@ -430,13 +328,7 @@ if ($pdo && $selectedMailbox && $prefillMessageId > 0) {
                     ? (int) $selectedMailbox['user_id']
                     : (!empty($prefillMessage['user_id']) ? (int) $prefillMessage['user_id'] : null);
 
-                $prefillLinks = fetchLinkedObjects(
-                    $pdo,
-                    'email',
-                    (int) $prefillMessage['id'],
-                    $prefillLinkTeamId,
-                    $prefillLinkUserId
-                );
+                $prefillLinks = fetchEmailMessageLinks((int) $prefillMessage['id'], $prefillLinkTeamId, $prefillLinkUserId);
 
                 if (!empty($prefillLinks)) {
                     $composeValues['link_items'] = array_map(
@@ -499,8 +391,9 @@ if ($pdo && $selectedMailbox && $prefillMessageId > 0) {
     }
 }
 
-if ($pdo && $selectedMailbox) {
+if ($selectedMailbox) {
     try {
+        $pdo = getDatabaseConnection();
         $templates = fetchTeamTemplates($pdo, $userId, (int) $selectedMailbox['team_id']);
         if ($templateId > 0) {
             $template = ensureTemplateAccess($pdo, $templateId, $userId);
@@ -532,68 +425,21 @@ if ($composeMode) {
 
 $totalMessages = 0;
 $totalPages = 1;
-if ($pdo && $selectedMailbox) {
+if ($selectedMailbox) {
     try {
-        $filterSql = '';
-        $scopeSql = 'mailbox_id = :mailbox_id';
-        $params = [
-            ':mailbox_id' => $selectedMailbox['id'],
-            ':folder' => $folder
-        ];
-
-        if ($filter !== '') {
-            $filterSql = 'AND (subject LIKE :filter OR ';
-            if ($folder === 'inbox') {
-                $filterSql .= 'from_name LIKE :filter OR from_email LIKE :filter';
-            } else {
-                $filterSql .= 'to_emails LIKE :filter';
-            }
-            $filterSql .= ')';
-            $params[':filter'] = '%' . $filter . '%';
-        }
-
-        $countSql = 'SELECT COUNT(*) FROM email_messages
-             WHERE ' . $scopeSql . ' AND folder = :folder ' . $filterSql;
-        $countStmt = $pdo->prepare($countSql);
-        $countStmt->execute($params);
-        $totalMessages = (int) $countStmt->fetchColumn();
-        $totalPages = max(1, (int) ceil($totalMessages / $pageSize));
-        $page = min($page, $totalPages);
-        $offset = ($page - 1) * $pageSize;
-
-        $sortColumn = $sortOptions[$sortKey]['column'];
-        $sortDirection = $sortOptions[$sortKey]['direction'];
-        if ($sortColumn === 'received_at' && $folder !== 'inbox') {
-            $sortColumn = $folder === 'sent' ? 'sent_at' : 'created_at';
-        }
-
-        $listSql = 'SELECT id, subject, from_name, from_email, to_emails, is_read,
-                    received_at, sent_at, scheduled_at, created_at
-             FROM email_messages
-             WHERE ' . $scopeSql . ' AND folder = :folder ' . $filterSql .
-            ' ORDER BY ' . $sortColumn . ' ' . $sortDirection .
-            ' LIMIT :limit OFFSET :offset';
-
-        $listStmt = $pdo->prepare($listSql);
-        foreach ($params as $key => $value) {
-            $listStmt->bindValue($key, $value);
-        }
-        $listStmt->bindValue(':limit', $pageSize, PDO::PARAM_INT);
-        $listStmt->bindValue(':offset', $offset, PDO::PARAM_INT);
-        $listStmt->execute();
-        $messages = $listStmt->fetchAll();
-
-        $countStmt = $pdo->prepare(
-            'SELECT folder, COUNT(*) AS total
-             FROM email_messages
-             WHERE ' . $scopeSql . '
-             GROUP BY folder'
+        $listData = fetchMailboxEmailListData(
+            (int) $selectedMailbox['id'],
+            $folder,
+            $filter,
+            $page,
+            $pageSize,
+            $sortKey
         );
-        $countStmt->execute([':mailbox_id' => $selectedMailbox['id']]);
-        $counts = $countStmt->fetchAll();
-        foreach ($counts as $row) {
-            $folderCounts[$row['folder']] = (int) $row['total'];
-        }
+        $totalMessages = (int) ($listData['total_messages'] ?? 0);
+        $totalPages = (int) ($listData['total_pages'] ?? 1);
+        $page = (int) ($listData['page'] ?? $page);
+        $messages = (array) ($listData['messages'] ?? []);
+        $folderCounts = (array) ($listData['folder_counts'] ?? []);
     } catch (Throwable $error) {
         $errors[] = 'Failed to load emails.';
         logAction($userId, 'email_list_error', $error->getMessage());
