@@ -39,7 +39,7 @@ PHP + TypeScript app for venue mapping with MariaDB-backed authentication, sessi
 
 ## Database
 
-The database schema is in `sql/schema.sql` and includes the following tables:
+The database schema is in `sql/schema.sql`.
 
 ## Typescript/Javascript
 
@@ -74,7 +74,6 @@ bun run build
 
 - `config/` directory is for configuration files ONLY (config.php)
 - Don't write any inline CSS or JS in PHP files. CSS is provided via Bulma CDN, and JS gets compiled from TypeScript.
-- All PHP helper functions belong in `app/models/` directory
 - **Security headers** automatically loaded via `app/models/core/layout.php` on every page
 - **Cookies** must be set via `app/models/auth/cookie_helpers.php` functions (setSessionCookie, clearSessionCookie)
 - Sidebar consists only of icons, no labels
@@ -88,14 +87,18 @@ bun run build
 Build tables with the partials in `app/partials/tables`.
 
 <!-- SPECKIT START -->
+
 Current implementation plan: `specs/001-team-shows/plan.md`
-<!-- SPECKIT END -->
 
 ## Active Technologies
+
 - PHP 8.0+, TypeScript (existing frontend pipeline) + HTMX request/response helpers, Bulma UI patterns, existing table/detail partials (001-team-shows)
 - MariaDB/MySQL (schema updates in `sql/schema.sql`) (001-team-shows)
 - PHP 8.0+, TypeScript (existing frontend pipeline) + HTMX helpers, Bulma patterns, shared table/detail partials, existing link editor flow (001-team-shows)
 - MariaDB/MySQL (`sql/schema.sql`) (001-team-shows)
 
 ## Recent Changes
+
 - 001-team-shows: Added PHP 8.0+, TypeScript (existing frontend pipeline) + HTMX request/response helpers, Bulma UI patterns, existing table/detail partials
+
+<!-- SPECKIT END -->

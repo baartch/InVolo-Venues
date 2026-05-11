@@ -6,7 +6,7 @@ require_once __DIR__ . '/../../models/core/form_helpers.php';
 require_once __DIR__ . '/../../models/core/search_helpers.php';
 require_once __DIR__ . '/../../models/core/settings.php';
 require_once __DIR__ . '/../../models/venues/venues_repository.php';
-require_once __DIR__ . '/../../models/core/layout.php';
+require_once __DIR__ . '/../../views/core/layout.php';
 
 $errors = [];
 $notice = '';

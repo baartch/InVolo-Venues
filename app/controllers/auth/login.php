@@ -3,7 +3,7 @@ require_once __DIR__ . '/../../../config/config.php';
 require_once __DIR__ . '/../../models/core/defaults.php';
 require_once __DIR__ . '/../../models/core/database.php';
 require_once __DIR__ . '/../../models/auth/cookie_helpers.php';
-require_once __DIR__ . '/../../models/core/layout.php';
+require_once __DIR__ . '/../../views/core/layout.php';
 
 if (session_status() === PHP_SESSION_NONE) {
     session_start();

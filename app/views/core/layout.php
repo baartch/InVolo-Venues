@@ -1,5 +1,5 @@
 <?php
-require_once __DIR__ . '/security_headers.php';
+require_once __DIR__ . '/../../models/core/security_headers.php';
 
 function renderPageStart(string $title, array $options = []): void
 {
