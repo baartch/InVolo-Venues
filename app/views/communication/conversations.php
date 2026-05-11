@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/../../models/core/link_helpers.php';
 require_once __DIR__ . '/../../models/communication/email_helpers.php';
+require_once __DIR__ . '/../../models/communication/conversation_helpers.php';
 
 $errors = [];
 $conversations = [];

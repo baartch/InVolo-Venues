@@ -1,5 +1,6 @@
 <?php
 require_once __DIR__ . '/../../models/communication/mail_fetch_helpers.php';
+require_once __DIR__ . '/../../models/communication/conversation_helpers.php';
 require_once __DIR__ . '/../../models/core/link_scope.php';
 
 function runFetchEmailsTask(PDO $pdo): void

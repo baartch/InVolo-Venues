@@ -4,6 +4,7 @@ require_once __DIR__ . '/../../models/core/database.php';
 require_once __DIR__ . '/../../models/core/object_links.php';
 require_once __DIR__ . '/../../models/core/link_scope.php';
 require_once __DIR__ . '/../../models/communication/email_helpers.php';
+require_once __DIR__ . '/../../models/communication/conversation_helpers.php';
 
 header('Content-Type: application/json; charset=utf-8');
 

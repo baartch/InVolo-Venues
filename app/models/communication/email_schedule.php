@@ -1,6 +1,7 @@
 <?php
 require_once __DIR__ . '/mail_delivery.php';
 require_once __DIR__ . '/email_helpers.php';
+require_once __DIR__ . '/conversation_helpers.php';
 require_once __DIR__ . '/../core/object_links.php';
 
 function fetchScheduledEmails(PDO $pdo): array
