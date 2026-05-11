@@ -88,6 +88,87 @@ function fetchMailboxQuotaUsage(PDO $pdo, int $mailboxId): int
     return (int) $stmt->fetchColumn();
 }
 
+function fetchConversationsForUser(int $userId): array
+{
+    $pdo = getDatabaseConnection();
+    $stmt = $pdo->prepare(
+        'SELECT c.*, COUNT(em.id) AS message_count,
+                (SELECT em2.folder
+                 FROM email_messages em2
+                 WHERE em2.conversation_id = c.id
+                 ORDER BY COALESCE(em2.received_at, em2.sent_at, em2.created_at) DESC, em2.id DESC
+                 LIMIT 1) AS last_message_folder
+         FROM email_conversations c
+         LEFT JOIN team_members tm ON tm.team_id = c.team_id AND tm.user_id = :viewer_user_id_join
+         LEFT JOIN email_messages em ON em.conversation_id = c.id
+         WHERE (c.team_id IS NOT NULL AND tm.user_id = :viewer_user_id_team)
+            OR (c.user_id IS NOT NULL AND c.user_id = :viewer_user_id_owner)
+         GROUP BY c.id
+         ORDER BY c.last_activity_at DESC, c.id DESC'
+    );
+    $stmt->execute([
+        ':viewer_user_id_join' => $userId,
+        ':viewer_user_id_team' => $userId,
+        ':viewer_user_id_owner' => $userId
+    ]);
+
+    return $stmt->fetchAll();
+}
+
+function fetchConversationMessagesForUser(int $conversationId, int $userId): ?array
+{
+    if ($conversationId <= 0) {
+        return [];
+    }
+
+    $pdo = getDatabaseConnection();
+    $conversationScope = ensureConversationAccess($pdo, $conversationId, $userId);
+    if (!$conversationScope) {
+        return null;
+    }
+
+    $stmt = $pdo->prepare(
+        'SELECT em.id, em.mailbox_id, em.subject, em.body, em.body_html, em.from_name, em.from_email, em.to_emails, em.folder,
+                em.is_read, em.received_at, em.sent_at, em.created_at,
+                em.team_id, em.user_id, u.username AS user_name
+         FROM email_messages em
+         LEFT JOIN users u ON u.id = em.user_id
+         WHERE em.conversation_id = :conversation_id
+         ORDER BY COALESCE(em.received_at, em.sent_at, em.created_at) DESC'
+    );
+    $stmt->execute([
+        ':conversation_id' => $conversationId
+    ]);
+
+    return $stmt->fetchAll();
+}
+
+function fetchMailboxIdentityListForUser(int $userId): array
+{
+    $pdo = getDatabaseConnection();
+    $mailboxes = fetchAccessibleMailboxes($pdo, $userId);
+
+    $mailboxIdentityList = [];
+    foreach ($mailboxes as $mailbox) {
+        $identity = strtolower(trim(getMailboxPrimaryEmail($mailbox)));
+        if ($identity !== '') {
+            $mailboxIdentityList[] = $identity;
+        }
+    }
+
+    return array_values(array_unique($mailboxIdentityList));
+}
+
+function fetchEmailMessageLinks(int $messageId, ?int $teamId, ?int $userId): array
+{
+    if ($messageId <= 0) {
+        return [];
+    }
+
+    $pdo = getDatabaseConnection();
+    return fetchLinkedObjects($pdo, 'email', $messageId, $teamId, $userId);
+}
+
 function fetchAttachmentForUser(int $attachmentId, int $userId): ?array
 {
     $pdo = getDatabaseConnection();

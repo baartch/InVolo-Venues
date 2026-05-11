@@ -5,68 +5,25 @@ require_once __DIR__ . '/../../models/communication/email_helpers.php';
 $errors = [];
 $conversations = [];
 $conversationMessages = [];
-$pdo = null;
 $userId = (int) ($currentUser['user_id'] ?? 0);
 $folderOptions = getEmailFolderOptions();
 
-try {
-    $pdo = getDatabaseConnection();
-} catch (Throwable $error) {
-    $errors[] = 'Failed to load conversations.';
-    logAction($userId, 'conversation_db_error', $error->getMessage());
-}
-
 $conversationId = (int) ($_GET['conversation_id'] ?? 0);
 
-if ($pdo) {
-    try {
-        $stmt = $pdo->prepare(
-            'SELECT c.*, COUNT(em.id) AS message_count,
-                    (SELECT em2.folder
-                     FROM email_messages em2
-                     WHERE em2.conversation_id = c.id
-                     ORDER BY COALESCE(em2.received_at, em2.sent_at, em2.created_at) DESC, em2.id DESC
-                     LIMIT 1) AS last_message_folder
-             FROM email_conversations c
-             LEFT JOIN team_members tm ON tm.team_id = c.team_id AND tm.user_id = :viewer_user_id_join
-             LEFT JOIN email_messages em ON em.conversation_id = c.id
-             WHERE (c.team_id IS NOT NULL AND tm.user_id = :viewer_user_id_team)
-                OR (c.user_id IS NOT NULL AND c.user_id = :viewer_user_id_owner)
-             GROUP BY c.id
-             ORDER BY c.last_activity_at DESC, c.id DESC'
-        );
-        $stmt->execute([
-            ':viewer_user_id_join' => $userId,
-            ':viewer_user_id_team' => $userId,
-            ':viewer_user_id_owner' => $userId
-        ]);
-        $conversations = $stmt->fetchAll();
-
-    } catch (Throwable $error) {
-        $errors[] = 'Failed to load conversations.';
-        logAction($userId, 'conversation_list_error', $error->getMessage());
-    }
+try {
+  $conversations = fetchConversationsForUser($userId);
+} catch (Throwable $error) {
+  $errors[] = 'Failed to load conversations.';
+  logAction($userId, 'conversation_list_error', $error->getMessage());
 }
 
-if ($pdo && $conversationId > 0) {
+if ($conversationId > 0) {
     try {
-        $conversationScope = ensureConversationAccess($pdo, $conversationId, $userId);
-        if (!$conversationScope) {
+    $messages = fetchConversationMessagesForUser($conversationId, $userId);
+    if ($messages === null) {
             $errors[] = 'Conversation access denied.';
         } else {
-            $stmt = $pdo->prepare(
-                'SELECT em.id, em.mailbox_id, em.subject, em.body, em.body_html, em.from_name, em.from_email, em.to_emails, em.folder,
-                        em.is_read, em.received_at, em.sent_at, em.created_at,
-                        em.team_id, em.user_id, u.username AS user_name
-                 FROM email_messages em
-                 LEFT JOIN users u ON u.id = em.user_id
-                 WHERE em.conversation_id = :conversation_id
-                 ORDER BY COALESCE(em.received_at, em.sent_at, em.created_at) DESC'
-            );
-            $stmt->execute([
-                ':conversation_id' => $conversationId
-            ]);
-            $conversationMessages = $stmt->fetchAll();
+      $conversationMessages = $messages;
         }
     } catch (Throwable $error) {
         $errors[] = 'Failed to load conversation emails.';
@@ -128,19 +85,10 @@ $cooldownSeconds = 14 * 24 * 60 * 60;
         }
 
         $mailboxIdentityList = [];
-        if ($pdo) {
-            try {
-                $mailboxes = fetchAccessibleMailboxes($pdo, $userId);
-                foreach ($mailboxes as $mailbox) {
-                    $identity = strtolower(trim(getMailboxPrimaryEmail($mailbox)));
-                    if ($identity !== '') {
-                        $mailboxIdentityList[] = $identity;
-                    }
-                }
-                $mailboxIdentityList = array_values(array_unique($mailboxIdentityList));
-            } catch (Throwable $error) {
-                logAction($userId, 'conversation_mailbox_identity_error', $error->getMessage());
-            }
+        try {
+          $mailboxIdentityList = fetchMailboxIdentityListForUser($userId);
+        } catch (Throwable $error) {
+          logAction($userId, 'conversation_mailbox_identity_error', $error->getMessage());
         }
 
         $resolveParticipantLabel = static function (string $participantKey, array $mailboxIdentityList): string {
@@ -358,17 +306,11 @@ $cooldownSeconds = 14 * 24 * 60 * 60;
                   'display_name' => ''
               ];
               $messageLinks = [];
-              if ($pdo && !empty($messageItem['id'])) {
+                if (!empty($messageItem['id'])) {
                   try {
                       $linkTeamId = !empty($messageItem['team_id']) ? (int) $messageItem['team_id'] : null;
                       $linkUserId = !empty($messageItem['user_id']) ? (int) $messageItem['user_id'] : null;
-                      $messageLinks = fetchLinkedObjects(
-                          $pdo,
-                          'email',
-                          (int) $messageItem['id'],
-                          $linkTeamId,
-                          $linkUserId
-                      );
+                    $messageLinks = fetchEmailMessageLinks((int) $messageItem['id'], $linkTeamId, $linkUserId);
                   } catch (Throwable $error) {
                       logAction($userId, 'conversation_message_links_error', $error->getMessage());
                   }
