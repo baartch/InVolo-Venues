@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../models/auth/check.php';
-require_once __DIR__ . '/../../models/core/database.php';
 require_once __DIR__ . '/../../models/communication/conversation_helpers.php';
 require_once __DIR__ . '/../../models/core/form_helpers.php';
 
@@ -24,24 +23,7 @@ if ($conversationId <= 0) {
 }
 
 try {
-    $pdo = getDatabaseConnection();
-    $conversation = ensureConversationAccess($pdo, $conversationId, $userId);
-
-    if ($conversation && !empty($conversation['is_closed'])) {
-        $updateStmt = $pdo->prepare(
-            'UPDATE email_messages
-             SET conversation_id = NULL
-             WHERE conversation_id = :conversation_id'
-        );
-        $updateStmt->execute([':conversation_id' => $conversationId]);
-
-        $deleteStmt = $pdo->prepare(
-            'DELETE FROM email_conversations WHERE id = :id'
-        );
-        $deleteStmt->execute([
-            ':id' => $conversationId
-        ]);
-
+    if (deleteClosedConversationForUser($conversationId, $userId)) {
         logAction($userId, 'conversation_deleted', sprintf('Deleted conversation %d', $conversationId));
     }
 } catch (Throwable $error) {

@@ -1,6 +1,5 @@
 <?php
 require_once __DIR__ . '/../../models/auth/check.php';
-require_once __DIR__ . '/../../models/core/database.php';
 require_once __DIR__ . '/../../models/communication/conversation_helpers.php';
 require_once __DIR__ . '/../../models/communication/navigation_helpers.php';
 require_once __DIR__ . '/../../models/core/error_helpers.php';
@@ -24,19 +23,7 @@ if ($conversationId <= 0) {
 }
 
 try {
-    $pdo = getDatabaseConnection();
-    $conversation = ensureConversationAccess($pdo, $conversationId, $userId);
-    if ($conversation) {
-        $stmt = $pdo->prepare(
-            'UPDATE email_conversations
-             SET is_closed = 0,
-                 closed_at = NULL
-             WHERE id = :id AND is_closed = 1'
-        );
-        $stmt->execute([
-            ':id' => $conversationId
-        ]);
-
+    if (reopenConversationForUser($conversationId, $userId)) {
         logAction($userId, 'conversation_reopened', sprintf('Reopened conversation %d', $conversationId));
     }
 } catch (Throwable $error) {

@@ -427,3 +427,164 @@ function ensureConversationForEmail(
 
     return (int) $pdo->lastInsertId();
 }
+
+function closeConversationForUser(int $conversationId, int $userId): bool
+{
+    if ($conversationId <= 0 || $userId <= 0) {
+        return false;
+    }
+
+    $pdo = getDatabaseConnection();
+    $conversation = ensureConversationAccess($pdo, $conversationId, $userId);
+    if (!$conversation) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare(
+        'UPDATE email_conversations
+         SET is_closed = 1,
+             closed_at = NOW()
+         WHERE id = :id'
+    );
+    $stmt->execute([':id' => $conversationId]);
+
+    return true;
+}
+
+function reopenConversationForUser(int $conversationId, int $userId): bool
+{
+    if ($conversationId <= 0 || $userId <= 0) {
+        return false;
+    }
+
+    $pdo = getDatabaseConnection();
+    $conversation = ensureConversationAccess($pdo, $conversationId, $userId);
+    if (!$conversation) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare(
+        'UPDATE email_conversations
+         SET is_closed = 0,
+             closed_at = NULL
+         WHERE id = :id AND is_closed = 1'
+    );
+    $stmt->execute([':id' => $conversationId]);
+
+    return true;
+}
+
+function deleteClosedConversationForUser(int $conversationId, int $userId): bool
+{
+    if ($conversationId <= 0 || $userId <= 0) {
+        return false;
+    }
+
+    $pdo = getDatabaseConnection();
+    $conversation = ensureConversationAccess($pdo, $conversationId, $userId);
+    if (!$conversation || empty($conversation['is_closed'])) {
+        return false;
+    }
+
+    $pdo->beginTransaction();
+    try {
+        $updateStmt = $pdo->prepare(
+            'UPDATE email_messages
+             SET conversation_id = NULL
+             WHERE conversation_id = :conversation_id'
+        );
+        $updateStmt->execute([':conversation_id' => $conversationId]);
+
+        $deleteStmt = $pdo->prepare('DELETE FROM email_conversations WHERE id = :id');
+        $deleteStmt->execute([':id' => $conversationId]);
+
+        $pdo->commit();
+        return true;
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
+
+function removeMessageFromConversationForUser(int $messageId, int $conversationId, int $userId): bool
+{
+    if ($messageId <= 0 || $conversationId <= 0 || $userId <= 0) {
+        return false;
+    }
+
+    $pdo = getDatabaseConnection();
+    $conversation = ensureConversationAccess($pdo, $conversationId, $userId);
+    if (!$conversation) {
+        return false;
+    }
+
+    $stmt = $pdo->prepare(
+        'UPDATE email_messages
+         SET conversation_id = NULL
+         WHERE id = :id AND conversation_id = :conversation_id'
+    );
+    $stmt->execute([
+        ':id' => $messageId,
+        ':conversation_id' => $conversationId
+    ]);
+
+    return true;
+}
+
+function deleteAllClosedConversationsForUser(int $userId): int
+{
+    if ($userId <= 0) {
+        return 0;
+    }
+
+    $pdo = getDatabaseConnection();
+
+    $selectStmt = $pdo->prepare(
+        'SELECT c.id
+         FROM email_conversations c
+         LEFT JOIN team_members tm ON tm.team_id = c.team_id AND tm.user_id = :viewer_user_id_join
+         WHERE c.is_closed = 1
+           AND (
+             (c.team_id IS NOT NULL AND tm.user_id = :viewer_user_id_team)
+             OR (c.user_id IS NOT NULL AND c.user_id = :viewer_user_id_owner)
+           )'
+    );
+    $selectStmt->execute([
+        ':viewer_user_id_join' => $userId,
+        ':viewer_user_id_team' => $userId,
+        ':viewer_user_id_owner' => $userId,
+    ]);
+
+    $conversationIds = array_map('intval', array_column($selectStmt->fetchAll(), 'id'));
+    if (!$conversationIds) {
+        return 0;
+    }
+
+    $placeholders = implode(',', array_fill(0, count($conversationIds), '?'));
+
+    $pdo->beginTransaction();
+    try {
+        $unlinkStmt = $pdo->prepare(
+            'UPDATE email_messages
+             SET conversation_id = NULL
+             WHERE conversation_id IN (' . $placeholders . ')'
+        );
+        $unlinkStmt->execute($conversationIds);
+
+        $deleteStmt = $pdo->prepare(
+            'DELETE FROM email_conversations
+             WHERE id IN (' . $placeholders . ')'
+        );
+        $deleteStmt->execute($conversationIds);
+
+        $pdo->commit();
+        return count($conversationIds);
+    } catch (Throwable $error) {
+        if ($pdo->inTransaction()) {
+            $pdo->rollBack();
+        }
+        throw $error;
+    }
+}
