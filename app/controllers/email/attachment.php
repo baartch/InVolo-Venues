@@ -48,7 +48,7 @@ try {
 
     header('Content-Type: ' . $mimeType);
     header('Content-Length: ' . filesize($filePath));
-    header('Content-Disposition: attachment; filename="' . basename($filename) . '"');
+    header('Content-Disposition: inline; filename="' . basename($filename) . '"');
     readfile($filePath);
     exit;
 } catch (Throwable $error) {

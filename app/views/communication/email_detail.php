@@ -275,7 +275,7 @@ echo '<' . htmlspecialchars($emailDetailWrapperTag) . ' ' . $wrapperAttributes .
         </span>
         <div class="email-detail-attachments-list">
           <?php foreach ($attachments as $attachment): ?>
-            <a href="<?php echo BASE_PATH; ?>/app/controllers/email/attachment.php?id=<?php echo (int) $attachment['id']; ?>" class="email-detail-attachment-chip">
+            <a href="<?php echo BASE_PATH; ?>/app/controllers/email/attachment.php?id=<?php echo (int) $attachment['id']; ?>" class="email-detail-attachment-chip" target="_blank" rel="noopener noreferrer">
               <span class="icon is-small"><i class="fa-solid fa-file"></i></span>
               <span><?php echo htmlspecialchars($attachment['filename'] ?? 'Attachment'); ?></span>
               <span class="email-detail-attachment-size"><?php echo htmlspecialchars(formatBytes((int) $attachment['file_size'])); ?></span>
