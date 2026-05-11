@@ -5,6 +5,8 @@
  * Provides CSRF token generation and validation for forms.
  */
 
+require_once __DIR__ . '/php_session.php';
+
 /**
  * Generate a new CSRF token and store it in the session
  * 
@@ -12,9 +14,7 @@
  */
 function generateCsrfToken(): string
 {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    ensurePhpSessionStarted();
     
     $token = bin2hex(random_bytes(32));
     $_SESSION['csrf_token'] = $token;
@@ -30,9 +30,7 @@ function generateCsrfToken(): string
  */
 function getCsrfToken(): string
 {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    ensurePhpSessionStarted();
     
     // Generate new token if none exists or if token is older than 2 hours
     if (
@@ -54,9 +52,7 @@ function getCsrfToken(): string
  */
 function validateCsrfToken(string $token): bool
 {
-    if (session_status() === PHP_SESSION_NONE) {
-        session_start();
-    }
+    ensurePhpSessionStarted();
     
     if (!isset($_SESSION['csrf_token'])) {
         return false;
