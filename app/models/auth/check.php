@@ -15,6 +15,7 @@ if (!file_exists($configPath)) {
 }
 require_once __DIR__ . '/../core/defaults.php';
 require_once __DIR__ . '/../core/database.php';
+require_once __DIR__ . '/session.php';
 require_once __DIR__ . '/csrf.php';
 require_once __DIR__ . '/cookie_helpers.php';
 unset($configPath, $examplePath);
