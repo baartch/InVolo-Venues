@@ -79,7 +79,7 @@
             $folderCount = $folderCounts[$folderKey] ?? 0;
             ?>
             <li>
-              <a href="<?php echo htmlspecialchars($folderLink); ?>" class="<?php echo $folder === $folderKey ? 'is-active' : ''; ?>">
+              <a href="<?php echo htmlspecialchars($folderLink); ?>" class="<?php echo $folder === $folderKey ? 'is-active' : ''; ?>" data-email-folder-dropzone data-folder-key="<?php echo htmlspecialchars($folderKey); ?>">
                 <span><?php echo htmlspecialchars($folderLabel); ?></span>
                 <span class="tag is-pulled-right"><?php echo (int) $folderCount; ?></span>
               </a>

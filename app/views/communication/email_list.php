@@ -80,7 +80,7 @@
             ?>
             <li>
               <div class="<?php echo $itemClass; ?>">
-                <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?>" data-list-item hx-get="<?php echo htmlspecialchars($messageLink); ?>" hx-target="#email-detail-panel" hx-swap="outerHTML" hx-push-url="<?php echo htmlspecialchars($messageLink); ?>">
+                <a href="<?php echo htmlspecialchars($messageLink); ?>" class="<?php echo (int) $row['id'] === $selectedMessageId ? 'is-active' : ''; ?>" data-list-item draggable="true" data-email-draggable data-email-id="<?php echo (int) $row['id']; ?>" data-mailbox-id="<?php echo (int) $selectedMailbox['id']; ?>" data-current-folder="<?php echo htmlspecialchars($folder); ?>" data-csrf-token="<?php echo htmlspecialchars(getCsrfToken()); ?>" hx-get="<?php echo htmlspecialchars($messageLink); ?>" hx-target="#email-detail-panel" hx-swap="outerHTML" hx-push-url="<?php echo htmlspecialchars($messageLink); ?>">
                   <div class="is-flex is-justify-content-space-between">
                     <div>
                       <div class="<?php echo $isUnread ? 'has-text-weight-bold' : 'has-text-weight-semibold'; ?>"><?php echo htmlspecialchars($row['subject'] ?? '(No subject)'); ?></div>

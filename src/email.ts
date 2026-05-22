@@ -461,6 +461,135 @@ const initEmailValidation = (): void => {
 
 const mailboxStorageKey = "email:selectedMailboxId";
 
+const initEmailDragAndDrop = (): void => {
+  const draggables = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-email-draggable]"),
+  );
+  const dropzones = Array.from(
+    document.querySelectorAll<HTMLElement>("[data-email-folder-dropzone][data-folder-key]"),
+  );
+
+  if (!draggables.length || !dropzones.length) {
+    return;
+  }
+
+  draggables.forEach((draggable) => {
+    if (draggable.dataset.emailDragBound === "true") {
+      return;
+    }
+    draggable.dataset.emailDragBound = "true";
+
+    draggable.addEventListener("dragstart", (event: DragEvent) => {
+      const emailId = draggable.dataset.emailId ?? "";
+      const mailboxId = draggable.dataset.mailboxId ?? "";
+      const currentFolder = draggable.dataset.currentFolder ?? "";
+      const csrfToken = draggable.dataset.csrfToken ?? "";
+      if (!event.dataTransfer || !emailId || !mailboxId || !currentFolder || !csrfToken) {
+        event.preventDefault();
+        return;
+      }
+
+      event.dataTransfer.effectAllowed = "move";
+      event.dataTransfer.setData(
+        "application/json",
+        JSON.stringify({ emailId, mailboxId, currentFolder, csrfToken }),
+      );
+      draggable.classList.add("is-selected");
+    });
+
+    draggable.addEventListener("dragend", () => {
+      draggable.classList.remove("is-selected");
+      dropzones.forEach((zone) => zone.classList.remove("is-active"));
+    });
+  });
+
+  dropzones.forEach((dropzone) => {
+    if (dropzone.dataset.emailDropBound === "true") {
+      return;
+    }
+    dropzone.dataset.emailDropBound = "true";
+
+    dropzone.addEventListener("dragover", (event: DragEvent) => {
+      event.preventDefault();
+      dropzone.classList.add("is-active");
+      if (event.dataTransfer) {
+        event.dataTransfer.dropEffect = "move";
+      }
+    });
+
+    dropzone.addEventListener("dragleave", () => {
+      dropzone.classList.remove("is-active");
+    });
+
+    dropzone.addEventListener("drop", async (event: DragEvent) => {
+      event.preventDefault();
+      dropzone.classList.remove("is-active");
+
+      const raw = event.dataTransfer?.getData("application/json") ?? "";
+      if (!raw) {
+        return;
+      }
+
+      let payload: {
+        emailId?: string;
+        mailboxId?: string;
+        currentFolder?: string;
+        csrfToken?: string;
+      } = {};
+
+      try {
+        payload = JSON.parse(raw) as typeof payload;
+      } catch {
+        return;
+      }
+
+      const emailId = Number(payload.emailId ?? 0);
+      const mailboxId = Number(payload.mailboxId ?? 0);
+      const currentFolder = (payload.currentFolder ?? "").trim();
+      const csrfToken = (payload.csrfToken ?? "").trim();
+      const targetFolder = (dropzone.dataset.folderKey ?? "").trim();
+
+      if (
+        emailId <= 0 ||
+        mailboxId <= 0 ||
+        currentFolder === "" ||
+        csrfToken === "" ||
+        targetFolder === "" ||
+        currentFolder === targetFolder
+      ) {
+        return;
+      }
+
+      try {
+        const formData = new FormData();
+        formData.set("email_id", String(emailId));
+        formData.set("mailbox_id", String(mailboxId));
+        formData.set("target_folder", targetFolder);
+        formData.set("csrf_token", csrfToken);
+
+        const response = await fetch("app/controllers/email/move.php", {
+          method: "POST",
+          body: formData,
+          credentials: "same-origin",
+        });
+
+        if (!response.ok) {
+          return;
+        }
+
+        const data = (await response.json()) as { ok?: boolean };
+        if (!data.ok) {
+          return;
+        }
+
+        window.location.reload();
+      } catch {
+        // ignore
+      }
+    });
+  });
+};
+
 const initMailboxSwitch = (): void => {
   const currentUrl = new URL(window.location.href);
   const currentTab = currentUrl.searchParams.get("tab") ?? "";
@@ -1189,6 +1318,7 @@ const bindWysiEditor = (): void => {
   initComposeLinkRefresh();
   initLinkList();
   initMailboxSwitch();
+  initEmailDragAndDrop();
   initRecipientToggle();
   initSendMenu();
   initSendConfirmation();
@@ -1250,6 +1380,7 @@ document.addEventListener("htmx:afterSwap", (event) => {
     initComposeLinkRefresh();
     initLinkList();
     initMailboxSwitch();
+    initEmailDragAndDrop();
     initRecipientToggle();
     initSendMenu();
     initSendConfirmation();

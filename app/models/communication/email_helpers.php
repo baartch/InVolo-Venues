@@ -315,6 +315,99 @@ function fetchAttachmentForUser(int $attachmentId, int $userId): ?array
     return $attachment ?: null;
 }
 
+function fetchEmailMessageSummaryForMailbox(PDO $pdo, int $emailId, int $mailboxId): ?array
+{
+    if ($emailId <= 0 || $mailboxId <= 0) {
+        return null;
+    }
+
+    $stmt = $pdo->prepare(
+        'SELECT id, folder
+         FROM email_messages
+         WHERE id = :id AND mailbox_id = :mailbox_id
+         LIMIT 1'
+    );
+    $stmt->execute([
+        ':id' => $emailId,
+        ':mailbox_id' => $mailboxId,
+    ]);
+
+    $message = $stmt->fetch();
+    return $message ?: null;
+}
+
+function moveEmailMessageToFolder(PDO $pdo, int $emailId, int $mailboxId, string $targetFolder): bool
+{
+    if ($emailId <= 0 || $mailboxId <= 0 || trim($targetFolder) === '') {
+        return false;
+    }
+
+    $stmt = $pdo->prepare(
+        'UPDATE email_messages
+         SET folder = :target_folder
+         WHERE id = :id AND mailbox_id = :mailbox_id'
+    );
+
+    $stmt->execute([
+        ':target_folder' => $targetFolder,
+        ':id' => $emailId,
+        ':mailbox_id' => $mailboxId,
+    ]);
+
+    return $stmt->rowCount() > 0;
+}
+
+function moveEmailMessageForUser(int $userId, int $mailboxId, int $emailId, string $targetFolder): array
+{
+    if ($userId <= 0 || $mailboxId <= 0 || $emailId <= 0 || trim($targetFolder) === '') {
+        return [
+            'ok' => false,
+            'status' => 400,
+            'error' => 'Invalid request',
+        ];
+    }
+
+    $pdo = getDatabaseConnection();
+    $mailbox = ensureMailboxAccess($pdo, $mailboxId, $userId);
+    if (!$mailbox) {
+        return [
+            'ok' => false,
+            'status' => 403,
+            'error' => 'Mailbox access denied',
+        ];
+    }
+
+    $message = fetchEmailMessageSummaryForMailbox($pdo, $emailId, $mailboxId);
+    if (!$message) {
+        return [
+            'ok' => false,
+            'status' => 404,
+            'error' => 'Message not found',
+        ];
+    }
+
+    $currentFolder = (string) ($message['folder'] ?? '');
+    if ($currentFolder === $targetFolder) {
+        return [
+            'ok' => true,
+            'status' => 200,
+            'moved' => false,
+            'current_folder' => $currentFolder,
+            'target_folder' => $targetFolder,
+        ];
+    }
+
+    $moved = moveEmailMessageToFolder($pdo, $emailId, $mailboxId, $targetFolder);
+
+    return [
+        'ok' => true,
+        'status' => 200,
+        'moved' => $moved,
+        'current_folder' => $currentFolder,
+        'target_folder' => $targetFolder,
+    ];
+}
+
 function ensureMailboxAccess(PDO $pdo, int $mailboxId, int $userId): ?array
 {
     $stmt = $pdo->prepare(
