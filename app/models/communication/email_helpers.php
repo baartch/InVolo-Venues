@@ -100,8 +100,8 @@ function fetchMailboxIndicators(array $mailboxIds): array
     $placeholders = implode(',', array_fill(0, count($mailboxIds), '?'));
     $stmt = $pdo->prepare(
         'SELECT mailbox_id,
-                SUM(CASE WHEN folder = "inbox" AND is_read = 0 THEN 1 ELSE 0 END) AS unread_count,
-                SUM(CASE WHEN folder = "inbox" AND is_read = 0 AND received_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 ELSE 0 END) AS new_count
+                SUM(CASE WHEN folder IN ("inbox", "junk") AND is_read = 0 THEN 1 ELSE 0 END) AS unread_count,
+                SUM(CASE WHEN folder IN ("inbox", "junk") AND is_read = 0 AND received_at >= DATE_SUB(NOW(), INTERVAL 24 HOUR) THEN 1 ELSE 0 END) AS new_count
          FROM email_messages
          WHERE mailbox_id IN (' . $placeholders . ')
          GROUP BY mailbox_id'
