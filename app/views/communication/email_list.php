@@ -64,10 +64,10 @@
               $messageLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
                   'message_id' => $row['id']
               ]));
-              $displayName = $folder === 'inbox'
+              $displayName = in_array($folder, ['inbox', 'junk'], true)
                   ? trim(($row['from_name'] ?? '') !== '' ? $row['from_name'] : ($row['from_email'] ?? 'Unknown'))
                   : trim((string) ($row['to_emails'] ?? ''));
-              if ($folder === 'inbox') {
+              if (in_array($folder, ['inbox', 'junk'], true)) {
                   $dateValue = $row['received_at'] ?? $row['created_at'];
               } elseif ($folder === 'drafts') {
                   $dateValue = $row['sent_at'] ?? $row['scheduled_at'] ?? $row['created_at'];
@@ -75,7 +75,7 @@
                   $dateValue = $row['sent_at'] ?? $row['created_at'];
               }
               $dateLabel = $dateValue ? date('Y-m-d H:i', strtotime((string) $dateValue)) : '';
-              $isUnread = !$row['is_read'] && $folder === 'inbox';
+              $isUnread = !$row['is_read'] && in_array($folder, ['inbox', 'junk'], true);
               $itemClass = $isUnread ? 'email-list-item warning' : 'email-list-item';
             ?>
             <li>

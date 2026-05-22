@@ -70,9 +70,7 @@
       <aside class="menu">
         <ul class="menu-list">
           <?php foreach ($folderOptions as $folderKey => $folderLabel): ?>
-            <?php if ($folderKey === 'trash') {
-                continue;
-            }
+            <?php
             $folderLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
                 'folder' => $folderKey,
                 'page' => 1,
@@ -86,22 +84,6 @@
                 <span class="tag is-pulled-right"><?php echo (int) $folderCount; ?></span>
               </a>
             </li>
-            <?php if ($folderKey === 'sent'): ?>
-              <?php
-                $trashLink = $baseEmailUrl . '?' . http_build_query(array_merge($baseQuery, [
-                    'folder' => 'trash',
-                    'page' => 1,
-                    'message_id' => null
-                ]));
-                $trashCount = $folderCounts['trash'] ?? 0;
-              ?>
-              <li>
-                <a href="<?php echo htmlspecialchars($trashLink); ?>" class="<?php echo $folder === 'trash' ? 'is-active' : ''; ?>">
-                  <span><?php echo htmlspecialchars($folderOptions['trash'] ?? 'Trash bin'); ?></span>
-                  <span class="tag is-pulled-right"><?php echo (int) $trashCount; ?></span>
-                </a>
-              </li>
-            <?php endif; ?>
           <?php endforeach; ?>
         </ul>
       </aside>

@@ -207,7 +207,7 @@ function fetchMailboxEmailListData(int $mailboxId, string $folder, string $filte
 
     if ($filter !== '') {
         $filterSql = 'AND (subject LIKE :filter OR ';
-        if ($folder === 'inbox') {
+        if (in_array($folder, ['inbox', 'junk'], true)) {
             $filterSql .= 'from_name LIKE :filter OR from_email LIKE :filter';
         } else {
             $filterSql .= 'to_emails LIKE :filter';
@@ -226,7 +226,7 @@ function fetchMailboxEmailListData(int $mailboxId, string $folder, string $filte
 
     $sortColumn = $sortOptions[$sortKey]['column'];
     $sortDirection = $sortOptions[$sortKey]['direction'];
-    if ($sortColumn === 'received_at' && $folder !== 'inbox') {
+    if ($sortColumn === 'received_at' && !in_array($folder, ['inbox', 'junk'], true)) {
         $sortColumn = $folder === 'sent' ? 'sent_at' : 'created_at';
     }
 
@@ -858,6 +858,7 @@ function getEmailFolderOptions(): array
 {
     return [
         'inbox' => 'Inbox',
+        'junk' => 'Junk',
         'drafts' => 'Drafts',
         'sent' => 'Sent',
         'trash' => 'Trash bin'
