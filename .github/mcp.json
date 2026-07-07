@@ -1,0 +1,9 @@
+{
+  "mcpServers": {
+    "lean-ctx": {
+      "args": [],
+      "command": "/home/andy/.local/bin/lean-ctx",
+      "env": {}
+    }
+  }
+}

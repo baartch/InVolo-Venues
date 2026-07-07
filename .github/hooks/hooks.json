@@ -1,0 +1,27 @@
+{
+  "hooks": {
+    "postToolUse": [
+      {
+        "bash": "\"/home/andy/.local/bin/lean-ctx\" hook observe",
+        "powershell": "& \"/home/andy/.local/bin/lean-ctx\" hook observe",
+        "timeoutSec": 5,
+        "type": "command"
+      }
+    ],
+    "preToolUse": [
+      {
+        "bash": "\"/home/andy/.local/bin/lean-ctx\" hook rewrite",
+        "powershell": "& \"/home/andy/.local/bin/lean-ctx\" hook rewrite",
+        "timeoutSec": 15,
+        "type": "command"
+      },
+      {
+        "bash": "\"/home/andy/.local/bin/lean-ctx\" hook redirect",
+        "powershell": "& \"/home/andy/.local/bin/lean-ctx\" hook redirect",
+        "timeoutSec": 5,
+        "type": "command"
+      }
+    ]
+  },
+  "version": 1
+}
