@@ -11,6 +11,7 @@ type HugeRteEditor = {
 type HugeRteStatic = {
   init: (options: Record<string, unknown>) => Promise<unknown>;
   get?: (selector: string) => HugeRteEditor | null;
+  remove?: (selectorOrEditor: string | HugeRteEditor) => void;
 };
 
 type HugerteWindow = typeof window & { hugerte?: HugeRteStatic };
@@ -72,20 +73,48 @@ const initHugerte = (options: InitHugerteOptions): void => {
     return;
   }
 
-  // Avoid double-init when re-invoked after HTMX swaps or tab activations.
-  if (textarea.dataset.hugerteBound === "true") {
-    return;
-  }
-  textarea.dataset.hugerteBound = "true";
-
   const hugerte = resolveHugerte();
+
+  // If already bound, check whether the editor instance is still live in the DOM.
+  // After an HTMX swap the textarea may be brand-new (no flag) OR the old editor's
+  // container may have been removed while HugeRTE's registry still holds a reference.
+  if (textarea.dataset.hugerteBound === "true") {
+    const existing =
+      typeof hugerte?.get === "function" ? hugerte.get(options.selector) : null;
+    if (
+      existing &&
+      existing.container &&
+      document.body.contains(existing.container)
+    ) {
+      return;
+    }
+    // Editor is stale (container detached) — tear down and re-init below.
+    if (typeof hugerte?.remove === "function") {
+      try {
+        hugerte.remove(options.selector);
+      } catch {
+        // ignore
+      }
+    }
+    delete textarea.dataset.hugerteBound;
+  }
+
   if (!hugerte) {
     // HugeRTE deferred script may not have executed yet; retry on next tick.
-    textarea.dataset.hugerteBound = "false";
     window.setTimeout(() => initHugerte(options), 50);
     return;
   }
 
+  // Remove any stale editor instance bound to this selector before re-init.
+  if (typeof hugerte.remove === "function") {
+    try {
+      hugerte.remove(options.selector);
+    } catch {
+      // ignore — no existing instance to remove
+    }
+  }
+
+  textarea.dataset.hugerteBound = "true";
   textarea.value = sanitizeInitialHtml(textarea.value);
 
   hugerte.init({
@@ -115,7 +144,9 @@ export const getHugerteEditor = (selector: string): HugeRteEditor | null => {
   if (!hugerte || typeof hugerte.get !== "function") {
     return null;
   }
-  return hugerte.get(selector);
+  // TinyMCE/HugeRTE's get() expects an id without the leading '#'.
+  const id = selector.startsWith("#") ? selector.slice(1) : selector;
+  return hugerte.get(id);
 };
 
 /**

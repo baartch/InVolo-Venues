@@ -38,7 +38,7 @@ echo '<' . htmlspecialchars($emailDetailWrapperTag) . ' ' . $wrapperAttributes .
     <?php $composeCancelUrl = $baseEmailUrl . '?' . http_build_query($baseQuery); ?>
 
     <?php if ($templates): ?>
-      <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons mb-4" hx-get="<?php echo htmlspecialchars($baseEmailUrl); ?>" hx-target="#email-detail-panel" hx-swap="outerHTML" hx-push-url="true">
+      <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons mb-4" data-email-template-form>
         <input type="hidden" name="tab" value="email">
         <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
         <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
@@ -51,18 +51,15 @@ echo '<' . htmlspecialchars($emailDetailWrapperTag) . ' ' . $wrapperAttributes .
         <input type="hidden" name="bcc" value="<?php echo htmlspecialchars((string) ($composeValues['bcc_emails'] ?? '')); ?>">
         <div class="control is-expanded">
           <div class="select is-fullwidth">
-            <select name="template_id">
+            <select name="template_id" data-email-template-select>
               <option value="">Select template</option>
               <?php foreach ($templates as $template): ?>
-                <option value="<?php echo (int) $template['id']; ?>" <?php echo $templateId === (int) $template['id'] ? 'selected' : ''; ?>>
+                <option value="<?php echo (int) $template['id']; ?>" <?php echo $templateId === (int) $template['id'] ? 'selected' : ''; ?> data-subject="<?php echo htmlspecialchars((string) ($template['subject'] ?? '')); ?>" data-body="<?php echo htmlspecialchars((string) ($template['body'] ?? '')); ?>">
                   <?php echo htmlspecialchars($template['name']); ?>
                 </option>
               <?php endforeach; ?>
             </select>
           </div>
-        </div>
-        <div class="control">
-          <button type="submit" class="button">Use Template</button>
         </div>
       </form>
     <?php endif; ?>
