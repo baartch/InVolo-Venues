@@ -1,56 +1,36 @@
-import {
-  initHugerte,
-  initHugertePlainPaste,
-  getHugerteEditor,
-} from "./hugerte-editor.js";
+import { initHugerte, initHugertePlainPaste } from "./hugerte-editor.js";
+
+type TemplateData = {
+  name: string;
+  subject: string;
+  body: string;
+};
+
+const readTemplates = (): TemplateData[] => {
+  const script = document.querySelector<HTMLScriptElement>(
+    "[data-email-templates]",
+  );
+  if (!script || !script.textContent) {
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(script.textContent) as TemplateData[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
+  }
+};
 
 const initHugerteEditor = (): void => {
-  initHugerte({ selector: "#email_body", height: 420 });
+  initHugerte({
+    selector: "#email_body",
+    height: 420,
+    templates: readTemplates(),
+  });
 };
 
 const initHugertePasteSanitizer = (): void => {
   initHugertePlainPaste("#email_body");
-};
-
-const initTemplateSelector = (): void => {
-  const select = document.querySelector<HTMLSelectElement>(
-    "[data-email-template-select]",
-  );
-  if (!select) {
-    return;
-  }
-  if (select.dataset.templateBound === "true") {
-    return;
-  }
-  select.dataset.templateBound = "true";
-
-  select.addEventListener("change", () => {
-    const option = select.options[select.selectedIndex];
-    if (!option) {
-      return;
-    }
-
-    const subject = option.dataset.subject ?? "";
-    const body = option.dataset.body ?? "";
-
-    const subjectField =
-      document.querySelector<HTMLInputElement>("#email_subject");
-    if (subjectField) {
-      subjectField.value = subject;
-    }
-
-    const editor = getHugerteEditor("#email_body");
-    if (editor) {
-      editor.setContent(body);
-    } else {
-      // Editor not yet ready — fall back to the textarea value.
-      const textarea =
-        document.querySelector<HTMLTextAreaElement>("#email_body");
-      if (textarea) {
-        textarea.value = body;
-      }
-    }
-  });
 };
 
 const isValidEmail = (email: string): boolean => {
@@ -1263,7 +1243,6 @@ const initComposeLinkRefresh = (): void => {
 const bindHugerteEditor = (): void => {
   initHugerteEditor();
   initHugertePasteSanitizer();
-  initTemplateSelector();
   initQuoteToggle();
   initEmailValidation();
   initRecipientLookup();
@@ -1279,7 +1258,6 @@ const bindHugerteEditor = (): void => {
   document.addEventListener("tab:activated", () => {
     initHugerteEditor();
     initHugertePasteSanitizer();
-    initTemplateSelector();
     initQuoteToggle();
     initEmailValidation();
     initRecipientLookup();
@@ -1329,7 +1307,6 @@ document.addEventListener("htmx:afterSwap", (event) => {
   if (hasComposeFormInDom) {
     initHugerteEditor();
     initHugertePasteSanitizer();
-    initTemplateSelector();
     initEmailValidation();
     initRecipientLookup();
     initComposeEnterGuard();

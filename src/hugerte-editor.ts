@@ -1,11 +1,30 @@
 import { getStoredTheme } from "./appearance.js";
 
+type HugeRteMenuItem = {
+  type: "menuitem";
+  text: string;
+  onAction: () => void;
+};
+
+type HugeRteUiRegistry = {
+  addMenuButton: (
+    name: string,
+    config: {
+      text: string;
+      tooltip?: string;
+      icon?: string;
+      fetch: (callback: (items: HugeRteMenuItem[]) => void) => void;
+    },
+  ) => void;
+};
+
 type HugeRteEditor = {
   save: () => void;
   getContent: () => string;
   setContent: (content: string) => void;
   on: (event: string, callback: () => void) => void;
   container?: HTMLElement;
+  ui?: { registry: HugeRteUiRegistry };
 };
 
 type HugeRteStatic = {
@@ -58,12 +77,13 @@ export type InitHugerteOptions = {
   plugins?: string;
   toolbar?: string;
   onSetup?: (editor: HugeRteEditor) => void;
+  templates?: Array<{ name: string; subject: string; body: string }>;
 };
 
 const defaultPlugins = "lists link image table code";
 
 const defaultToolbar =
-  "undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image table | code";
+  "templates undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image table | code";
 
 const initHugerte = (options: InitHugerteOptions): void => {
   const textarea = document.querySelector<HTMLTextAreaElement>(
@@ -130,6 +150,35 @@ const initHugerte = (options: InitHugerteOptions): void => {
     setup: (editor: HugeRteEditor) => {
       // Sync editor content back to the textarea before form submit.
       editor.on("Submit", () => editor.save());
+
+      // Register a "Template" dropdown in the toolbar when templates are provided.
+      if (
+        options.templates &&
+        options.templates.length > 0 &&
+        editor.ui?.registry
+      ) {
+        editor.ui.registry.addMenuButton("templates", {
+          text: "Template",
+          tooltip: "Insert template",
+          fetch: (callback) => {
+            callback(
+              options.templates!.map((tpl) => ({
+                type: "menuitem" as const,
+                text: tpl.name,
+                onAction: () => {
+                  editor.setContent(tpl.body);
+                  const subjectField =
+                    document.querySelector<HTMLInputElement>("#email_subject");
+                  if (subjectField) {
+                    subjectField.value = tpl.subject;
+                  }
+                },
+              })),
+            );
+          },
+        });
+      }
+
       options.onSetup?.(editor);
     },
   });
