@@ -1,109 +1,60 @@
 import { getStoredTheme } from "./appearance.js";
 
-const initTemplateEditor = (): void => {
-  const textarea = document.querySelector<HTMLTextAreaElement>(
-    "#template_body",
-  );
+type HugeRteEditor = {
+  save: () => void;
+  getContent: () => string;
+  on: (event: string, callback: () => void) => void;
+};
 
-  if (!textarea) {
-    return;
-  }
+type HugeRteStatic = {
+  init: (options: Record<string, unknown>) => Promise<unknown>;
+};
 
-  const wysi = window as typeof window & {
-    Wysi?: (options: {
-      el: string;
-      darkMode?: boolean;
-      customTags?: Array<{ tags: string[]; attributes?: string[] }>;
-    }) => void;
-  };
+const resolveHugerte = (): HugeRteStatic | null => {
+  const w = window as typeof window & { hugerte?: HugeRteStatic };
+  return w.hugerte ?? null;
+};
 
-  if (typeof wysi.Wysi !== "function") {
-    return;
-  }
-
+const isDarkMode = (): boolean => {
   const storedTheme = getStoredTheme();
   const darkModeMql =
     window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
   const prefersDarkMode = darkModeMql && darkModeMql.matches;
-  const isDarkMode =
-    storedTheme === "dark" || (storedTheme !== "light" && prefersDarkMode);
-
-  wysi.Wysi({
-    el: "#template_body",
-    darkMode: isDarkMode,
-    customTags: [
-      {
-        tags: ["blockquote"],
-        attributes: ["type", "cite"],
-      },
-    ],
-  });
+  return storedTheme === "dark" || (storedTheme !== "light" && prefersDarkMode);
 };
 
-const escapeHtml = (value: string): string =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-
-const initTemplatePasteSanitizer = (): void => {
-  const textarea = document.querySelector<HTMLTextAreaElement>("#template_body");
+const initTemplateEditor = (): void => {
+  const textarea =
+    document.querySelector<HTMLTextAreaElement>("#template_body");
   if (!textarea) {
     return;
   }
 
-  const wrapper = textarea.previousElementSibling;
-  const editor = wrapper?.querySelector<HTMLElement>(".wysi-editor") ?? null;
-  if (!editor || editor.dataset.plainPasteBound === "true") {
+  const hugerte = resolveHugerte();
+  if (!hugerte) {
+    // HugeRTE deferred script may not have executed yet; retry on next tick.
+    window.setTimeout(initTemplateEditor, 50);
     return;
   }
 
-  editor.dataset.plainPasteBound = "true";
-  editor.addEventListener("paste", (event: ClipboardEvent) => {
-    if (!event.clipboardData || event.clipboardData.files.length > 0) {
-      return;
-    }
-
-    const plainText = event.clipboardData.getData("text/plain");
-    if (!plainText) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const normalized = plainText
-      .replace(/\r\n?/g, "\n")
-      .replace(/\u00A0/g, " ")
-      .replace(/[ \t]+\n/g, "\n")
-      .replace(/\n{3,}/g, "\n\n");
-
-    const blocks = normalized
-      .split(/\n\n+/)
-      .map((part) => part.trim())
-      .filter((part) => part !== "");
-
-    const html = (blocks.length ? blocks : [""])
-      .map((block) => {
-        if (block === "") {
-          return "<p><br></p>";
-        }
-        const content = block
-          .split("\n")
-          .map((line) => escapeHtml(line.trim()))
-          .join("<br>");
-        return `<p>${content || "<br>"}</p>`;
-      })
-      .join("");
-
-    document.execCommand("insertHTML", false, html);
-    editor.dispatchEvent(new Event("input", { bubbles: true }));
+  hugerte.init({
+    selector: "#template_body",
+    menubar: false,
+    plugins: "lists link image table code",
+    toolbar:
+      "undo redo | styles | bold italic | alignleft aligncenter alignright alignjustify | bullist numlist outdent indent | link image table | code",
+    skin: isDarkMode() ? "oxide-dark" : "oxide",
+    content_css: isDarkMode() ? "dark" : "default",
+    branding: false,
+    promotion: false,
+    height: 360,
+    setup: (editor: HugeRteEditor) => {
+      // Sync editor content back to the textarea before form submit.
+      editor.on("Submit", () => editor.save());
+    },
   });
 };
 
 document.addEventListener("DOMContentLoaded", () => {
   initTemplateEditor();
-  initTemplatePasteSanitizer();
 });
