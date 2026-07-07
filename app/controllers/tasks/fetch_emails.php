@@ -3,6 +3,39 @@ require_once __DIR__ . '/../../models/communication/mail_fetch_helpers.php';
 require_once __DIR__ . '/../../models/communication/conversation_helpers.php';
 require_once __DIR__ . '/../../models/core/link_scope.php';
 
+function normalizeFetchedMailboxFolder(string $mailboxName): string
+{
+    $normalized = strtolower(trim($mailboxName));
+    if ($normalized === '') {
+        return 'inbox';
+    }
+
+    $normalized = str_replace(' ', '', $normalized);
+    $segments = preg_split('/[\.\/\\\\]+/', $normalized) ?: [$normalized];
+    $leaf = is_array($segments) ? (string) (end($segments) ?: $normalized) : $normalized;
+    $candidates = array_values(array_unique(array_filter([$leaf, $normalized], static fn($value): bool => $value !== '')));
+
+    foreach ($candidates as $candidate) {
+        if ($candidate === 'inbox') {
+            return 'inbox';
+        }
+        if (in_array($candidate, ['junk', 'spam', 'bulkmail'], true)) {
+            return 'junk';
+        }
+        if (in_array($candidate, ['sent', 'sentitems', 'sentmail'], true)) {
+            return 'sent';
+        }
+        if (in_array($candidate, ['draft', 'drafts'], true)) {
+            return 'drafts';
+        }
+        if (in_array($candidate, ['trash', 'deleteditems', 'deletedmessages', 'bin'], true)) {
+            return 'trash';
+        }
+    }
+
+    return 'inbox';
+}
+
 function runFetchEmailsTask(PDO $pdo): void
 {
     $attachmentRoot = defined('MAIL_ATTACHMENTS_PATH') ? MAIL_ATTACHMENTS_PATH : '';
@@ -70,16 +103,31 @@ function runFetchEmailsTask(PDO $pdo): void
             continue;
         }
 
-        $lastUid = (int) ($mailbox['last_uid'] ?? 0);
-        $uidSearch = 'ALL';
-        $uids = imap_search($imap, $uidSearch, SE_UID) ?: [];
-        if ($lastUid > 0) {
-            $uids = array_values(array_filter($uids, static fn($uid) => (int) $uid > $lastUid));
-        }
-        if (!$uids) {
-            echo "  No new messages.\n";
-            imap_close($imap);
-            continue;
+        $foldersToFetch = [
+            'INBOX' => 'inbox',
+            'Junk' => 'junk',
+            'Spam' => 'junk'
+        ];
+
+        $listedMailboxes = @imap_getmailboxes($imap, sprintf('{%s:%d%s}', $mailbox['imap_host'], (int) $mailbox['imap_port'], $imapFlags), '*');
+        if (is_array($listedMailboxes)) {
+            $connectionPrefix = sprintf('{%s:%d%s}', $mailbox['imap_host'], (int) $mailbox['imap_port'], $imapFlags);
+            foreach ($listedMailboxes as $listedMailbox) {
+                $fullName = (string) ($listedMailbox->name ?? '');
+                if ($fullName === '') {
+                    continue;
+                }
+                $folderName = str_starts_with($fullName, $connectionPrefix)
+                    ? substr($fullName, strlen($connectionPrefix))
+                    : $fullName;
+                if ($folderName === '') {
+                    continue;
+                }
+                $normalizedFolder = normalizeFetchedMailboxFolder($folderName);
+                if (in_array($normalizedFolder, ['inbox', 'junk'], true)) {
+                    $foldersToFetch[$folderName] = $normalizedFolder;
+                }
+            }
         }
 
         $mailboxDir = $attachmentBase . DIRECTORY_SEPARATOR . $mailboxId;
@@ -97,7 +145,28 @@ function runFetchEmailsTask(PDO $pdo): void
             }
         }
 
-        foreach ($uids as $uid) {
+        $lastProcessedUid = (int) ($mailbox['last_uid'] ?? 0);
+
+        foreach ($foldersToFetch as $remoteFolder => $normalizedFolder) {
+            $targetMailboxString = sprintf('{%s:%d%s}%s', $mailbox['imap_host'], (int) $mailbox['imap_port'], $imapFlags, $remoteFolder);
+            if (!@imap_reopen($imap, $targetMailboxString)) {
+                $targetMailboxString = sprintf('{%s:%d%s/novalidate-cert}%s', $mailbox['imap_host'], (int) $mailbox['imap_port'], $imapFlags, $remoteFolder);
+                if (!@imap_reopen($imap, $targetMailboxString)) {
+                    continue;
+                }
+            }
+
+            $lastUid = $normalizedFolder === 'inbox' ? (int) ($mailbox['last_uid'] ?? 0) : 0;
+            $uidSearch = 'ALL';
+            $uids = imap_search($imap, $uidSearch, SE_UID) ?: [];
+            if ($lastUid > 0) {
+                $uids = array_values(array_filter($uids, static fn($uid) => (int) $uid > $lastUid));
+            }
+            if (!$uids) {
+                continue;
+            }
+
+            foreach ($uids as $uid) {
             $overview = imap_fetch_overview($imap, (string) $uid, FT_UID);
             if (!$overview || !isset($overview[0])) {
                 continue;
@@ -182,7 +251,7 @@ function runFetchEmailsTask(PDO $pdo): void
                 $mailboxIdentityEmails = array_values(array_unique($mailboxIdentityEmails));
 
                 $isSentMessage = $fromCandidate !== '' && in_array($fromCandidate, $mailboxIdentityEmails, true);
-                $messageFolder = $isSentMessage ? 'sent' : 'inbox';
+                $messageFolder = $isSentMessage ? 'sent' : $normalizedFolder;
                 $messageTimestamp = $date !== '' ? date('Y-m-d H:i:s', strtotime($date)) : null;
 
                 $stmt = $pdo->prepare(
@@ -287,8 +356,11 @@ function runFetchEmailsTask(PDO $pdo): void
                     ]);
                 }
 
-                $stmt = $pdo->prepare('UPDATE mailboxes SET last_uid = :last_uid WHERE id = :id');
-                $stmt->execute([':last_uid' => $uid, ':id' => $mailboxId]);
+                if ($normalizedFolder === 'inbox') {
+                    $stmt = $pdo->prepare('UPDATE mailboxes SET last_uid = :last_uid WHERE id = :id');
+                    $stmt->execute([':last_uid' => $uid, ':id' => $mailboxId]);
+                }
+                $lastProcessedUid = max($lastProcessedUid, (int) $uid);
                 $pdo->commit();
 
                 if (!empty($mailbox['delete_after_retrieve'])) {
@@ -307,6 +379,11 @@ function runFetchEmailsTask(PDO $pdo): void
                 $pdo->rollBack();
                 echo "  Failed to save email: " . $error->getMessage() . "\n";
             }
+        }
+        }
+
+        if ($lastProcessedUid <= 0) {
+            echo "  No new messages.\n";
         }
 
         if (!empty($mailbox['delete_after_retrieve'])) {
