@@ -10,7 +10,7 @@ type HugeRteUiRegistry = {
   addMenuButton: (
     name: string,
     config: {
-      text: string;
+      text?: string;
       tooltip?: string;
       icon?: string;
       fetch: (callback: (items: HugeRteMenuItem[]) => void) => void;
@@ -158,7 +158,7 @@ const initHugerte = (options: InitHugerteOptions): void => {
         editor.ui?.registry
       ) {
         editor.ui.registry.addMenuButton("templates", {
-          text: "Template",
+          icon: "template",
           tooltip: "Insert template",
           fetch: (callback) => {
             callback(
