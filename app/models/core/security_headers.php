@@ -28,7 +28,7 @@ function setSecurityHeaders(): void
             "default-src 'self'",
             "script-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net",
             "style-src 'self' 'unsafe-inline' https://unpkg.com https://cdn.jsdelivr.net https://cdnjs.cloudflare.com",
-            "img-src 'self' data: https://*.openstreetmap.org https://api.mapbox.com",
+            "img-src 'self' data: blob: https://*.openstreetmap.org https://api.mapbox.com",
             "font-src 'self' data: https://cdnjs.cloudflare.com",
             "connect-src 'self' https://unpkg.com https://api.mapbox.com",
             "frame-ancestors 'self'",

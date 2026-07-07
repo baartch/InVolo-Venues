@@ -2,11 +2,8 @@
 ?>
 <?php renderPageStart('Template', [
     'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
-    'extraStyles' => [
-        BASE_PATH . '/app/public/css/wysi.min.css'
-    ],
     'extraScripts' => [
-        '<script src="' . BASE_PATH . '/app/public/vendor/wysi/wysi.min.js" defer></script>',
+        '<script src="https://cdn.jsdelivr.net/npm/hugerte@1/hugerte.min.js" defer></script>',
         '<script type="module" src="' . BASE_PATH . '/app/public/js/template-editor.js" defer></script>',
         '<script type="module" src="' . BASE_PATH . '/app/public/js/mailboxes.js" defer></script>'
     ]

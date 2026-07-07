@@ -10,7 +10,6 @@
 
   <?php if (isset($teamMailboxes) && count($teamMailboxes) > 1): ?>
     <div class="field">
-      <label for="compose_mailbox_id" class="label">From mailbox</label>
       <div class="control">
         <div class="select is-fullwidth">
           <select id="compose_mailbox_id" name="mailbox_id">
@@ -191,7 +190,6 @@
     </div>
   </div>
   <div class="field">
-    <label for="email_body" class="label">Body</label>
     <div class="control">
       <textarea id="email_body" name="body" class="textarea" rows="10"><?php echo htmlspecialchars($composeValues['body']); ?></textarea>
     </div>

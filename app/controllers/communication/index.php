@@ -22,11 +22,10 @@ if (HTMX::isRequest()) {
     'bodyClass' => 'is-flex is-flex-direction-column is-fullheight',
     'extraStyles' => [
         BASE_PATH . '/app/public/css/communication.css',
-        BASE_PATH . '/app/public/css/list-layout.css',
-        BASE_PATH . '/app/public/css/wysi.min.css'
+        BASE_PATH . '/app/public/css/list-layout.css'
     ],
     'extraScripts' => [
-        '<script src="' . BASE_PATH . '/app/public/vendor/wysi/wysi.min.js" defer></script>',
+        '<script src="https://cdn.jsdelivr.net/npm/hugerte@1/hugerte.min.js" defer></script>',
         '<script type="module" src="' . BASE_PATH . '/app/public/js/tabs.js" defer></script>',
         '<script type="module" src="' . BASE_PATH . '/app/public/js/email.js" defer></script>',
         '<script type="module" src="' . BASE_PATH . '/app/public/js/list-panel.js" defer></script>',

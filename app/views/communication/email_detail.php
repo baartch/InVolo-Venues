@@ -38,33 +38,18 @@ echo '<' . htmlspecialchars($emailDetailWrapperTag) . ' ' . $wrapperAttributes .
     <?php $composeCancelUrl = $baseEmailUrl . '?' . http_build_query($baseQuery); ?>
 
     <?php if ($templates): ?>
-      <form method="GET" action="<?php echo htmlspecialchars($baseEmailUrl); ?>" class="field has-addons mb-4" hx-get="<?php echo htmlspecialchars($baseEmailUrl); ?>" hx-target="#email-detail-panel" hx-swap="outerHTML" hx-push-url="true">
-        <input type="hidden" name="tab" value="email">
-        <input type="hidden" name="mailbox_id" value="<?php echo (int) $selectedMailbox['id']; ?>">
-        <input type="hidden" name="folder" value="<?php echo htmlspecialchars($folder); ?>">
-        <input type="hidden" name="compose" value="1">
-        <input type="hidden" name="page" value="1">
-        <input type="hidden" name="sort" value="<?php echo htmlspecialchars($sortKey); ?>">
-        <input type="hidden" name="filter" value="<?php echo htmlspecialchars($filter); ?>">
-        <input type="hidden" name="to" value="<?php echo htmlspecialchars((string) ($composeValues['to_emails'] ?? '')); ?>">
-        <input type="hidden" name="cc" value="<?php echo htmlspecialchars((string) ($composeValues['cc_emails'] ?? '')); ?>">
-        <input type="hidden" name="bcc" value="<?php echo htmlspecialchars((string) ($composeValues['bcc_emails'] ?? '')); ?>">
-        <div class="control is-expanded">
-          <div class="select is-fullwidth">
-            <select name="template_id">
-              <option value="">Select template</option>
-              <?php foreach ($templates as $template): ?>
-                <option value="<?php echo (int) $template['id']; ?>" <?php echo $templateId === (int) $template['id'] ? 'selected' : ''; ?>>
-                  <?php echo htmlspecialchars($template['name']); ?>
-                </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-        </div>
-        <div class="control">
-          <button type="submit" class="button">Use Template</button>
-        </div>
-      </form>
+      <script type="application/json" data-email-templates>
+        <?php
+          $templatesJson = array_map(function (array $tpl): array {
+              return [
+                  'name' => (string) ($tpl['name'] ?? ''),
+                  'subject' => (string) ($tpl['subject'] ?? ''),
+                  'body' => (string) ($tpl['body'] ?? ''),
+              ];
+          }, $templates);
+          echo json_encode($templatesJson, JSON_HEX_TAG | JSON_HEX_AMP | JSON_HEX_APOS | JSON_HEX_QUOT);
+        ?>
+      </script>
     <?php endif; ?>
 
     <?php require __DIR__ . '/email_compose_form.php'; ?>

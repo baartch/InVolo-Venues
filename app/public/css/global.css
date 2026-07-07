@@ -130,13 +130,6 @@
   color: currentColor;
 }
 
-.wysi-wrapper {
-  resize: vertical;
-  overflow: auto;
-  min-height: 240px;
-  max-height: 20em;
-}
-
 @media (orientation: portrait) {
   .app-layout {
     flex-direction: column;
@@ -177,12 +170,6 @@
   .app-layout > aside .menu-list .icon {
     font-size: 0.85rem;
   }
-}
-
-.wysi-wrapper .wysi-editor {
-  flex: 1 1 auto;
-  max-height: none;
-  height: 100%;
 }
 
 /* Remove Bulma container side padding inside sections while keeping section padding itself. */

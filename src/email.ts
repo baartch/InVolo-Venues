@@ -1,121 +1,36 @@
-import { getStoredTheme } from "./appearance.js";
+import { initHugerte, initHugertePlainPaste } from "./hugerte-editor.js";
 
-const sanitizeWysiInitialHtml = (value: string): string => {
-  if (!value.includes("<") || !value.includes(">")) {
-    return value;
-  }
-
-  const template = document.createElement("template");
-  template.innerHTML = value;
-
-  template.content.querySelectorAll<HTMLElement>("[align]").forEach((node) => {
-    node.removeAttribute("align");
-  });
-
-  return template.innerHTML;
+type TemplateData = {
+  name: string;
+  subject: string;
+  body: string;
 };
 
-const initWysiEditor = (): void => {
-  const textarea = document.querySelector<HTMLTextAreaElement>("#email_body");
-
-  if (!textarea) {
-    return;
+const readTemplates = (): TemplateData[] => {
+  const script = document.querySelector<HTMLScriptElement>(
+    "[data-email-templates]",
+  );
+  if (!script || !script.textContent) {
+    return [];
   }
-
-  const wysi = window as typeof window & {
-    Wysi?: (options: {
-      el: string;
-      darkMode?: boolean;
-      customTags?: Array<{ tags: string[]; attributes?: string[] }>;
-    }) => void;
-  };
-
-  if (typeof wysi.Wysi !== "function") {
-    return;
+  try {
+    const parsed = JSON.parse(script.textContent) as TemplateData[];
+    return Array.isArray(parsed) ? parsed : [];
+  } catch {
+    return [];
   }
+};
 
-  textarea.value = sanitizeWysiInitialHtml(textarea.value);
-
-  const storedTheme = getStoredTheme();
-  const darkModeMql =
-    window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)");
-  const prefersDarkMode = darkModeMql && darkModeMql.matches;
-  const isDarkMode =
-    storedTheme === "dark" || (storedTheme !== "light" && prefersDarkMode);
-
-  wysi.Wysi({
-    el: "#email_body",
-    darkMode: isDarkMode,
-    customTags: [
-      {
-        tags: ["blockquote"],
-        attributes: ["type", "cite"],
-      },
-    ],
+const initHugerteEditor = (): void => {
+  initHugerte({
+    selector: "#email_body",
+    height: 420,
+    templates: readTemplates(),
   });
 };
 
-const escapeHtml = (value: string): string =>
-  value
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/\"/g, "&quot;")
-    .replace(/'/g, "&#39;");
-
-const initWysiPasteSanitizer = (): void => {
-  const textarea = document.querySelector<HTMLTextAreaElement>("#email_body");
-  if (!textarea) {
-    return;
-  }
-
-  const wrapper = textarea.previousElementSibling;
-  const editor = wrapper?.querySelector<HTMLElement>(".wysi-editor") ?? null;
-  if (!editor || editor.dataset.plainPasteBound === "true") {
-    return;
-  }
-
-  editor.dataset.plainPasteBound = "true";
-  editor.addEventListener("paste", (event: ClipboardEvent) => {
-    if (!event.clipboardData || event.clipboardData.files.length > 0) {
-      return;
-    }
-
-    const plainText = event.clipboardData.getData("text/plain");
-    if (!plainText) {
-      return;
-    }
-
-    event.preventDefault();
-    event.stopPropagation();
-
-    const normalized = plainText
-      .replace(/\r\n?/g, "\n")
-      .replace(/\u00A0/g, " ")
-      .replace(/[ \t]+\n/g, "\n")
-      .replace(/\n{3,}/g, "\n\n");
-
-    const blocks = normalized
-      .split(/\n\n+/)
-      .map((part) => part.trim())
-      .filter((part) => part !== "");
-
-    const html = (blocks.length ? blocks : [""])
-      .map((block) => {
-        if (block === "") {
-          return "<p><br></p>";
-        }
-        const content = block
-          .split("\n")
-          .map((line) => escapeHtml(line.trim()))
-          .join("<br>");
-        return `<p>${content || "<br>"}</p>`;
-      })
-      .join("");
-
-    document.execCommand("insertHTML", false, html);
-    editor.dispatchEvent(new Event("input", { bubbles: true }));
-  });
+const initHugertePasteSanitizer = (): void => {
+  initHugertePlainPaste("#email_body");
 };
 
 const isValidEmail = (email: string): boolean => {
@@ -410,7 +325,7 @@ const initQuoteToggle = (): void => {
       toggle.dataset.emailQuoteState = isCollapsed ? "collapsed" : "expanded";
     };
 
-    const hasQuotes = body.querySelector("blockquote[type=\"cite\"]");
+    const hasQuotes = body.querySelector('blockquote[type="cite"]');
     const toggleWrapper = toggle.closest<HTMLElement>(
       ".email-detail-quote-toggle",
     );
@@ -466,7 +381,9 @@ const initEmailDragAndDrop = (): void => {
     document.querySelectorAll<HTMLElement>("[data-email-draggable]"),
   );
   const dropzones = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-email-folder-dropzone][data-folder-key]"),
+    document.querySelectorAll<HTMLElement>(
+      "[data-email-folder-dropzone][data-folder-key]",
+    ),
   );
 
   if (!draggables.length || !dropzones.length) {
@@ -484,7 +401,13 @@ const initEmailDragAndDrop = (): void => {
       const mailboxId = draggable.dataset.mailboxId ?? "";
       const currentFolder = draggable.dataset.currentFolder ?? "";
       const csrfToken = draggable.dataset.csrfToken ?? "";
-      if (!event.dataTransfer || !emailId || !mailboxId || !currentFolder || !csrfToken) {
+      if (
+        !event.dataTransfer ||
+        !emailId ||
+        !mailboxId ||
+        !currentFolder ||
+        !csrfToken
+      ) {
         event.preventDefault();
         return;
       }
@@ -598,7 +521,9 @@ const initMailboxSwitch = (): void => {
   }
 
   const avatars = Array.from(
-    document.querySelectorAll<HTMLElement>("[data-mailbox-avatar][data-mailbox-id]"),
+    document.querySelectorAll<HTMLElement>(
+      "[data-mailbox-avatar][data-mailbox-id]",
+    ),
   );
 
   if (!avatars.length) {
@@ -634,7 +559,11 @@ const initMailboxSwitch = (): void => {
       return;
     }
 
-    if (selectedFromUrl && storedMailboxId && selectedFromUrl !== storedMailboxId) {
+    if (
+      selectedFromUrl &&
+      storedMailboxId &&
+      selectedFromUrl !== storedMailboxId
+    ) {
       if (hasExplicitTarget) {
         window.localStorage.setItem(mailboxStorageKey, selectedFromUrl);
         return;
@@ -759,7 +688,9 @@ const resolveSubmitAction = (
     return submitter.value;
   }
 
-  const actionField = form.querySelector<HTMLInputElement>("input[name=\"action\"]");
+  const actionField = form.querySelector<HTMLInputElement>(
+    'input[name="action"]',
+  );
   return actionField?.value ?? "";
 };
 
@@ -807,7 +738,9 @@ const initSendConfirmation = (): void => {
 };
 
 const initSendMenu = (): void => {
-  const dropdown = document.querySelector<HTMLElement>("[data-email-send-menu]");
+  const dropdown = document.querySelector<HTMLElement>(
+    "[data-email-send-menu]",
+  );
   const trigger = dropdown?.querySelector<HTMLElement>(
     ".dropdown-trigger button",
   );
@@ -862,10 +795,10 @@ const initScheduleModal = (): void => {
     }
 
     const dateField = form.querySelector<HTMLInputElement>(
-      "[name=\"schedule_date\"]",
+      '[name="schedule_date"]',
     );
     const timeField = form.querySelector<HTMLInputElement>(
-      "[name=\"schedule_time\"]",
+      '[name="schedule_time"]',
     );
     const datePicker = modal.querySelector<HTMLInputElement>(
       "[data-email-schedule-date]",
@@ -997,7 +930,7 @@ const initComposeEnterGuard = (): void => {
       if (
         target instanceof HTMLTextAreaElement ||
         target.isContentEditable ||
-        target.closest(".wysi-editor")
+        target.closest(".tox-tinymce")
       ) {
         return;
       }
@@ -1299,8 +1232,7 @@ const initComposeLinkRefresh = (): void => {
           `Conversation #${detail.conversationId}`;
         const safe = document.createElement("span");
         safe.textContent = label;
-        composeConversationPill.innerHTML =
-          `<span class="detail-link-pill"><span class="icon is-small"><i class="fa-solid fa-comments"></i></span><span>${safe.innerHTML}</span></span>`;
+        composeConversationPill.innerHTML = `<span class="detail-link-pill"><span class="icon is-small"><i class="fa-solid fa-comments"></i></span><span>${safe.innerHTML}</span></span>`;
       }
     }
 
@@ -1308,9 +1240,9 @@ const initComposeLinkRefresh = (): void => {
   });
 };
 
-const bindWysiEditor = (): void => {
-  initWysiEditor();
-  initWysiPasteSanitizer();
+const bindHugerteEditor = (): void => {
+  initHugerteEditor();
+  initHugertePasteSanitizer();
   initQuoteToggle();
   initEmailValidation();
   initRecipientLookup();
@@ -1324,8 +1256,8 @@ const bindWysiEditor = (): void => {
   initSendConfirmation();
   initScheduleModal();
   document.addEventListener("tab:activated", () => {
-    initWysiEditor();
-    initWysiPasteSanitizer();
+    initHugerteEditor();
+    initHugertePasteSanitizer();
     initQuoteToggle();
     initEmailValidation();
     initRecipientLookup();
@@ -1341,7 +1273,7 @@ const bindWysiEditor = (): void => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  bindWysiEditor();
+  bindHugerteEditor();
 });
 
 document.addEventListener("htmx:afterSwap", (event) => {
@@ -1353,7 +1285,8 @@ document.addEventListener("htmx:afterSwap", (event) => {
   const target =
     customEvent.detail?.target ??
     customEvent.detail?.elt ??
-    ((event.target as HTMLElement | null) ?? null);
+    (event.target as HTMLElement | null) ??
+    null;
 
   if (!target) {
     return;
@@ -1372,8 +1305,8 @@ document.addEventListener("htmx:afterSwap", (event) => {
   }
 
   if (hasComposeFormInDom) {
-    initWysiEditor();
-    initWysiPasteSanitizer();
+    initHugerteEditor();
+    initHugertePasteSanitizer();
     initEmailValidation();
     initRecipientLookup();
     initComposeEnterGuard();

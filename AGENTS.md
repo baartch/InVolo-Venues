@@ -102,3 +102,10 @@ Current implementation plan: `specs/001-team-shows/plan.md`
 - 001-team-shows: Added PHP 8.0+, TypeScript (existing frontend pipeline) + HTMX request/response helpers, Bulma UI patterns, existing table/detail partials
 
 <!-- SPECKIT END -->
+
+<!-- lean-ctx -->
+## lean-ctx
+
+lean-ctx is active — the MCP tools replace native equivalents.
+Full rules: LEAN-CTX.md (open on demand — do not auto-load).
+<!-- /lean-ctx -->
