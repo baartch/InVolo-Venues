@@ -1,10 +1,10 @@
 import { initHugerte, initHugertePlainPaste } from "./hugerte-editor.js";
 
-const initWysiEditor = (): void => {
+const initHugerteEditor = (): void => {
   initHugerte({ selector: "#email_body", height: 420 });
 };
 
-const initWysiPasteSanitizer = (): void => {
+const initHugertePasteSanitizer = (): void => {
   initHugertePlainPaste("#email_body");
 };
 
@@ -1215,9 +1215,9 @@ const initComposeLinkRefresh = (): void => {
   });
 };
 
-const bindWysiEditor = (): void => {
-  initWysiEditor();
-  initWysiPasteSanitizer();
+const bindHugerteEditor = (): void => {
+  initHugerteEditor();
+  initHugertePasteSanitizer();
   initQuoteToggle();
   initEmailValidation();
   initRecipientLookup();
@@ -1231,8 +1231,8 @@ const bindWysiEditor = (): void => {
   initSendConfirmation();
   initScheduleModal();
   document.addEventListener("tab:activated", () => {
-    initWysiEditor();
-    initWysiPasteSanitizer();
+    initHugerteEditor();
+    initHugertePasteSanitizer();
     initQuoteToggle();
     initEmailValidation();
     initRecipientLookup();
@@ -1248,7 +1248,7 @@ const bindWysiEditor = (): void => {
 };
 
 document.addEventListener("DOMContentLoaded", () => {
-  bindWysiEditor();
+  bindHugerteEditor();
 });
 
 document.addEventListener("htmx:afterSwap", (event) => {
@@ -1280,8 +1280,8 @@ document.addEventListener("htmx:afterSwap", (event) => {
   }
 
   if (hasComposeFormInDom) {
-    initWysiEditor();
-    initWysiPasteSanitizer();
+    initHugerteEditor();
+    initHugertePasteSanitizer();
     initEmailValidation();
     initRecipientLookup();
     initComposeEnterGuard();

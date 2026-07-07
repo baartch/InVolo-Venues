@@ -120,7 +120,7 @@ export const getHugerteEditor = (selector: string): HugeRteEditor | null => {
 
 /**
  * Sanitizes pasted plain text into paragraph HTML and inserts it into the
- * active HugeRTE editor. Mirrors the previous Wysi paste behavior.
+ * active HugeRTE editor.
  */
 export const initHugertePlainPaste = (selector: string): void => {
   const textarea = document.querySelector<HTMLTextAreaElement>(selector);

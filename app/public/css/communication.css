@@ -311,49 +311,18 @@
   font-size: 0.75rem;
 }
 
-.email-detail-body .moz-cite-prefix,
-.wysi-editor .moz-cite-prefix {
+.email-detail-body .moz-cite-prefix {
   margin: 1rem 0 0.35rem;
   font-size: 0.85em;
   color: color-mix(in srgb, currentColor 60%, transparent);
 }
 
-.wysi-editor p {
-  margin: 0 0 0.75rem;
-}
-
-.wysi-editor h1,
-.wysi-editor h2,
-.wysi-editor h3 {
-  margin: 0 0 0.75rem;
-  font-weight: 600;
-}
-
-.wysi-editor h1 {
-  font-size: 1.5rem;
-}
-
-.wysi-editor h2 {
-  font-size: 1.25rem;
-}
-
-.wysi-editor h3 {
-  font-size: 1.05rem;
-}
-
-.email-detail-body blockquote[type="cite"],
-.wysi-editor blockquote[type="cite"] {
+.email-detail-body blockquote[type="cite"] {
   margin: 0 0 0.75rem;
   padding-left: 1rem;
   border-left: 3px solid #7aa5ff;
   border-left-color: color-mix(in srgb, currentColor 55%, transparent);
   font-style: normal;
-}
-
-.wysi-editor.is-compose-quotes-collapsed
-  blockquote[type="cite"]
-  blockquote[type="cite"] {
-  display: none;
 }
 
 /* Attachments bar */
